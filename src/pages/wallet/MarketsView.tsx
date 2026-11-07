@@ -158,9 +158,9 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
         </dl>
       </section>
 
-      {info?.categories?.length > 0 && <section className="wl-sec">
+      {(info?.categories?.length ?? 0) > 0 && <section className="wl-sec">
         <h2 className="wl-h2">Related lists</h2>
-        <div className="wl-tags">{info.categories.filter(Boolean).slice(0, 8).map((c: string) => <span key={c}>{c}</span>)}</div>
+        <div className="wl-tags">{(info?.categories ?? []).filter(Boolean).slice(0, 8).map((c: string) => <span key={c}>{c}</span>)}</div>
       </section>}
 
       {solMint ? (

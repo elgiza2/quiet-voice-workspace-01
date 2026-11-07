@@ -39,7 +39,7 @@ export default function WalletPage() {
     const load = () => fetchMarkets(ctrl.signal).then((m) => { setMarkets(m); setPriceError(false); }).catch(() => { if (!ctrl.signal.aborted) setPriceError(true); });
     const loadWallet = () => fetchWallet().then((w) => { setAddresses(w.addresses); setBalances(w.balances); setWalletError(""); }).catch((e) => setWalletError(e instanceof Error ? e.message : "Wallet unavailable"));
     load(); void loadWallet();
-    const t = setInterval(() => { ctrl.abort(); ctrl = new AbortController(); load(); void loadWallet(); }, 60000);
+    const t = setInterval(() => { ctrl.abort(); ctrl = new AbortController(); load(); void loadWallet(); }, 30000);
     return () => { clearInterval(t); ctrl.abort(); };
   }, []);
 
