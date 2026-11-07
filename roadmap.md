@@ -1,8 +1,8 @@
 ## Continue quiet cleanup — 2026-11-07 23:45 UTC
-- [ ] Recheck incorrectly imported checkout against nova-quest-rewards-hub source and correct presentation without changing payment logic (owner feedback 23:46 UTC).
-- [ ] Inspect remaining unused designs/dependencies and remove only verified leftovers.
-- [ ] Correct any confirmed local page-retention/navigation defects and run regression tests.
-- [ ] Verify available public/isolated browser behavior and update the handoff; real-account checks remain blocked by external unmanaged auth.
+- [x] Recheck checkout against current CustomCardForm reference: direct photographed Payment screen, no extra summary/chooser, corrected layout and theme CTA; server payment logic unchanged. Available methods differ intentionally; live payment unverified.
+- [x] Inspect remaining unused designs/dependencies; remove retired preloader and three unused redirect helpers, preserve auth-extras.css because it has an active import.
+- [x] Correct delayed/replaced scroller retention including pricing; 155 regression tests pass.
+- [x] Review isolated checkout on mobile/desktop and update handoff; real-account checks remain blocked by external unmanaged auth.
 
 ## Separate home controls — 2026-11-07 23:40 UTC
 - [x] Separate star and More into two neutral circular controls with a clean gap. Isolated browser check: 46×46 circles, 8px gap, no shared border.

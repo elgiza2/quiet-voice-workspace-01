@@ -47,6 +47,7 @@ One "New Group" flow (`NewPeopleChat` mode `group`): add any mix of people and b
 - `src/lib/pageStateCache.ts` retains allowlisted scroll positions and UI selections only, with owner keys, schema validation, expiry and bounded storage. `authStore` clears it on identity transitions. It is not authorization or an entitlement source.
 - Private data stays in existing authorized reads and in-memory caches; no page HTML, chat, Vault, wallet secret, balance or payment payload goes into the page-state cache.
 - `PageTransition` no longer animates/transforms the whole page: fixed screens stay viewport-bound. Pricing closes through router history with a home fallback, not arbitrary browser history.
+- Scroll retention observes delayed/replaced scrollers (including subscription content) so auth gates and lazy page mounts do not skip restoration. Retired startup preloader and unused legacy redirect helpers are removed; nextHop remains the only scheduler.
 - Removed a verified 3,946-line duplicated global CSS copy and unused botanical/glass/old-checkout/vivid sheets. Source file count includes APIs, native code, tests and active modules; never bulk-delete by count or Knip warnings alone.
 
 - Web payments: Egypt uses Kashier Direct API (card from browser to Kashier, Vodafone Cash R2P, EGP from live FX); other countries use Dodo checkout confirmed by server lookup; product ids in src/lib/payments/regions.ts.

@@ -1,6 +1,6 @@
 /** Subscribe popup: Kashier Direct API (card / Vodafone Cash, EGP) in Egypt, Dodo elsewhere, Google Play on Android. */
 import { useEffect, useState } from "react";
-import { Loader2, Lock, X, CheckCircle2, CreditCard, Smartphone, ExternalLink, ChevronLeft } from "lucide-react";
+import { Loader2, Lock, CheckCircle2, ExternalLink, ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { playProductId, priceOf, type BillingInterval, type Tier } from "@/lib/payments/plans";
 import { CREDITS_CHANGED_EVENT } from "@/hooks/useCredits";
@@ -208,7 +208,7 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
               onClick={() => void (androidBilling ? payPlay() : quote?.provider === "kashier" ? (method === "card" ? payCard() : payWallet()) : payDodo())}>
               {busy ? <Loader2 size={18} className="animate-spin" /> : androidBilling ? "Subscribe with Google Play" : `${ar ? "اشترك" : "Subscribe"} · ${total}`}
             </Button>
-            <p className="ck-note"><Lock size={12} /> {androidBilling ? "Billed through your Google Play account." : quote?.provider === "dodo" ? "Secure payment by Dodo Payments. Cancel anytime." : "Card details go directly to Kashier and are never stored by Ceyo."}</p>
+            <p className="ck-note"><Lock size={12} /><span>{androidBilling ? "Billed through your Google Play account." : quote?.provider === "dodo" ? "Secure payment by Dodo Payments. Cancel anytime." : method === "wallet" ? "Approve the payment request on your phone." : "Card details go directly to Kashier and are never stored by Ceyo."}</span></p>
           </>
         )}
       </section>
