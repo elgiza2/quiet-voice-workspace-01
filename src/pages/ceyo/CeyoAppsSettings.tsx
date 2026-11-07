@@ -28,7 +28,8 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
   };
   useEffect(() => {
     if (!appsCache || Date.now() - appsCache.updatedAt > 30_000) void refresh();
-    return subscribeAuthState((state) => { if (state.userId !== ownerId) appsCache = null; });
+    const unsubscribe = subscribeAuthState((state) => { if (state.userId !== ownerId) appsCache = null; });
+    return () => { unsubscribe(); };
   }, [ownerId]);
   const cats = useMemo(() => ["All", ...Array.from(new Set(CATALOG.map((item) => item.category)))], []);
   const filtered = CATALOG.filter((item) => (cat === "All" || cat === "Suggested" || item.category === cat) && (!query || `${item.name} ${item.description}`.toLowerCase().includes(query.toLowerCase())));
