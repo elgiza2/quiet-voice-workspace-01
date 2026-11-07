@@ -1,4 +1,5 @@
 import "@/styles/ceyo.css";
+import "@/styles/settings-polish.css";
 import { VoiceSettingsFields } from "./VoiceControls";
 import { ResourceList } from "@/components/agent/ResourceList";
 import { useMemo, useRef, useState, type ReactNode } from "react";
@@ -82,6 +83,9 @@ export function AgentForm({
   const [shape, setShape] = useState(start.shape);
   const [hex, setHex] = useState(start.hex);
   const [v, setV] = useState<VoiceSettings>(voice);
+  const [description, setDescription] = useState(initial?.description || "");
+  const [prompt, setPrompt] = useState(initial?.prompt || "");
+  const ar = lang === "ar";
   const look = { shape, hex };
   const ok = name.trim().length >= 2 && !busy;
   const submit = () => {
@@ -89,8 +93,8 @@ export function AgentForm({
     const n = name.trim();
     onSubmit({
       name: n,
-      description: initial?.description || `${n} — Ceyo agent`,
-      prompt: initial?.prompt || `You are ${n}, a Ceyo agent. Be helpful, clear and concise. Reply in the user's language.`,
+      description: description.trim() || `${n} — Ceyo agent`,
+      prompt: prompt.trim() || `You are ${n}, a Ceyo agent. Be helpful, clear and concise. Reply in the user's language.`,
       color: agentColorFor(hex),
       category,
       voice: v,
@@ -99,20 +103,28 @@ export function AgentForm({
   };
   return (
     <section className="gx-create">
-      <header className="gx-create-head"><button type="button" className="gx-round" aria-label="Close" onClick={onCancel}><X size={22} /></button><h1>{title || (initial ? "Edit agent" : "Create new agent")}</h1></header>
+      <header className="gx-create-head"><button type="button" className="gx-round" aria-label="Close" onClick={onCancel}><X size={22} /></button><h1>{title || (initial ? (ar ? "تعديل الوكيل" : "Edit agent") : (ar ? "وكيل جديد" : "Create new agent"))}</h1></header>
       <div className="gx-create-body">
         <div className="gx-create-preview"><BotAvatar agent={{ name: name || "Agent", color: agentColorFor(hex), isDefault: false }} look={look} size={96} /></div>
-        <input className="gx-name" maxLength={40} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name (e.g. Researcher)" onKeyDown={(e) => { if (e.key === "Enter") submit(); }} />
+        <input className="gx-name" maxLength={40} value={name} onChange={(e) => setName(e.target.value)} placeholder={ar ? "الاسم (مثلاً: باحث)" : "Name (e.g. Researcher)"} aria-label={ar ? "الاسم" : "Name"} onKeyDown={(e) => { if (e.key === "Enter") submit(); }} />
+        {title !== "" && <>
+          <label className="st-field-label" htmlFor="agent-description">{ar ? "وصف قصير" : "Short description"}</label>
+          <input id="agent-description" className="st-input" maxLength={120} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={ar ? "بيعمل إيه في سطر واحد" : "What it does, in one line"} />
+          <label className="st-field-label" htmlFor="agent-prompt">{ar ? "التعليمات" : "Instructions"}</label>
+          <textarea id="agent-prompt" className="st-textarea" maxLength={6000} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={ar ? "اكتب إزاي الوكيل يتصرف، يرد بإيه، ويتجنب إيه" : "How the agent should behave, what it should focus on and what to avoid"} />
+        </>}
+        <p className="st-field-label">{ar ? "الشكل" : "Shape"}</p>
         <div className="gx-shapes">{BOT_SHAPES.map((s) => (
           <button type="button" key={s.id} aria-label={s.id} data-active={shape === s.id} onClick={() => setShape(s.id)}>
             <BotAvatar agent={{ name: s.id, color: "mono", isDefault: false }} look={{ shape: s.id, hex: "#7a7a7a" }} size={34} />
           </button>
         ))}</div>
+        <p className="st-field-label">{ar ? "اللون" : "Color"}</p>
         <div className="gx-colors">{BOT_COLORS.map((c) => <button type="button" key={c.hex} aria-label={c.hex} data-active={hex === c.hex} style={{ background: c.hex }} onClick={() => setHex(c.hex)} />)}</div>
         <div className="gx-voice"><p className="cx-field-label">{lang === "ar" ? "الصوت واللغة" : "Voice & language"}</p><VoiceSettingsFields value={v} onChange={setV} /></div>
       </div>
       {error && <p className="gx-error" role="alert">{error}</p>}
-      <button type="button" className="gx-create-cta" disabled={!ok} onClick={submit}>{busy ? "…" : cta || (initial ? "Save" : "Create")}</button>
+      <div className="gx-create-foot"><button type="button" className="gx-create-cta" disabled={!ok} onClick={submit}>{busy ? "…" : cta || (initial ? (ar ? "حفظ" : "Save") : (ar ? "إنشاء" : "Create"))}</button></div>
     </section>
   );
 }

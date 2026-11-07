@@ -156,3 +156,4 @@
 .gx-create:not(.ob-bot *) .gx-create-body { align-items: stretch !important; }
 .gx-create:not(.ob-bot *) .gx-create-preview { align-self: center; }
 .gx-create .st-hint { margin: 8px 4px 0; text-align: start; }
+.ob-bot .gx-create-foot { display: contents; }
