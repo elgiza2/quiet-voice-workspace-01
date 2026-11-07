@@ -113,13 +113,13 @@ export function AgentForm({
           <label className="st-field-label" htmlFor="agent-prompt">{ar ? "التعليمات" : "Instructions"}</label>
           <textarea id="agent-prompt" className="st-textarea" maxLength={6000} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={ar ? "اكتب إزاي الوكيل يتصرف، يرد بإيه، ويتجنب إيه" : "How the agent should behave, what it should focus on and what to avoid"} />
         </>}
-        <p className="st-field-label">{ar ? "الشكل" : "Shape"}</p>
+        {title !== "" && <p className="st-field-label">{ar ? "الشكل" : "Shape"}</p>}
         <div className="gx-shapes">{BOT_SHAPES.map((s) => (
           <button type="button" key={s.id} aria-label={s.id} data-active={shape === s.id} onClick={() => setShape(s.id)}>
             <BotAvatar agent={{ name: s.id, color: "mono", isDefault: false }} look={{ shape: s.id, hex: "#7a7a7a" }} size={34} />
           </button>
         ))}</div>
-        <p className="st-field-label">{ar ? "اللون" : "Color"}</p>
+        {title !== "" && <p className="st-field-label">{ar ? "اللون" : "Color"}</p>}
         <div className="gx-colors">{BOT_COLORS.map((c) => <button type="button" key={c.hex} aria-label={c.hex} data-active={hex === c.hex} style={{ background: c.hex }} onClick={() => setHex(c.hex)} />)}</div>
         <div className="gx-voice"><p className="cx-field-label">{lang === "ar" ? "الصوت واللغة" : "Voice & language"}</p><VoiceSettingsFields value={v} onChange={setV} /></div>
       </div>
