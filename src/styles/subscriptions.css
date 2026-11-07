@@ -46,7 +46,7 @@
 .subscription-footer .subscription-submit {width:100%;height:50px;border-radius:999px;background:var(--subscription-ink)!important;color:var(--subscription-inverse)!important;font-size:16px;font-weight:600;box-shadow:none!important}
 .subscription-legal {font-size:12px;color:var(--subscription-muted);text-align:center;margin:14px 0 0}.subscription-legal a {text-decoration:underline;text-underline-offset:3px}
 @media(min-width:768px){.subscription-content{padding-top:42px}.subscription-content h1{font-size:40px}.subscription-benefits{gap:20px}}
-.hub-home-bottom .hub-subscription-tools {display:flex;align-items:center;border:1px solid var(--hub-line-strong);background:var(--hub-surface);border-radius:999px;box-shadow:var(--hub-shadow);overflow:hidden}
+.hub-home-bottom .hub-subscription-tools {position:relative;z-index:61;display:flex;align-items:center;border:1px solid var(--hub-line-strong);background:var(--hub-surface);border-radius:999px;box-shadow:var(--hub-shadow);overflow:hidden}
 .hub-home-bottom .hub-subscription-tools button {width:46px;height:46px;border:0;background:transparent;box-shadow:none;border-radius:0;color:var(--hub-ink)}
 .hub-home-bottom .hub-subscription-tools .hub-subscription-star {color:var(--subscription-highlight);border-inline-end:1px solid var(--hub-line-strong)}
 .hub-home-bottom .hub-subscription-tools button:hover {background:var(--hub-surface-raised)}

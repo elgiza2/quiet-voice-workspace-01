@@ -6,6 +6,7 @@ import { playProductId, priceOf, type BillingInterval, type Tier } from "@/lib/p
 import { CREDITS_CHANGED_EVENT } from "@/hooks/useCredits";
 import { Button } from "@/components/ui/button";
 import { PaymentGatewaySheet, PaymentMethodMark } from "./PaymentGatewaySheet";
+import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
 import "@/styles/checkout-sheet.css";
 
@@ -30,7 +31,7 @@ const digits = (v: string, n: number) => v.replace(/\D/g, "").slice(0, n);
 
 export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; name: string; interval: BillingInterval; onClose: () => void }) {
   const usd = priceOf(tier, interval) ?? 0;
-  const ar = (localStorage.getItem("ceyo_language") || "").startsWith("ar");
+  const ar = useUserLang().startsWith("ar");
   const [stage, setStage] = useState<"methods" | "details">("methods");
   const native = playApi();
   const [quote, setQuote] = useState<Quote | null>(null);

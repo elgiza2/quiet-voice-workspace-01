@@ -26,6 +26,7 @@ import "@/styles/agent-hub.css";
 import "@/styles/ceyo.css";
 import "@/styles/settings-polish.css";
 import { CheckoutSheet } from "@/components/billing/CheckoutSheet";
+import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
 
 type Nav = (to: string) => void;
@@ -317,7 +318,7 @@ function Plans({ nav }: { nav: Nav }) {
   const [paying, setPaying] = useState(false);
   const p = PLANS[tab];
   const current = plan?.toLowerCase() === p.id;
-  const ar = (localStorage.getItem("ceyo_language") || "").startsWith("ar");
+  const ar = useUserLang().startsWith("ar");
   return (
     <div className="agent-hub ceyo-page subscription-page" data-no-translate dir={ar ? "rtl" : "ltr"}>
       <header className="subscription-header"><span className="subscription-brand"><Star/>Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => window.history.length > 1 ? window.history.back() : nav("/")}><X/></Button></header>
