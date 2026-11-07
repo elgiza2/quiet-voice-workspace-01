@@ -634,12 +634,16 @@ function Phone({ nav }: { nav: Nav }) {
   );
 }
 
-/** "+201001234567" → "+20 100 123 4567"; US numbers as "+1 235 204 7886". */
+/** "+201001234567" → "+20 100 123 4567"; "+12352047886" → "+1 235 204 7886". */
+const DIAL_CODES = ["1", "20", "44", "966", "971", "965", "974", "973", "968", "962", "961", "212", "216", "213", "33", "49", "90"];
 function formatPhone(raw: string) {
   const d = (raw || "").replace(/[^\d+]/g, "");
-  if (/^\+1\d{10}$/.test(d)) return `+1 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}`;
-  const m = d.match(/^\+(\d{1,3})(\d{3})(\d{3})(\d{3,4})$/);
-  return m ? `+${m[1]} ${m[2]} ${m[3]} ${m[4]}` : raw;
+  if (!d.startsWith("+")) return raw;
+  const cc = DIAL_CODES.filter((c) => d.slice(1).startsWith(c)).sort((a, b) => b.length - a.length)[0];
+  if (!cc) return raw;
+  const rest = d.slice(1 + cc.length);
+  const parts = rest.length === 10 ? [rest.slice(0, 3), rest.slice(3, 6), rest.slice(6)] : rest.length === 9 ? [rest.slice(0, 2), rest.slice(2, 5), rest.slice(5)] : [rest];
+  return `+${cc} ${parts.join(" ")}`;
 }
 function callTime(iso: string) {
   const t = new Date(iso); const mins = Math.round((Date.now() - t.getTime()) / 60000);
