@@ -21,3 +21,14 @@
 @keyframes ck-up{from{transform:translateY(24px);opacity:0}}
 @keyframes ck-fade{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.ck-scrim,.ck-sheet{animation:none}}
+.ck-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:16px;background:#2a2a2c}
+.ck-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;height:40px;border:0;border-radius:12px;background:transparent;color:#8e8e93;font-size:14px;font-weight:600;cursor:pointer}
+.ck-tabs button[aria-selected="true"]{background:#3a3a3c;color:#fff}
+.ck-form{display:flex;flex-direction:column;gap:8px}
+.ck-form input{height:48px;padding:0 14px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:#2a2a2c;color:#fff;font-size:16px;outline:none}
+.ck-form input:focus{border-color:rgba(255,255,255,.35)}
+.ck-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ck-methods{display:flex;flex-wrap:wrap;gap:6px}
+.ck-methods span{padding:6px 10px;border-radius:999px;background:#2a2a2c;color:#c7c7cc;font-size:13px}
+.ck-wait{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 0;text-align:center}
+.ck-wait p{margin:0}.ck-wait small{color:#8e8e93}
