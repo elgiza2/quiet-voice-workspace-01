@@ -1,5 +1,5 @@
 /** Ceyo settings — compact dark sheets matching the supplied mobile references. */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { askConfirm } from "@/components/common/CeyoConfirm";
@@ -10,14 +10,9 @@ import {
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { useCredits } from "@/hooks/useCredits";
 import { getStoredTheme, setTheme, type ThemeMode } from "@/lib/theme";
-import { loadWorkspace, useWorkspaceStore } from "@/lib/agentsky/store";import { integrations as CATALOG, type Integration } from "@/lib/integrationsData";
-import {
-  disconnectIntegration, loadIntegrationConnections, startIntegrationConnection, waitForConnectionRefresh,
-  integrationSlug, type IntegrationAccount,
-} from "@/lib/integrationBackend";
+import { loadWorkspace, useWorkspaceStore } from "@/lib/agentsky/store";
 import { Button } from "@/components/ui/button";
 import { validateVaultDetail } from "@/lib/ceyo/content";
-import { IntegrationLogo } from "@/components/chat/integrations/IntegrationRow";
 import {
   DEFAULT_PERMISSIONS, PERMISSIONS_STORAGE_KEY, addPermissionRule, parsePermissionPreferences,
   permissionSummary, removePermissionRule, type PermissionPreferences, type PermissionRuleKind,
@@ -25,7 +20,7 @@ import {
 import "@/styles/agent-hub.css";
 import "@/styles/ceyo.css";
 import "@/styles/settings-polish.css";
-import { CheckoutSheet } from "@/components/billing/CheckoutSheet";
+const CheckoutSheet = lazy(() => import("@/components/billing/CheckoutSheet").then((m) => ({ default: m.CheckoutSheet })));
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
 
@@ -319,27 +314,37 @@ function Plans({ nav }: { nav: Nav }) {
   const p = PLANS[tab];
   const current = plan?.toLowerCase() === p.id;
   const ar = useUserLang().startsWith("ar");
+  const benefitsAr: Record<string, string> = {
+    "Ceyo Bot": "بوت Ceyo", "Newest Ceyo models": "أحدث نماذج Ceyo", "Faster chat replies": "استجابات دردشة أسرع",
+    "Create images and videos with AI": "إنشاء صور وفيديو بالذكاء الاصطناعي", "Cloud agents and automation": "وكلاء السحابة والأتمتة",
+    "Code hosting and AI code reviews": "استضافة الكود ومراجعته بالذكاء الاصطناعي", "Create 1080p videos": "إنشاء مقاطع فيديو 1080p",
+    "Priority model access at peak times": "أولوية الوصول إلى النماذج في أوقات الذروة", "Faster replies and generations": "استجابات وتوليدات أسرع",
+    "Most capable chat models": "أقوى نماذج الدردشة", "Early access to new products and models": "الوصول المبكر إلى المنتجات والنماذج", "Fastest replies and generations": "أسرع الردود والتوليدات",
+  };
   return (
     <div className="agent-hub ceyo-page subscription-page" data-no-translate dir={ar ? "rtl" : "ltr"}>
-      <header className="subscription-header"><span className="subscription-brand"><Star/>Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => window.history.length > 1 ? window.history.back() : nav("/")}><X/></Button></header>
+      <header className="subscription-header"><span className="subscription-brand">Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => window.history.length > 1 ? window.history.back() : nav("/")}><X/></Button></header>
+      <h1 className="subscription-title">{ar ? <>اشتراك واحد.<br/>الوصول إلى كل شيء.</> : <>One subscription.<br/>Access to everything.</>}</h1>
       <main className="subscription-content">
-        <h1>{ar ? "الاشتراكات" : "Subscriptions"}</h1>
         <div className="subscription-tabs" role="tablist" aria-label="Plans">
           {PLANS.map((x,i) => <Button variant="ghost" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => {setTab(i);setYearly(false);}}>{x.name}</Button>)}
         </div>
         <section id="subscription-details" role="tabpanel" aria-label={p.name}>
-          <div className="subscription-heading"><h2>Ceyo {p.name}</h2><span className="subscription-usage"><b>{p.mult}</b>{ar ? "استخدام أكثر" : "more usage"}</span></div>
-          {p.base && <p className="subscription-base">{ar ? `كل مزايا ${p.base}، بالإضافة إلى:` : `Everything in ${p.base}, plus:`}</p>}
-          <ul className="subscription-benefits">{p.groups.flatMap(g => g.items).map(it => <li key={it}><Check/>{it}</li>)}</ul>
+          {p.base && <p className="subscription-base">{ar ? `كل شيء في ${p.base}، و:` : `Everything in ${p.base}, and:`}</p>}
+          <div className="subscription-usage"><b>{p.mult}</b><span>{ar ? "استخدام أكثر مقارنة بالخطة المجانية" : "more usage compared to Free"}</span></div>
+          <h2 className="subscription-section-label">{ar ? "فوائد الذكاء الاصطناعي" : "AI benefits"}</h2>
+          <ul className="subscription-benefits">{p.groups.flatMap(g => g.items).map(it => <li key={it}><Check/>{ar ? benefitsAr[it] || it : it}</li>)}</ul>
         </section>
       </main>
       <footer className="subscription-footer">
-        {p.yearly > 0 && <div className="subscription-intervals" role="group" aria-label="Billing interval"><Button variant="ghost" aria-pressed={!yearly} onClick={() => setYearly(false)}>{ar ? "شهري" : "Monthly"}</Button><Button variant="ghost" aria-pressed={yearly} onClick={() => setYearly(true)}>{ar ? "سنوي · وفر 17%" : "Yearly · Save 17%"}</Button></div>}
-        <div className="subscription-price"><strong>${yearly ? p.yearly : p.price}</strong><span>{yearly ? ar ? "/ سنة" : "/ year" : ar ? "/ شهر" : "/ month"}</span></div>
-        <Button variant="ghost" className="subscription-submit" disabled={current} onClick={() => setPaying(true)}>{current ? ar ? "باقتك الحالية" : "Current plan" : ar ? "اشترك" : "Subscribe"}</Button>
-        <p className="subscription-legal">{ar ? "تقدر تلغي في أي وقت. " : "Cancel anytime. "}<a href="/subscription-terms">{ar ? "شروط الاشتراك" : "Subscription terms"}</a></p>
+        <div className="subscription-intervals" role="group" aria-label="Billing interval">
+          <Button variant="ghost" aria-pressed={!yearly} onClick={() => setYearly(false)}><strong>${p.price}</strong><span>{ar ? "الفوترة شهريًا" : "Billed monthly"}</span></Button>
+          {p.yearly > 0 && <Button variant="ghost" aria-pressed={yearly} onClick={() => setYearly(true)}><strong>${p.yearly}</strong><span>{ar ? "سنويًا · وفر 17%" : "Yearly · Save 17%"}</span></Button>}
+        </div>
+        <Button variant="ghost" className="subscription-submit" disabled={current} onClick={() => setPaying(true)}>{current ? ar ? "الخطة الحالية" : "Current plan" : ar ? "اشترك" : "Subscribe"}</Button>
+        <p className="subscription-legal">{ar ? "تُجدد الاشتراكات تلقائيًا حتى الإلغاء. يمكنك الإلغاء في أي وقت. " : "Subscriptions renew automatically until cancelled. Cancel anytime. "}<a href="/subscription-terms">{ar ? "شروط الاشتراك" : "Subscription terms"}</a></p>
       </footer>
-      {paying && <CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} />}
+      {paying && <Suspense fallback={null}><CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} /></Suspense>}
     </div>
   );
 }
@@ -424,71 +429,6 @@ function Vault_({ nav }: { nav: Nav }) {
       <div className="ceyo-bottom-search"><Search size={20} /><input aria-label="Search Vault" placeholder="Search Vault" value={query} onChange={(event) => setQuery(event.target.value)} /></div></>}
     </Shell>
   );
-}
-
-let appsCache: { connected: Record<string, boolean>; accounts: IntegrationAccount[] } | null = null;
-function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
-  const [connected, setConnectedState] = useState<Record<string, boolean>>(appsCache?.connected || {});
-  const [accounts, setAccountsState] = useState<IntegrationAccount[]>(appsCache?.accounts || []);
-  const setConnected = (v: Record<string, boolean>) => { appsCache = { connected: v, accounts: appsCache?.accounts || [] }; setConnectedState(v); };
-  const setAccounts = (v: IntegrationAccount[]) => { appsCache = { connected: appsCache?.connected || {}, accounts: v }; setAccountsState(v); };
-  const [error, setError] = useState("");
-  const [cat, setCat] = useState("All");
-  const [busy, setBusy] = useState("");
-  const [query, setQuery] = useState("");
-  const refresh = async (): Promise<boolean> => {
-    try { const state = await loadIntegrationConnections(CATALOG); setConnected(state.connectedApps); setAccounts(state.accounts); setError(""); return true; } catch (e) { setError(e instanceof Error ? e.message : "Could not load accounts"); return false; }
-  };
-  useEffect(() => { void refresh(); }, []);
-  const cats = useMemo(() => ["All", ...Array.from(new Set(CATALOG.map((item) => item.category)))], []);
-  const filtered = CATALOG.filter((item) => (cat === "All" || cat === "Suggested" || item.category === cat) && (!query || `${item.name} ${item.description}`.toLowerCase().includes(query.toLowerCase())));
-  const count = Object.values(connected).filter(Boolean).length;
-  const toggle = async (item: Integration) => {
-    setBusy(item.app);
-    try {
-      {
-        const before = accounts.filter((a) => a.app === integrationSlug(item.app) && a.status === "ACTIVE").length;
-        const result = await startIntegrationConnection(item);
-        if ("popup" in result && result.popup) await waitForConnectionRefresh(async () => {
-          const state = await loadIntegrationConnections(CATALOG);
-          setConnected(state.connectedApps); setAccounts(state.accounts);
-          return state.accounts.filter((a) => a.app === integrationSlug(item.app) && a.status === "ACTIVE").length > before;
-        }, result.popup);
-        toast.success(`${item.name} connected`);
-      }
-      await refresh();
-    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not connect"); } finally { setBusy(""); }
-  };
-  const label = (item: Integration) => connected[item.app] ? "Add account" : "Connect";
-  const button = (item: Integration, big = false) => <Button variant="ghost" type="button" className={big ? "gx-connect-big" : "gx-pill"} disabled={busy === item.app} onClick={(event) => { event.stopPropagation(); void toggle(item); }}>{busy === item.app ? "…" : label(item)}</Button>;
-  const detail = appId ? CATALOG.find((item) => item.app === appId) : undefined;
-  if (detail) return <div className="gx-apps gx-sheet" key={detail.id}>
-    <button type="button" className="gx-round" aria-label="Close" onClick={() => nav("/settings/apps")}><X size={22} /></button>
-    <div className="gx-detail"><span className="gx-logo gx-logo-lg"><IntegrationLogo item={detail} size={44} /></span><h2>{detail.name}</h2><p>{detail.description}</p></div>
-    <div className="gx-detail-cta">{button(detail, true)}</div>
-    {error && <p className="text-destructive p-4" role="alert">{error}</p>}
-    <div className="px-4">{accounts.filter((a) => a.app === integrationSlug(detail.app)).map((account) => <div key={account.id} className="flex items-center gap-3 border-b border-border py-3">
-      <span className="min-w-0 flex-1"><strong className="block text-sm break-words">{account.label}</strong><small className="text-muted-foreground">{account.status === "ACTIVE" ? "Connected" : account.status}</small></span>
-      <Button variant="ghost" size="icon-sm" aria-label={`Disconnect ${account.label}`} disabled={!!busy} onClick={() => { setBusy(detail.app); void disconnectIntegration(detail, account.id).then(refresh).catch((e) => toast.error(e.message)).finally(() => setBusy("")); }}><Trash2 size={16} /></Button>
-    </div>)}</div>
-  </div>;
-  const row = (item: Integration) => <div key={item.id} className="gx-app-row" role="button" tabIndex={0} onClick={() => nav(`/settings/apps/${encodeURIComponent(item.app)}`)} onKeyDown={(event) => { if (event.key === "Enter") nav(`/settings/apps/${encodeURIComponent(item.app)}`); }}>
-    <span className="gx-logo"><IntegrationLogo item={item} size={30} /></span>
-    <span className="gx-app-copy"><strong>{item.name}</strong><small>{item.description}</small></span>
-    {button(item)}
-  </div>;
-  return <div className="gx-apps">
-    <header className="gx-apps-head"><button type="button" className="gx-round" aria-label="Back" onClick={() => (window.history.length > 1 ? window.history.back() : nav("/settings"))}><ChevronLeft size={24} /></button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
-    <div className="gx-chips">{cats.map((category) => <button type="button" key={category} data-active={cat === category || (category === "All" && cat === "Suggested")} onClick={() => setCat(category)}>{category}</button>)}</div>
-    <div className="gx-apps-scroll">
-      {error && <p className="text-destructive p-4" role="alert">{error}</p>}
-      {cat === "All" || cat === "Suggested" ? <>
-        {!query && <><h3 className="gx-sec">For You <ChevronRight size={18} /></h3>{filtered.slice(0, 4).map(row)}<h3 className="gx-sec">Featured plugins <ChevronRight size={18} /></h3></>}
-        {(query ? filtered : filtered.slice(4)).map(row)}
-      </> : filtered.map(row)}
-    </div>
-    <div className="gx-bottom-search"><Search size={20} /><input aria-label="Search apps" placeholder="Search across apps and skills" value={query} onChange={(event) => setQuery(event.target.value)} /></div>
-  </div>;
 }
 
 function Devices({ nav }: { nav: Nav }) {
@@ -855,8 +795,8 @@ function Feedback({ nav }: { nav: Nav }) {
 export default function CeyoSettings() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const nav: Nav = (to) => navigate(to);
-  const [, , section, sub] = pathname.split("/");
+  const nav: Nav = useCallback((to) => navigate(to), [navigate]);
+  const [, , section] = pathname.split("/");
   switch (section) {
     case "account": return <Account nav={nav} />;
     case "usage": return <Usage nav={nav} />;
@@ -865,7 +805,7 @@ export default function CeyoSettings() {
     case "subscription": return <Subscription nav={nav} />;
     case "feedback": return <Feedback nav={nav} />;
     case "vault": return <Vault_ nav={nav} />;
-    case "apps": return <Apps nav={nav} appId={sub ? decodeURIComponent(sub) : undefined} />;
+    
     case "devices": return <Devices nav={nav} />;
     case "computer": return <Computer nav={nav} />;
     case "phone": return <Phone nav={nav} />;

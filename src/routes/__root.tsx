@@ -104,41 +104,6 @@ const DEFERRED_FONTS_SCRIPT = `(function () {
   else window.addEventListener("load", go, { once: true });
 })();`;
 
-const SPECULATION_SCRIPT = `(function () {
-  try {
-    var nav = navigator;
-    var c = nav.connection || {};
-    var slow = c.saveData === true || /(^|-)(2g|slow-2g)$/.test(c.effectiveType || "");
-    var weak = (nav.hardwareConcurrency || 8) <= 4 || (nav.deviceMemory || 8) <= 4;
-    if (slow || weak) return;
-    var add = function () {
-      var s = document.createElement("script");
-      s.type = "speculationrules";
-      s.textContent = JSON.stringify({
-        prerender: [
-          {
-            source: "document",
-            where: {
-              and: [
-                { href_matches: "/*" },
-                { not: { href_matches: "/api/*" } },
-                { not: { href_matches: "/auth/*" } },
-              ],
-            },
-            eagerness: "moderate",
-          },
-        ],
-        prefetch: [
-          { source: "document", where: { href_matches: "/*" }, eagerness: "conservative" },
-        ],
-      });
-      document.body.appendChild(s);
-    };
-    if (document.readyState === "complete") setTimeout(add, 1200);
-    else addEventListener("load", function () { setTimeout(add, 1200); });
-  } catch (e) {}
-})();`;
-
 const ORG_JSON_LD = JSON.stringify({
   "@context": "https://schema.org",
   "@graph": [
@@ -253,7 +218,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Ceyo" },
       { name: "application-name", content: "Ceyo" },
-      { name: "theme-color", content: "#ffffff" },
+      { name: "theme-color", content: "#000000" },
       { name: "robots", content: "index, follow, max-image-preview:large" },
       { name: "format-detection", content: "telephone=no" },
       { title: "Ceyo — Your Personal Bots" },
@@ -438,7 +403,7 @@ function RootShell({ children }: { children: ReactNode }) {
           </defs>
         </svg>
         <div id="root">{children}</div>
-        <script dangerouslySetInnerHTML={{ __html: SPECULATION_SCRIPT }} />
+        {/* Private app navigation uses cached route chunks, not whole-page prerenders. */}
         <script dangerouslySetInnerHTML={{ __html: ADROLL_SCRIPT }} />
         <Scripts />
       </body>
