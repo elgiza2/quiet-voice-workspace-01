@@ -57,8 +57,10 @@ export async function ensureCallControlApp(): Promise<string> {
   if (saved) return saved;
   let profileId = await setting("outbound_profile_id");
   if (!profileId) {
-    const found = await tx("/outbound_voice_profiles?filter[name][contains]=Ceyo agents outbound");
-    const existing = (found.data ?? []).find((p: { name: string }) => p.name === "Ceyo agents outbound");
+    // Entry-level Telnyx accounts may hold a single profile: reuse ours, else the existing one.
+    const found = await tx("/outbound_voice_profiles");
+    const list = (found.data ?? []) as Array<{ id: string; name: string }>;
+    const existing = list.find((p) => p.name === "Ceyo agents outbound") || list[0];
     if (existing) { profileId = String(existing.id); await saveSetting("outbound_profile_id", profileId); }
   }
   if (!profileId) {
