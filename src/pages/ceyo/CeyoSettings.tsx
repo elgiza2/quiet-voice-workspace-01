@@ -591,8 +591,6 @@ function Phone({ nav }: { nav: Nav }) {
   };
 
   const callTone = (status: string) => status === "completed" ? "ok" : status === "failed" || status === "no_answer" ? "bad" : status === "dialing" || status === "in_progress" ? "live" : undefined;
-  const botName = (id: string) => bots.find((b) => b.id === id)?.name;
-  void botName;
 
   return (
     <Shell title="Phone calls" back={() => nav("/settings")}>
