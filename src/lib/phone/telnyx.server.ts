@@ -98,12 +98,6 @@ async function widenDestinations() {
   if (ok) await saveSetting("outbound_full", "1");
 }
 
-/** ISO country for a few supported calling codes, used only to explain blocked destinations. */
-export function destinationCountry(e164: string) {
-  const codes: Array<[string, string]> = [["+1", "US/CA"], ["+20", "EG"], ["+966", "SA"], ["+971", "AE"], ["+965", "KW"], ["+974", "QA"], ["+973", "BH"], ["+968", "OM"], ["+962", "JO"], ["+44", "GB"], ["+49", "DE"], ["+33", "FR"]];
-  return codes.find(([p]) => e164.startsWith(p))?.[1] || null;
-}
-
 type Bot = { id: string; owner_id: string; name: string; instructions: string | null; look: Record<string, unknown> | null };
 
 async function ownerName(userId: string) {
@@ -213,6 +207,7 @@ export async function dialOut(input: DialInput) {
 
   try {
     const [appId, { assistantId }] = await Promise.all([ensureCallControlApp(), ensureBotAssistant(bot)]);
+    await widenDestinations().catch(() => undefined);
     const gender = (bot.look?.voiceSettings as { gender?: string } | undefined)?.gender;
     const res = await tx("/calls", { body: {
       connection_id: appId, to: input.to, from: anyNum.e164, from_display_name: bot.name.slice(0, 32),
