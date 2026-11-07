@@ -1,3 +1,14 @@
+## Restructure, cleanup and fast navigation — 2026-11-07 16:50 UTC
+- [x] One "New Group" for people + bots; removed "New People Group".
+- [x] Settings headers back to normal page color.
+- [x] Wrote docs/ARCHITECTURE.md (domains, payments, code map) for the next agent.
+- [x] Cleanup pass 1: removed unused Trigger.dev task/config/package and dated verification notes.
+- [ ] Cleanup pass 2: unused files/packages/legacy Edge Functions (dodo, tiktok, alibaba) — needs a careful usage audit.
+- [ ] Fast navigation: intent preloading, query cache, lazy heavy screens.
+- [ ] Domain split ceyo.si / web.ceyo.si / app.ceyo.si: needs the app published and DNS access.
+- [ ] Kashier popup from nova-quest-rewards-hub on web; Google Play Billing on Android (needs Play Console setup).
+- [ ] Landing page: later, section by section, per owner.
+
 ## Arabic recording language regression — 2026-11-07 13:17 UTC
 - [x] Fix confirmed voice-transcribe language=en overriding Arabic input: remove UI locale hint and use existing owner Deepgram key with Nova-3 language=multi; Cartesia only handles synthesis here.
 - [x] Real Arabic audio → Arabic transcript → Egyptian reply and English audio → English transcript → English reply verified; 16 tests pass, build OK; handoff updated.
