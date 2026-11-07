@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TradePanel from "./TradePanel";
 import { tradeTarget } from "./walletTokens";
+import { fetchChart, fetchCoinInfo, fetchMarketList, fetchTrending, type CoinInfo, type Coin, type Hot } from "./marketData";
 import { ArrowDownToLine, Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Globe, Send, TrendingUp } from "lucide-react";
 
-const CG = "https://api.coingecko.com/api/v3";
-type Coin = { id: string; symbol: string; name: string; image: string; current_price: number; market_cap: number; price_change_percentage_24h: number | null; sparkline_in_7d?: { price: number[] } };
 type News = { title: string; link: string; date: string; image: string; source: string };
-type Hot = { item: { id: string; symbol: string; name: string; small: string; data?: { price?: number; market_cap?: string; price_change_percentage_24h?: { usd?: number }; sparkline?: string } } };
 
 const CATS = [
   { key: "trending", label: "Trending" },
@@ -22,17 +20,33 @@ const big = (n: number) => !n ? "—" : n >= 1e12 ? `$${(n / 1e12).toFixed(2)}T`
 const ago = (d: string) => { const m = Math.max(1, Math.round((Date.now() - Date.parse(d)) / 60000)); return m < 60 ? `${m}m` : m < 1440 ? `${Math.round(m / 60)}h` : `${Math.round(m / 1440)}d`; };
 const Pct = ({ v }: { v: number | null | undefined }) => v == null ? null : <em className="wl-delta" data-up={v >= 0}>{v >= 0 ? "+" : ""}{v.toFixed(2)}%</em>;
 
-function useJson<T>(url: string | null) {
-  const [data, setData] = useState<T | null>(null);
-  const [err, setErr] = useState(false);
+/**
+ * Loads data and keeps refreshing it while the page is visible. Earlier data stays on
+ * screen during refreshes, so prices and news update in place without flicker.
+ */
+function useLive<T>(key: string | null, load: ((signal: AbortSignal) => Promise<T>) | null, everyMs: number) {
+  const [state, setState] = useState<{ key: string | null; data: T | null; err: boolean }>({ key: null, data: null, err: false });
+  const loader = useRef(load); loader.current = load;
   useEffect(() => {
-    if (!url) return;
-    const c = new AbortController(); setData(null); setErr(false);
-    fetch(url, { signal: c.signal }).then((r) => r.ok ? r.json() : Promise.reject()).then(setData).catch(() => !c.signal.aborted && setErr(true));
-    return () => c.abort();
-  }, [url]);
-  return { data, err };
+    if (!key) return;
+    let ctrl = new AbortController(); let stopped = false;
+    setState((s) => (s.key === key ? s : { key, data: null, err: false }));
+    const run = () => {
+      const fn = loader.current; if (!fn || stopped) return;
+      ctrl.abort(); ctrl = new AbortController(); const c = ctrl;
+      fn(c.signal).then((data) => { if (!c.signal.aborted && !stopped) setState({ key, data, err: false }); })
+        .catch(() => { if (!c.signal.aborted && !stopped) setState((s) => ({ key, data: s.key === key ? s.data : null, err: true })); });
+    };
+    run();
+    const t = setInterval(() => { if (document.visibilityState === "visible") run(); }, everyMs);
+    const onShow = () => { if (document.visibilityState === "visible") run(); };
+    document.addEventListener("visibilitychange", onShow);
+    return () => { stopped = true; ctrl.abort(); clearInterval(t); document.removeEventListener("visibilitychange", onShow); };
+  }, [key, everyMs]);
+  const fresh = state.key === key;
+  return { data: fresh ? state.data : null, err: fresh && state.err && !state.data };
 }
+const getJson = async <T,>(url: string, signal: AbortSignal) => { const r = await fetch(url, { signal }); if (!r.ok) throw new Error(String(r.status)); return (await r.json()) as T; };
 
 export function Spark({ data, up, h = 44 }: { data: number[]; up: boolean; h?: number }) {
   if (data.length < 2) return <div className="wl-spark-empty" style={{ height: h }} />;
@@ -74,9 +88,9 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
   const [scrub, setScrub] = useState<number[] | null>(null);
   const [full, setFull] = useState(false);
   const [trade, setTrade] = useState<"buy" | "sell" | null>(null);
-  const { data: info } = useJson<any>(`${CG}/coins/${id}?localization=false&tickers=false&community_data=false&developer_data=false`);
-  const { data: chartRaw, err: chartErr } = useJson<{ prices: number[][] }>(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=${range}`);
-  const chart = chartRaw?.prices ?? [];
+  const { data: info } = useLive<CoinInfo>(`coin:${id}`, (sig) => fetchCoinInfo(id, sig), 30_000);
+  const { data: chartRaw, err: chartErr } = useLive<number[][]>(`chart:${id}:${range}`, (sig) => fetchChart(id, range, sig), range === "1" ? 60_000 : 300_000);
+  const chart = chartRaw ?? [];
   const md = info?.market_data;
   const live = md?.current_price?.usd ?? chart[chart.length - 1]?.[1] ?? 0;
   const first = chart[0]?.[1] ?? 0;
@@ -172,20 +186,20 @@ function SectionHead({ title, onMore }: { title: string; onMore?: () => void }) 
 export default function MarketsView({ onOpen }: { onOpen: (id: string) => void }) {
   const [cat, setCat] = useState("trending");
   const [more, setMore] = useState(false);
-  const { data: trending, err: tErr } = useJson<{ coins: Hot[] }>(`${CG}/search/trending`);
-  const { data: stocksRaw } = useJson<Coin[]>(`${CG}/coins/markets?vs_currency=usd&category=tokenized-stock&order=market_cap_desc&per_page=40&sparkline=true`);
-  const { data: tradeable } = useJson<{ ids: string[] | null }>("/api/tradeable-assets");
+  const { data: trending, err: tErr } = useLive<Hot[]>("trending", (sig) => fetchTrending(sig), 60_000);
+  const { data: stocksRaw } = useLive<Coin[]>("stocks", (sig) => fetchMarketList("tokenized-stock", 40, true, sig), 120_000);
+  const { data: tradeable } = useLive<{ ids: string[] | null }>("tradeable", (sig) => getJson("/api/tradeable-assets", sig), 600_000);
   const canTrade = useMemo(() => tradeable?.ids ? new Set(tradeable.ids) : null, [tradeable]);
   // Stocks are only listed when they exist as a token the wallet can actually buy and sell.
   const stocks = Array.isArray(stocksRaw) && canTrade ? stocksRaw.filter((s) => canTrade.has(s.id)).slice(0, 10) : [];
-  const { data: list, err: lErr } = useJson<Coin[]>(cat === "trending" ? null : `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&sparkline=true${cat === "majors" ? "" : `&category=${cat}`}`);
-  const { data: newsData } = useJson<{ items: News[] }>("/api/market-news");
-  const hot = trending?.coins ?? [];
+  const { data: list, err: lErr } = useLive<Coin[]>(cat === "trending" ? null : `list:${cat}`, (sig) => fetchMarketList(cat === "majors" ? null : cat, 30, true, sig), 30_000);
+  const { data: newsData } = useLive<{ items: News[] }>("news", (sig) => getJson("/api/market-news", sig), 60_000);
+  const hot = trending ?? [];
   const news = newsData?.items ?? [];
 
   const rows = useMemo(() => cat === "trending"
     ? hot.map((h) => ({ id: h.item.id, symbol: h.item.symbol, name: h.item.name, image: h.item.small, price: h.item.data?.price ?? 0, mc: h.item.data?.market_cap ?? "—", ch: h.item.data?.price_change_percentage_24h?.usd ?? null }))
-    : (Array.isArray(list) ? list : []).filter((c) => cat !== "tokenized-stock" || !canTrade || canTrade.has(c.id)).map((c) => ({ id: c.id, symbol: c.symbol.toUpperCase(), name: c.name, image: c.image, price: c.current_price, mc: big(c.market_cap), ch: c.price_change_percentage_24h })), [cat, hot, list]);
+    : (Array.isArray(list) ? list : []).filter((c) => cat !== "tokenized-stock" || !canTrade || canTrade.has(c.id)).map((c) => ({ id: c.id, symbol: c.symbol, name: c.name, image: c.image, price: c.current_price, mc: big(c.market_cap), ch: c.price_change_percentage_24h })), [cat, hot, list, canTrade]);
   const loading = rows.length === 0 && !(cat === "trending" ? tErr : lErr);
 
   return (
@@ -227,7 +241,7 @@ export default function MarketsView({ onOpen }: { onOpen: (id: string) => void }
         <div className="wl-scroll">
           {stocks.map((s) => { const up = (s.price_change_percentage_24h ?? 0) >= 0; return (
             <button type="button" key={s.id} className="wl-stock" onClick={() => onOpen(s.id)}>
-              <span className="wl-stock-h"><img src={s.image} alt="" />{s.symbol.toUpperCase()}</span>
+              <span className="wl-stock-h"><img src={s.image} alt="" />{s.symbol}</span>
               <Spark data={(s.sparkline_in_7d?.price ?? []).slice(-48)} up={up} h={56} />
               <strong>{usdFmt(s.current_price)}</strong><Pct v={s.price_change_percentage_24h} />
             </button>); })}
@@ -245,7 +259,7 @@ export default function MarketsView({ onOpen }: { onOpen: (id: string) => void }
           ))}
         </div>
       </>}
-      <p className="wl-disclaimer">Market data from CoinGecko and public news feeds. Past performance is not a guide to future results. Trading carries high risk.</p>
+      <p className="wl-disclaimer">Market data from CoinGecko, CoinPaprika, CoinLore and Binance, plus public news feeds. Past performance is not a guide to future results. Trading carries high risk.</p>
     </div>
   );
 }
