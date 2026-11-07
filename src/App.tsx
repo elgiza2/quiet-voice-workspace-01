@@ -15,6 +15,7 @@ import { DynamicNotifications } from "@/components/notifications/DynamicNotifica
 import { supabase } from "@/integrations/supabase/client";
 import { subscribeAuthEvents } from "@/lib/authStore";
 import { clearAllSnapshots } from "@/lib/pageSnapshot";
+import { clearPageStates } from "@/lib/pageStateCache";
 
 import { SettingsShell } from "@/routes-app/lazyPages";
 import {
@@ -105,10 +106,11 @@ const useAppChrome = () => {
 
 
 const clearUserCaches = () => {
+  clearPageStates();
   const keysToRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith("megsy_cache_")) keysToRemove.push(key);
+    if (key && ["megsy_cache_", "megsy_conv_cache_", "megsy_sidebar_conv_"].some(prefix => key.startsWith(prefix))) keysToRemove.push(key);
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k));
 };

@@ -43,5 +43,11 @@ One "New Group" flow (`NewPeopleChat` mode `group`): add any mix of people and b
 ## Handoff files
 `roadmap.md` = active task list; `README.md` = current work + verification; `AGENTS.md` (root + per folder) = rules.
 
+## Page retention and cleanup
+- `src/lib/pageStateCache.ts` retains allowlisted scroll positions and UI selections only, with owner keys, schema validation, expiry and bounded storage. `authStore` clears it on identity transitions. It is not authorization or an entitlement source.
+- Private data stays in existing authorized reads and in-memory caches; no page HTML, chat, Vault, wallet secret, balance or payment payload goes into the page-state cache.
+- `PageTransition` no longer animates/transforms the whole page: fixed screens stay viewport-bound. Pricing closes through router history with a home fallback, not arbitrary browser history.
+- Removed a verified 3,946-line duplicated global CSS copy and unused botanical/glass/old-checkout/vivid sheets. Source file count includes APIs, native code, tests and active modules; never bulk-delete by count or Knip warnings alone.
+
 - Web payments: Egypt uses Kashier Direct API (card from browser to Kashier, Vodafone Cash R2P, EGP from live FX); other countries use Dodo checkout confirmed by server lookup; product ids in src/lib/payments/regions.ts.
 - Release preparation: docs/VERCEL-AND-PLAY.md; VERCEL=1 selects Nitro Vercel, while Lovable retains its managed runtime. Capacitor Android loads app.ceyo.si, with native CeyoPlayBilling plugin and server verification. The first AAB compiles but is unsigned; store approval and live hosting are not verified.

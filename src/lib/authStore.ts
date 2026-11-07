@@ -1,6 +1,7 @@
 /** @doc Single source of truth for the Supabase session across the app. */
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { syncPageStateOwner } from "@/lib/pageStateCache";
 
 export type AuthState = {
   authenticated: boolean;
@@ -14,6 +15,7 @@ const eventListeners = new Set<(event: AuthChangeEvent | "INITIAL", session: Ses
 let bootstrapped = false;
 
 const publish = (event: AuthChangeEvent | "INITIAL", session: Session | null) => {
+  syncPageStateOwner(state.userId, session?.user?.id ?? null);
   state = { authenticated: !!session, resolved: true, userId: session?.user?.id ?? null };
   stateListeners.forEach((cb) => cb(state));
   eventListeners.forEach((cb) => cb(event, session));

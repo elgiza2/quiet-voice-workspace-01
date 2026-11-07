@@ -43,15 +43,6 @@ const NEXT_HOPS: Array<{ match: RegExp; hops: Loader[] }> = [
     match: /^\/settings\/?$/,
     hops: [
       () => import("@/pages/ceyo/CeyoAppsSettings"),
-      () => import("@/components/billing/CheckoutSheet"),
-    ],
-  },
-  // Pricing → checkout return screens.
-  {
-    match: /^\/pricing$/,
-    hops: [
-      () => import("@/pages/ceyo/CeyoSettings"),
-      () => import("@/pages/auth/AuthPage"),
     ],
   },
 ];

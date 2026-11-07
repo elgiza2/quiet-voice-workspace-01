@@ -7,6 +7,7 @@ import { integrations as CATALOG, type Integration } from "@/lib/integrationsDat
 import { disconnectIntegration, loadIntegrationConnections, startIntegrationConnection, waitForConnectionRefresh, integrationSlug, type IntegrationAccount } from "@/lib/integrationBackend";
 import { IntegrationLogo } from "@/components/chat/integrations/IntegrationRow";
 import { getAuthState, subscribeAuthState } from "@/lib/authStore";
+import { readPageState, writePageState } from "@/lib/pageStateCache";
 import "@/styles/agent-hub.css";
 import "@/styles/ceyo.css";
 import "@/styles/settings-polish.css";
@@ -34,6 +35,8 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
     return () => { unsubscribe(); };
   }, [ownerId]);
   const cats = useMemo(() => ["All", ...Array.from(new Set(CATALOG.map((item) => item.category)))], []);
+  useEffect(() => { const saved = readPageState(ownerId, "/settings/apps"); if (saved?.category && cats.includes(saved.category)) setCat(saved.category); }, [ownerId, cats]);
+  const chooseCategory = (category: string) => { setCat(category); writePageState(ownerId, "/settings/apps", { ...readPageState(ownerId, "/settings/apps"), category }); };
   const filtered = CATALOG.filter((item) => (cat === "All" || cat === "Suggested" || item.category === cat) && (!query || `${item.name} ${item.description}`.toLowerCase().includes(query.toLowerCase())));
   const visible = filtered.slice(0, visibleCount);
   useEffect(() => { setVisibleCount(24); }, [cat, query]);
@@ -82,8 +85,8 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
     {button(item)}
   </div>;
   return <div className="gx-apps">
-    <header className="gx-apps-head"><button type="button" className="gx-round" aria-label="Back" onClick={() => (window.history.length > 1 ? window.history.back() : nav("/settings"))}><ChevronLeft size={24} /></button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
-    <div className="gx-chips">{cats.map((category) => <button type="button" key={category} data-active={cat === category || (category === "All" && cat === "Suggested")} onClick={() => setCat(category)}>{category}</button>)}</div>
+    <header className="gx-apps-head"><Button variant="ghost" size="icon" className="gx-round" aria-label="Back" onClick={() => nav("/settings")}><ChevronLeft size={24} /></Button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
+    <div className="gx-chips">{cats.map((category) => <Button variant="ghost" key={category} data-active={cat === category || (category === "All" && cat === "Suggested")} onClick={() => chooseCategory(category)}>{category}</Button>)}</div>
     <div className="gx-apps-scroll">
       {error && <p className="text-destructive p-4" role="alert">{error}</p>}
       {cat === "All" || cat === "Suggested" ? <>
