@@ -211,3 +211,9 @@ bunx vitest run
 - الوكيل: `wallet_overview` للقراءة و`wallet_propose_send|trade` يعرضون بطاقة تأكيد؛ لا تنفيذ بدون ضغطة المستخدم.
 - التحقق: اختبارات الاشتقاق، استجابة KyberSwap وTronGrid الحية. لم تُنفذ أي معاملة بأموال حقيقية. غير مدعوم: Robinhood Chain، تداول TON/BTC.
 - 15:30 UTC: تداول TON (STON.fi) وBitcoin↔ETH (THORChain) مضاف مع رسوم 0.5%؛ الأسهم غير القابلة للتداول مخفية عبر `/api/tradeable-assets`؛ روابط مجتمع Telegram وX في الإعدادات. الأسعار الحية اختُبرت؛ لا معاملات حقيقية بعد.
+
+### Wallet data, home menu, call fixes — 2026-11-07 16:15 UTC
+- Wallet market data goes through `src/pages/wallet/marketData.ts`: CoinGecko first, then CoinPaprika, CoinLore and Binance (stale Binance pairs rejected), last good answer cached in localStorage. Display names fixed (TON shows "Toncoin", not "Gram"). Markets lists refresh every 30–120 s, news every 60 s, wallet prices every 30 s.
+- Home: one three-dot button opens Integrations / Wallet / Phone number. Chat header: voice + video in one pill, menu button separate.
+- Video call: the call no longer ends after 30 s when the phone never reports the first video frame; it goes live once audio/conversation starts. Anam session tokens verified live; WebRTC itself cannot run in this sandbox, so the fix is verified by unit test and Anam session history only.
+- Verified: all sources and fallbacks via a live script with CoinGecko forced to fail; typecheck; wallet/call tests. Signed-in screens not visually checked (user-managed sign-in).

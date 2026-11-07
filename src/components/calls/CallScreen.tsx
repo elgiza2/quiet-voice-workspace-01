@@ -278,6 +278,7 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
     let owned: import("@anam-ai/js-sdk").AnamClient | null = null;
     let startup: Promise<void> = Promise.resolve();
     let watchdog: ReturnType<typeof setTimeout> | undefined;
+    let fallback: ReturnType<typeof setTimeout> | undefined;
     let disposal: Promise<void> | undefined;
     const controller = new AbortController();
     const dispose = () => {
@@ -315,19 +316,33 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
         if (cancelled) return;
         const c = createClient(body.sessionToken);
         owned = c; client.current = c;
+        // The call is live once a frame renders, the remote video starts playing or the
+        // conversation begins; mobile browsers do not always report the first frame.
+        const goLive = () => { if (!cancelled) { clearTimeout(watchdog); clearTimeout(fallback); setStatus("live"); } };
+        const streamStarted = () => { clearTimeout(watchdog); clearTimeout(fallback); fallback = setTimeout(goLive, 6000); };
         c.addListener(AnamEvent.MESSAGE_HISTORY_UPDATED, history => {
-          if (!cancelled) turns.current = history.filter(m => m.content.trim()).map(m => ({ role: m.role === "user" ? "user" : "assistant", text: m.content }));
+          if (cancelled) return;
+          turns.current = history.filter(m => m.content.trim()).map(m => ({ role: m.role === "user" ? "user" : "assistant", text: m.content }));
+          if (turns.current.length) goLive();
         });
         c.addListener(AnamEvent.VIDEO_STREAM_STARTED, () => {
           if (cancelled) return;
-          void remoteRef.current?.play().catch(() => { if (!cancelled) setNeedsTap(true); });
+          streamStarted();
+          const v = remoteRef.current;
+          if (v) {
+            const onFrame = () => { if (v.videoWidth > 0) goLive(); };
+            v.addEventListener("playing", onFrame); v.addEventListener("loadeddata", onFrame); v.addEventListener("resize", onFrame);
+            // The SDK attaches the stream right after this event.
+            setTimeout(() => { if (!cancelled) void v.play().catch(() => { if (!cancelled) setNeedsTap(true); }); }, 0);
+          }
         });
         c.addListener(AnamEvent.AUDIO_STREAM_STARTED, (audio) => {
           if (cancelled || !audioRef.current) return;
+          streamStarted();
           audioRef.current.srcObject = audio;
           void audioRef.current.play().catch(() => { if (!cancelled) setNeedsTap(true); });
         });
-        c.addListener(AnamEvent.VIDEO_PLAY_STARTED, () => { if (!cancelled) { clearTimeout(watchdog); setStatus("live"); } });
+        c.addListener(AnamEvent.VIDEO_PLAY_STARTED, goLive);
         c.addListener(AnamEvent.CONNECTION_CLOSED, () => failed(ar ? "اتصال الفيديو انقطع. حاول تاني." : "Video connection closed. Please retry."));
         c.addListener(AnamEvent.MIC_PERMISSION_DENIED, () => failed(ar ? "اسمح للتطبيق باستخدام الميكروفون" : "Allow microphone access to talk"));
         watchdog = setTimeout(() => failed(ar ? "الفيديو موصلش. حاول تاني أو راجع اتصال الإنترنت." : "Video did not connect. Retry or check your connection."), 30000);
@@ -338,7 +353,7 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
       }
     })(); }, 0);
     return () => {
-      cancelled = true; clearTimeout(begin); clearTimeout(watchdog); controller.abort();
+      cancelled = true; clearTimeout(begin); clearTimeout(watchdog); clearTimeout(fallback); controller.abort();
       if (audioRef.current) { audioRef.current.pause(); audioRef.current.srcObject = null; }
       teardown.current = dispose();
     };

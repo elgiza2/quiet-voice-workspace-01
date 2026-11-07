@@ -19,6 +19,8 @@ import {
   Plus,
   Search,
   Wallet,
+  MoreHorizontal,
+  Phone,
 } from "lucide-react";
 import SEOHead from "@/components/common/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
@@ -386,8 +388,17 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
       </div>
 
       <div className="hub-home-bottom">
-        <HubIconButton label="Connect apps" className="hub-apps-btn" onClick={() => nav("/settings/apps")}><Grid2x2Plus size={21} strokeWidth={1.8} /></HubIconButton>
-        <HubIconButton label="Wallet" className="hub-apps-btn" onClick={() => nav("/wallet")}><Wallet size={21} strokeWidth={1.8} /></HubIconButton>
+        <div className="hub-apps-wrap">
+          <HubIconButton label={ar ? "المزيد" : "More"} className="hub-apps-btn" active={appsOpen} onClick={() => setAppsOpen((open) => !open)}><MoreHorizontal size={22} strokeWidth={1.8} /></HubIconButton>
+          {appsOpen && <div className="hub-backdrop" onPointerDown={() => setAppsOpen(false)} />}
+          {appsOpen && (
+            <div className="hub-menu hub-apps-menu" role="menu">
+              <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/apps"); }}><Grid2x2Plus size={20} />{ar ? "التكاملات" : "Integrations"}</button>
+              <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/wallet"); }}><Wallet size={20} />{ar ? "المحفظة" : "Wallet"}</button>
+              <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/phone"); }}><Phone size={20} />{ar ? "رقم الهاتف" : "Phone number"}</button>
+            </div>
+          )}
+        </div>
         <button type="button" className="hub-search-trigger" onClick={() => setSearchOpen(true)}><Search size={18} /><span>{ar ? "بحث" : "Search"}</span></button>
       </div>
       {rowMenu && <div className="hub-backdrop" onPointerDown={() => setRowMenu(null)} />}

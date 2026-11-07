@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 const FEEDS = [
   { url: "https://cointelegraph.com/rss", source: "Cointelegraph" },
   { url: "https://www.coindesk.com/arc/outboundfeeds/rss/", source: "CoinDesk" },
+  { url: "https://decrypt.co/feed", source: "Decrypt" },
+  { url: "https://bitcoinmagazine.com/.rss/full/", source: "Bitcoin Magazine" },
 ];
 
 const tag = (xml: string, name: string) => {
@@ -28,8 +30,8 @@ export const Route = createFileRoute("/api/market-news")({
           } catch { return []; }
         }));
         const items = all.flat().filter((i) => i.title && i.link?.startsWith("http"))
-          .sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 20);
-        return Response.json({ items }, { headers: { "Cache-Control": "public, max-age=300" } });
+          .sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 30);
+        return Response.json({ items }, { headers: { "Cache-Control": "public, max-age=60" } });
       },
     },
   },
