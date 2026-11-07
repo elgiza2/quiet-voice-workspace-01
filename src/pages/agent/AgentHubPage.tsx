@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import SEOHead from "@/components/common/SEOHead";
 import { Button } from "@/components/ui/button";
+import { SubscriptionStar } from "@/components/common/SubscriptionStar";
 import "@/styles/subscriptions.css";
 import { supabase } from "@/integrations/supabase/client";
 import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/client";
@@ -84,7 +85,6 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
   const lang = "en" as HubLang;
   const ar = lang === "ar";
   const nav = useNavigate();
-  useEffect(() => { const t = window.setTimeout(() => { void import("@/pages/ceyo/CeyoSettings"); }, 600); return () => window.clearTimeout(t); }, []);
   const [params, setParams] = useSearchParams();
   const [userId, setUserId] = useState(demo ? "demo" : "");
   const [userAvatar, setUserAvatar] = useState("");
@@ -392,7 +392,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
       <div className="hub-home-bottom">
         <div className="hub-apps-wrap">
           <div className="hub-subscription-tools">
-            <Button variant="ghost" size="icon" className="hub-subscription-star" aria-label={ar ? "الاشتراكات" : "Subscriptions"} title={ar ? "الاشتراكات" : "Subscriptions"} onClick={() => nav("/settings/plans")}><Star size={20}/></Button>
+            <Button variant="ghost" size="icon" className="hub-subscription-star" aria-label={ar ? "الاشتراكات" : "Subscriptions"} title={ar ? "الاشتراكات" : "Subscriptions"} onClick={() => { setAppsOpen(false); nav("/settings/plans"); }}><SubscriptionStar/></Button>
             <HubIconButton label={ar ? "المزيد" : "More"} className="hub-apps-btn" active={appsOpen} onClick={() => setAppsOpen((open) => !open)}><MoreHorizontal size={22} strokeWidth={1.8} /></HubIconButton>
           </div>
           {appsOpen && <div className="hub-backdrop" onPointerDown={() => setAppsOpen(false)} />}
