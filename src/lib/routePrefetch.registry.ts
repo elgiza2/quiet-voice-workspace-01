@@ -49,7 +49,9 @@ if (typeof window !== "undefined") {
     void import("@/pages/wallet/WalletPage");
   };
   const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
-  window.addEventListener("load", () => (idle ? idle(warm, { timeout: 4000 }) : setTimeout(warm, 2500)), { once: true });
+  const schedule = () => (idle ? idle(warm, { timeout: 4000 }) : setTimeout(warm, 2500));
+  if (document.readyState === "complete") schedule();
+  else window.addEventListener("load", schedule, { once: true });
 }
 
 export {};
