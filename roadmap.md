@@ -284,3 +284,11 @@
 - [ ] Outgoing calls: blocked by Telnyx account level (D61). Owner must upgrade/verify the Telnyx account; Egypt and Gulf destinations open automatically after that.
 - [ ] Live incoming call test: needs someone to phone +1 235 204 7886 after giving it to an agent. Signed-in page view unverified (user-managed sign-in).
 - [ ] Instant call results via webhook: needs this project published at ceyo.si (or PUBLIC_APP_URL); until then results arrive by sync while a chat is open or on the scheduler tick.
+
+## Wallet, home menu and call fixes — 2026-11-07 16:03 UTC
+- [ ] Wallet: remove "coins · prices update live" line and the Market button; Send on the left, Receive on the right
+- [ ] Wallet: more price/data sources so every coin loads; correct coin names (TON not "Gram")
+- [ ] Market coins and news refresh continuously
+- [ ] Home: hide wallet button; integrations button becomes three dots and opens a menu (Integrations, Wallet, Phone number)
+- [ ] Chat: redesign voice/video call buttons
+- [ ] Fix video call not working
