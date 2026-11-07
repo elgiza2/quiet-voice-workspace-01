@@ -286,10 +286,10 @@
 - [ ] Instant call results via webhook: needs this project published at ceyo.si (or PUBLIC_APP_URL); until then results arrive by sync while a chat is open or on the scheduler tick.
 
 ## Wallet, home menu and call fixes — 2026-11-07 16:03 UTC
-- [ ] Wallet: remove "coins · prices update live" line and the Market button; Send on the left, Receive on the right
-- [ ] Wallet: more price/data sources so every coin loads; correct coin names (TON not "Gram")
-- [ ] Market coins and news refresh continuously
-- [ ] Home: hide wallet button; integrations button becomes three dots and opens a menu (Integrations, Wallet, Phone number)
-- [ ] Chat: redesign voice/video call buttons
-- [ ] Fix video call not working
-- [ ] Research a Telnyx alternative: free number per agent, pay only per call minute, free trial credit, usable immediately
+- [x] Wallet: remove "coins · prices update live" line and the Market button; Send on the left, Receive on the right
+- [x] Wallet: more price/data sources so every coin loads; correct coin names (TON not "Gram")
+- [x] Market coins and news refresh continuously
+- [x] Home: hide wallet button; integrations button becomes three dots and opens a menu (Integrations, Wallet, Phone number)
+- [x] Chat: redesign voice/video call buttons
+- [x] Fix video call not working
+- [x] Research a Telnyx alternative — no provider gives a free number per agent; Vapi gives 1 free US number (incoming only) + $5 credit. Waiting for the owner to pick a provider.
