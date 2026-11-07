@@ -1,7 +1,7 @@
 ## Subscription visual revision — 2026-11-07 17:29 UTC
-- [ ] Reuse the reference repository's web payment sheet design while preserving payment verification.
-- [ ] Redesign pricing and join a home subscription star with the three-dot menu.
-- [ ] Review mobile/desktop visuals, run existing payment tests and explain Google Play's first upload requirement.
+- [x] Reuse the reference repository's web payment sheet design while preserving payment verification.
+- [x] Redesign pricing and join a home subscription star with the three-dot menu.
+- [x] Review mobile/desktop visuals at 320/434/1280, run 9 existing payment tests and explain Google Play's first upload requirement. Preview uses isolated demo data, not an authenticated payment.
 
 ## Restructure, cleanup and fast navigation — 2026-11-07 16:50 UTC
 - [x] One "New Group" for people + bots; removed "New People Group".
