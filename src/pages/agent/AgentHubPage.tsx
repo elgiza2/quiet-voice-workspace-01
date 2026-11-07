@@ -23,6 +23,8 @@ import {
   Phone,
 } from "lucide-react";
 import SEOHead from "@/components/common/SEOHead";
+import { Button } from "@/components/ui/button";
+import "@/styles/subscriptions.css";
 import { supabase } from "@/integrations/supabase/client";
 import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/client";
 import { loadWorkspace, useWorkspaceStore, workspace } from "@/lib/agentsky/store";
@@ -389,7 +391,10 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
 
       <div className="hub-home-bottom">
         <div className="hub-apps-wrap">
-          <HubIconButton label={ar ? "المزيد" : "More"} className="hub-apps-btn" active={appsOpen} onClick={() => setAppsOpen((open) => !open)}><MoreHorizontal size={22} strokeWidth={1.8} /></HubIconButton>
+          <div className="hub-subscription-tools">
+            <Button variant="ghost" size="icon" className="hub-subscription-star" aria-label={ar ? "الاشتراكات" : "Subscriptions"} title={ar ? "الاشتراكات" : "Subscriptions"} onClick={() => nav("/settings/plans")}><Star size={20}/></Button>
+            <HubIconButton label={ar ? "المزيد" : "More"} className="hub-apps-btn" active={appsOpen} onClick={() => setAppsOpen((open) => !open)}><MoreHorizontal size={22} strokeWidth={1.8} /></HubIconButton>
+          </div>
           {appsOpen && <div className="hub-backdrop" onPointerDown={() => setAppsOpen(false)} />}
           {appsOpen && (
             <div className="hub-menu hub-apps-menu" role="menu">
