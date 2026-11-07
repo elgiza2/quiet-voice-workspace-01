@@ -1,4 +1,5 @@
 ## Continue quiet cleanup — 2026-11-07 23:45 UTC
+- [ ] Recheck incorrectly imported checkout against nova-quest-rewards-hub source and correct presentation without changing payment logic (owner feedback 23:46 UTC).
 - [ ] Inspect remaining unused designs/dependencies and remove only verified leftovers.
 - [ ] Correct any confirmed local page-retention/navigation defects and run regression tests.
 - [ ] Verify available public/isolated browser behavior and update the handoff; real-account checks remain blocked by external unmanaged auth.
