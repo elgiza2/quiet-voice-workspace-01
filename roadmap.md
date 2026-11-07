@@ -1,3 +1,6 @@
+## Static subscription star — 2026-11-07 23:39 UTC
+- [ ] Stop home subscription star animation; retain one purple star and the existing shortcut.
+
 ## Quiet UI, safe cache and cleanup — 2026-11-07 18:49 UTC
 - [x] One animated purple subscription star using the supplied motion, joined to More; reduced-motion support.
 - [x] Remove decorative coloured borders/glows while preserving errors and accessible neutral focus.
