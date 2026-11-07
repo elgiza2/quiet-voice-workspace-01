@@ -34,6 +34,14 @@ export function asksToCallMe(text: string) {
   return /\b(?:call|ring|phone)\s+me\b|كلمني|كلّمني|اتصل\s*(?:بي|بيا|عليا|علي[اّ])|رن\s*(?:عليا|علي[اّ])|كلمني\s*على/i.test(text);
 }
 
+/** One phone call per user message and destination, so tool retries never dial twice. */
+export async function phoneCallId(conversationId: string, messageId: string, to: string) {
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`phone:${conversationId}:${messageId}:${to}`)));
+  hash[6] = (hash[6] & 15) | 80; hash[8] = (hash[8] & 63) | 128;
+  const s = Array.from(hash.slice(0, 16), (b) => b.toString(16).padStart(2, "0")).join("");
+  return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20)}`;
+}
+
 export function isArabic(text: string) {
   const ar = (text.match(/\p{Script=Arabic}/gu) || []).length;
   const latin = (text.match(/[a-z]/gi) || []).length;
