@@ -415,4 +415,8 @@
 .hub-home-header .hub-icon-button:hover,.hub-home-header .hub-icon-button[data-active="true"]{background:var(--hub-surface-raised) !important}
 .hub-home-header .hub-user-avatar{box-shadow:none;background:var(--hub-surface);border:0}
 
-.hub-apps-menu{inset-inline-start:0;bottom:58px;z-index:61;min-width:210px}
+.hub-apps-menu{position:absolute;inset-inline-start:0;bottom:60px;top:auto;z-index:62;min-width:240px;padding:8px 0;border-radius:22px;background:#2a2a2c;border:1px solid rgba(255,255,255,.06);box-shadow:0 18px 40px rgba(0,0,0,.6);backdrop-filter:none;transform-origin:bottom left}
+.hub-apps-menu button{display:flex;width:100%;min-height:0;align-items:center;gap:16px;padding:14px 20px;border:0;border-radius:0;background:none;color:#fff;font-size:17px;font-weight:400;text-align:start}
+.hub-apps-menu button:hover{background:rgba(255,255,255,.05)}
+.hub-apps-menu button svg{color:#bbb}
+.hub-apps-menu button+button{border-top:1px solid rgba(255,255,255,.05)}
