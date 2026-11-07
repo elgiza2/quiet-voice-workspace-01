@@ -19,7 +19,7 @@ Platform detection should pick the payment path: Android shell → Google Play; 
 ## Code map
 - `src/routes/` — file routes; `src/routes-app/AppRoutes.tsx` — signed-in app shell + onboarding gate.
 - `src/pages/agent/` — home (bots, groups, chats). `hub/HubChat.tsx` chat, `hub/HubPanels.tsx` bot/group forms, `hub/people/` people + mixed groups.
-- `src/pages/ceyo/CeyoSettings.tsx` — all settings pages incl. Phone. Styles: `src/styles/settings-polish.css` (loaded last).
+- `src/pages/ceyo/CeyoSettings.tsx` — settings incl. Phone; `CeyoAppsSettings.tsx` separately lazy-loads integrations and progressively mounts the catalogue. Checkout is lazy on Subscribe. Styles: `src/styles/settings-polish.css` (loaded last).
 - `src/pages/wallet/` — self-custodial wallet; market data only via `marketData.ts`.
 - `src/lib/ceyo/` agent loop + tools; `src/lib/phone/` Telnyx; `src/lib/calls/` voice/video; `src/lib/wallet/` signing; `src/lib/keys/` provider key pool.
 - Each folder's `AGENTS.md` holds its rules — read it before editing that folder.
@@ -44,3 +44,4 @@ One "New Group" flow (`NewPeopleChat` mode `group`): add any mix of people and b
 `roadmap.md` = active task list; `README.md` = current work + verification; `AGENTS.md` (root + per folder) = rules.
 
 - Web payments: Egypt uses Kashier Direct API (card from browser to Kashier, Vodafone Cash R2P, EGP from live FX); other countries use Dodo checkout confirmed by server lookup; product ids in src/lib/payments/regions.ts.
+- Release preparation: docs/VERCEL-AND-PLAY.md; VERCEL=1 selects Nitro Vercel, while Lovable retains its managed runtime. Capacitor Android loads app.ceyo.si, with native CeyoPlayBilling plugin and server verification. The first AAB compiles but is unsigned; store approval and live hosting are not verified.
