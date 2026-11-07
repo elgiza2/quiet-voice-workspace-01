@@ -1,0 +1,29 @@
+/* Neutral boundaries: shared legacy HSL tokens plus explicit current surfaces.
+   Do not remove semantic error/status colours, avatar art or payment brand marks. */
+:root, html.dark, html[data-theme="dark"] {
+  --border: 0 0% 18%;
+  --input: 0 0% 20%;
+  --ring: 0 0% 58%;
+  --sidebar-border: 0 0% 18%;
+  --sidebar-ring: 0 0% 58%;
+  --section-accent: 0 0% 65%;
+  --quiet-line: oklch(1 0 0 / .12);
+  --quiet-focus: oklch(.7 0 0);
+}
+.accent-ring, .glow-btn, .btn-glass-accent, .ios26-glass-chip.is-active.accent {
+  border-color: var(--quiet-line) !important;
+  box-shadow: none !important;
+}
+.glow-btn::before, .glow-btn::after, .btn-glass-accent::after { display: none !important; }
+.chat-composer-frame, .composer-card { background-image: none !important; border-color: var(--quiet-line) !important; box-shadow: none !important; }
+.agent-hub :is(.hub-form-card,.hub-profile-card,.hub-member-picker,.hub-composer),
+.gx-apps :is(.gx-app-row,.gx-bottom-search,.gx-pill,.gx-connect-big),
+.agent-hub.ceyo-page :is(.ceyo-group > div,.ceyo-card,.ceyo-input,.ceyo-rule-list) {
+  border-color: var(--quiet-line) !important;
+  box-shadow: none !important;
+}
+:is(.agent-hub,.gx-apps,.gx-create) :is(button,input,textarea,select):focus-visible {
+  outline: 2px solid var(--quiet-focus) !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}

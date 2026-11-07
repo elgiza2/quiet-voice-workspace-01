@@ -22,22 +22,5 @@ registerRoute(/^\/wallet(\/|$)/, () => import("@/pages/wallet/WalletPage"));
 // -- Settings --------------------------------------------------------------
 registerRoute(/^\/settings\/apps(\/|$)/, () => import("@/pages/ceyo/CeyoAppsSettings"));
 registerRoute(/^\/settings(?!\/apps)(\/|$)/, () => import("@/pages/ceyo/CeyoSettings"));
-registerRoute(/^\/settings\/customization$/, () => import("@/pages/ceyo/CeyoSettings"));
-registerRoute(/^\/settings\/security$/, () => import("@/pages/ceyo/CeyoSettings"));
-registerRoute(/^\/settings\/profile\/edit$/, () => import("@/pages/ceyo/CeyoSettings"));
-
-// -- Billing / referrals ---------------------------------------------------
-registerRoute(/^\/usage(\/|$)/, () => import("@/pages/ceyo/CeyoSettings"));
-registerRoute(/^\/billing\/success$/, () => import("@/pages/ceyo/CeyoSettings"));
-registerRoute(/^\/referrals(\/|$)/, () => import("@/pages/ceyo/CeyoSettings"));
-registerRoute(/^\/referrals\/resources$/, () => import("@/pages/ceyo/CeyoSettings"));
-
-// -- Marketing / SEO -------------------------------------------------------
-registerRoute(/^\/pricing$/, () => import("@/pages/ceyo/CeyoSettings"));
-
-// -- Integrations ----------------------------------------------------------
-
-// -- Landings / promos -----------------------------------------------------
-
 // Warm only actual next-hop destinations through nextHop.ts, never all screens at boot.
 export {};
