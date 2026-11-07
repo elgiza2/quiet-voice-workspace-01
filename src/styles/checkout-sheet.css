@@ -20,3 +20,11 @@
 .ck-wait,.ck-quote-loading{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 0;text-align:center}.ck-wait p{margin:0}.ck-wait small{color:var(--subscription-muted)}.ck-quote-loading{font-size:14px;color:var(--subscription-muted)}
 @media(min-width:640px){.ck-scrim{align-items:center}.ck-sheet{border-radius:28px;padding-top:20px}.ck-grabber{display:none}}
 @keyframes ck-up{from{transform:translateY(14px) scale(.99);opacity:0}}@keyframes ck-fade{from{opacity:0}}@media(prefers-reduced-motion:reduce){.ck-scrim,.ck-sheet{animation:none}}
+/* Global legacy checkout/light sheets must not recolor this imported menu. */
+.ck-scrim .ck-sheet {background:var(--subscription-bg)!important;color:var(--subscription-ink)!important;border-color:var(--subscription-line)!important}
+.ck-scrim .ck-head h2,.ck-scrim .ck-gateway-row strong,.ck-scrim .ck-summary,.ck-scrim .ck-selected-method {color:var(--subscription-ink)!important}
+.ck-scrim .ck-head .ck-x,.ck-scrim .ck-head .ck-back {background:transparent!important;color:var(--subscription-muted)!important;box-shadow:none!important}
+.ck-scrim .ck-gateway-list {border:1px solid var(--subscription-line)!important;background:transparent!important}
+.ck-scrim .ck-gateway-row {background:transparent!important;color:var(--subscription-ink)!important;box-shadow:none!important}
+.ck-scrim .ck-form input {background:var(--subscription-surface)!important;color:var(--subscription-ink)!important;border:1px solid var(--subscription-line)!important;box-shadow:none!important}
+.ck-scrim .ck-cta {background:var(--subscription-ink)!important;color:var(--subscription-inverse)!important;box-shadow:none!important}

@@ -49,4 +49,7 @@
 .hub-home-bottom .hub-subscription-tools {position:relative;z-index:61;display:flex;align-items:center;border:1px solid var(--hub-line-strong);background:var(--hub-surface);border-radius:999px;box-shadow:var(--hub-shadow);overflow:hidden}
 .hub-home-bottom .hub-subscription-tools button {width:46px;height:46px;border:0;background:transparent;box-shadow:none;border-radius:0;color:var(--hub-ink)}
 .hub-home-bottom .hub-subscription-tools .hub-subscription-star {color:var(--subscription-highlight);border-inline-end:1px solid var(--hub-line-strong)}
-.hub-home-bottom .hub-subscription-tools button:hover {background:var(--hub-surface-raised)}
+.hub-home-bottom .hub-subscription-tools button:hover {background:var(--hub-surface-raised)}/* Beat app-wide legacy tab surfaces without changing other settings. */
+.agent-hub.subscription-page .subscription-tabs {background:transparent!important;border:0!important;border-bottom:1px solid var(--subscription-line)!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+.agent-hub.subscription-page .subscription-tabs button {border:0!important;border-bottom:2px solid transparent!important;background:transparent!important;color:var(--subscription-muted)!important;box-shadow:none!important;border-radius:0!important}
+.agent-hub.subscription-page .subscription-tabs button[aria-selected=true] {color:var(--subscription-ink)!important;border-bottom-color:var(--subscription-highlight)!important}
