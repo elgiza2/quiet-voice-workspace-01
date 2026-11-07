@@ -1,0 +1,1 @@
+- Settings, phone and bot-editor visuals live in src/styles/settings-polish.css, imported last by CeyoSettings and HubPanels and scoped to those screens. Why: older stacked stylesheets made row sizes and buttons inconsistent; one final layer keeps them uniform.

@@ -168,3 +168,4 @@
 .agent-hub.ceyo-page .ceyo-vault-tabs button { font-size: 14px !important; }
 .gx-create:not(.ob-bot *) .gx-create-body > * { flex-shrink: 0; }
 .gx-apps .gx-apps-head h1 { font-size: 18px; font-weight: 600; }
+.agent-hub.ceyo-page .ceyo-vault-tabs { padding: 0 16px !important; }
