@@ -278,7 +278,9 @@
 - [ ] Agent phone numbers via Telnyx (key saved, $5 balance) — buy number, inbound/outbound AI calls, user credit
 
 ## Agent phone calls (Telnyx) — 2026-11-07 15:50 UTC
-- [ ] Agents call real numbers the user gives them (restaurant, company) and report back in chat.
-- [ ] Agents call the user's own saved mobile number.
-- [ ] Agent phone number: anyone calling it talks to that agent; the call summary lands in the chat.
-- [ ] Phone settings page: your number, agent numbers, recent calls. Tests, real test call, handoff.
+- [x] phone_call agent tool: real calls to numbers the user gives (or that appear in the chat) and to the user's saved mobile; one call per request, 10/day, 10 min each; summary posted in the chat after the call.
+- [x] Agent phone number: Settings → Phone calls gives an agent the free number; callers talk to that agent and the summary lands in its chat. Real assignment/routing/release verified against Telnyx.
+- [x] Phone settings page (your mobile, agent numbers, recent calls); 5 rule tests pass, typecheck OK.
+- [ ] Outgoing calls: blocked by Telnyx account level (D61). Owner must upgrade/verify the Telnyx account; Egypt and Gulf destinations open automatically after that.
+- [ ] Live incoming call test: needs someone to phone +1 235 204 7886 after giving it to an agent. Signed-in page view unverified (user-managed sign-in).
+- [ ] Instant call results via webhook: needs this project published at ceyo.si (or PUBLIC_APP_URL); until then results arrive by sync while a chat is open or on the scheduler tick.
