@@ -166,7 +166,24 @@ async function checkBackgroundJobs() {
       const j = await res.json().catch(() => ({}));
       if (j?.done && j.conversationId) { deliveredJobs.add(r.id); changeSubs.forEach((f) => f(j.conversationId)); }
     }
+    await checkPhoneCalls(token);
   } catch { /* try again next tick */ } finally { polling = false; }
+}
+
+/* Phone calls: active outbound calls are checked every tick, incoming calls on agent numbers every minute. */
+let lastInboundSync = 0;
+async function checkPhoneCalls(token: string) {
+  const [{ data: active }, { data: lines }] = await Promise.all([
+    db.from("phone_calls").select("id").in("status", ["dialing", "in_progress"]).limit(1),
+    db.from("phone_numbers").select("id").limit(1),
+  ]);
+  const inboundDue = Boolean(lines?.length) && Date.now() - lastInboundSync > 60_000;
+  if (!active?.length && !inboundDue) return;
+  if (inboundDue) lastInboundSync = Date.now();
+  const res = await fetch("/api/phone", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ action: "sync" }) });
+  if (!res.ok) return;
+  const j = await res.json().catch(() => ({}));
+  for (const id of (j?.changed ?? []) as string[]) changeSubs.forEach((f) => f(id));
 }
 
 const agentInput = (a: { name: string; description: string; prompt: string; color: AgentColor; voiceSettings?: AgentVoiceSettings }) => ({ name: a.name, description: a.description, instructions: a.prompt, look: { color: a.color, ...(a.voiceSettings ? { voiceSettings: a.voiceSettings } : {}) } });
