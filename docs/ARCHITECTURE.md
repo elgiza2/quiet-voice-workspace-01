@@ -42,3 +42,5 @@ One "New Group" flow (`NewPeopleChat` mode `group`): add any mix of people and b
 
 ## Handoff files
 `roadmap.md` = active task list; `README.md` = current work + verification; `AGENTS.md` (root + per folder) = rules.
+
+- Web payments: Egypt uses Kashier Direct API (card from browser to Kashier, Vodafone Cash R2P, EGP from live FX); other countries use Dodo checkout confirmed by server lookup; product ids in src/lib/payments/regions.ts.

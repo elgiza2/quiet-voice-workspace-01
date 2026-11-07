@@ -312,5 +312,5 @@
 - [x] Bot editor: fixed squashed name field, labelled sections, larger colours, and added Description + Instructions fields
 - [x] Wording fixes (AI instead of "SI", page titles); checked with a demo account in a test browser (real sign-in unavailable)
 
-- [ ] Plans page: primary button says Subscribe (not Change plan) when user has no paid plan
-- [ ] Kashier direct API (card + Vodafone Cash, EGP) for Egypt; Dodo checkout for other countries
+- [x] Plans page: primary button says Subscribe (not Change plan) when user has no paid plan
+- [x] Kashier direct API (card + Vodafone Cash, EGP) for Egypt; Dodo checkout for other countries
