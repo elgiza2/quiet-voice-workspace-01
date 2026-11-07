@@ -34,7 +34,7 @@ export async function getActiveSubscriptionPlan(userId: string): Promise<Effecti
   inflight = (async () => {
     const { data, error } = await supabase
       .from("subscriptions")
-      .select("plan, status, current_period_end")
+      .select("plan, current_period_end")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -42,12 +42,11 @@ export async function getActiveSubscriptionPlan(userId: string): Promise<Effecti
 
     let result: EffectivePlan | null = null;
     if (!error && data) {
-      const status = String((data as any).status || "").toLowerCase();
       const end = (data as any).current_period_end
         ? new Date((data as any).current_period_end as string).getTime()
         : null;
       const active =
-        (status === "active" || status === "trialing") && (end === null || end > Date.now());
+        end === null || end > Date.now();
       const plan = String((data as any).plan || "").toLowerCase();
       if (active && plan && plan !== "free") result = { plan, isPaid: true };
     }

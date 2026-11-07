@@ -1,0 +1,1 @@
+- Orders are priced on the server from plans.ts and only the signature-verified Kashier webhook or a Play-API-verified token can settle them, via the service-only settle_payment_order function. Why: the browser can never grant a plan or change a price.

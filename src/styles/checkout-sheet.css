@@ -1,0 +1,23 @@
+.ck-scrim{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);animation:ck-fade .18s ease-out}
+.ck-sheet{width:100%;max-width:480px;max-height:92dvh;display:flex;flex-direction:column;gap:14px;padding:18px 18px calc(18px + env(safe-area-inset-bottom));border-radius:26px 26px 0 0;background:#1c1c1e;color:#fff;border:1px solid rgba(255,255,255,.08);animation:ck-up .24s cubic-bezier(.2,.8,.2,1)}
+@media(min-width:640px){.ck-scrim{align-items:center}.ck-sheet{border-radius:26px}}
+.ck-head{display:flex;align-items:center;justify-content:space-between}
+.ck-head h2{margin:0;font-size:18px;font-weight:600}
+.ck-x{display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
+.ck-summary,.ck-total{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:18px;background:#2a2a2c}
+.ck-summary div{display:flex;flex-direction:column;gap:2px}
+.ck-summary small{color:#8e8e93;font-size:13px}
+.ck-total{background:transparent;padding:4px 6px;color:#c7c7cc}
+.ck-total b{color:#fff;font-size:18px}
+.ck-cta{display:flex;align-items:center;justify-content:center;height:50px;border:0;border-radius:999px;background:#fff;color:#000;font-size:16px;font-weight:600;cursor:pointer}
+.ck-cta:disabled{opacity:.6}
+.ck-note{display:flex;align-items:center;justify-content:center;gap:6px;margin:0;color:#8e8e93;font-size:12px;text-align:center}
+.ck-error{margin:0;color:#ff6b6b;font-size:13px}
+.ck-frame{width:100%;height:min(620px,70dvh);border:0;border-radius:16px;background:#fff}
+.ck-link{display:flex;align-items:center;justify-content:center;gap:6px;color:#8e8e93;font-size:13px}
+.ck-done{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 0;color:#34c759}
+.ck-done p{margin:0;color:#fff}
+.ck-done .ck-cta{width:100%}
+@keyframes ck-up{from{transform:translateY(24px);opacity:0}}
+@keyframes ck-fade{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.ck-scrim,.ck-sheet{animation:none}}

@@ -4,6 +4,12 @@
  * app tree mounts. Never imported during SSR.
  */
 
+import { landingRedirect } from "@/config/domains";
+// ceyo.si serves only the landing/public pages; the app lives on web.ceyo.si.
+{
+  const to = landingRedirect(window.location.host, window.location.pathname, window.location.search);
+  if (to) window.location.replace(to);
+}
 // Register route prefetch loaders (hover/focus/touch intent prefetching).
 import "@/lib/routePrefetch.registry";
 // First visit ever → show the onboarding showcase instead of the chat.

@@ -25,6 +25,7 @@ import {
 import "@/styles/agent-hub.css";
 import "@/styles/ceyo.css";
 import "@/styles/settings-polish.css";
+import { CheckoutSheet } from "@/components/billing/CheckoutSheet";
 
 type Nav = (to: string) => void;
 
@@ -312,6 +313,7 @@ function Plans({ nav }: { nav: Nav }) {
   const { plan } = useCredits() as { plan: string };
   const [tab, setTab] = useState(0);
   const [yearly, setYearly] = useState(false);
+  const [paying, setPaying] = useState(false);
   const p = PLANS[tab];
   const current = plan?.toLowerCase() === p.id;
   return (
@@ -338,8 +340,9 @@ function Plans({ nav }: { nav: Nav }) {
           <Button variant="ghost" type="button" aria-pressed={!yearly} data-on={!yearly} onClick={() => setYearly(false)}><b>${p.price}</b> <span>{p.yearly ? "monthly" : "billed monthly"}</span></Button>
           {p.yearly > 0 && <Button variant="ghost" type="button" aria-pressed={yearly} data-on={yearly} onClick={() => setYearly(true)}><b>${p.yearly}</b> <span>yearly</span><small>${(p.yearly / 12).toFixed(2)}/mo · <em>Save 17%</em></small></Button>}
         </div>
-        <Button variant="ghost" type="button" className="ceyo-plans-cta" data-current={current} disabled={current} onClick={() => toast("Payments are coming soon")}>{current ? "Current plan" : "Change plan"}</Button>
-        <p className="ceyo-plans-legal">Purchases aren’t available yet. <a href="/subscription-terms">Subscription terms</a></p>
+        <Button variant="ghost" type="button" className="ceyo-plans-cta" data-current={current} disabled={current} onClick={() => setPaying(true)}>{current ? "Current plan" : "Change plan"}</Button>
+        <p className="ceyo-plans-legal">Cancel anytime. <a href="/subscription-terms">Subscription terms</a></p>
+        {paying && <CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} />}
       </div>
         </div>
       </div>

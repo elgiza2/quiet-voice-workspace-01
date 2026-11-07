@@ -16,6 +16,8 @@ import { registerRoute } from "@/lib/routePrefetch";
 // -- Top-level app routes --------------------------------------------------
 registerRoute(/^\/auth(\/|$)/, () => import("@/pages/auth/AuthPage"));
 registerRoute(/^\/chat(\/|$)/, () => import("@/pages/agent/AgentHubPage"));
+registerRoute(/^\/(index)?$/, () => import("@/pages/agent/AgentHubPage"));
+registerRoute(/^\/wallet(\/|$)/, () => import("@/pages/wallet/WalletPage"));
 
 // -- Settings --------------------------------------------------------------
 registerRoute(/^\/settings(\/|$)/, () => import("@/pages/ceyo/CeyoSettings"));
@@ -35,5 +37,21 @@ registerRoute(/^\/pricing$/, () => import("@/pages/ceyo/CeyoSettings"));
 // -- Integrations ----------------------------------------------------------
 
 // -- Landings / promos -----------------------------------------------------
+
+// -- Idle warm-up: download the main screens once the first one is shown, so
+//    moving between Home, Settings and Wallet never waits for the network.
+if (typeof window !== "undefined") {
+  const warm = () => {
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (conn?.saveData) return;
+    void import("@/pages/agent/AgentHubPage");
+    void import("@/pages/ceyo/CeyoSettings");
+    void import("@/pages/wallet/WalletPage");
+  };
+  const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+  const schedule = () => (idle ? idle(warm, { timeout: 4000 }) : setTimeout(warm, 2500));
+  if (document.readyState === "complete") schedule();
+  else window.addEventListener("load", schedule, { once: true });
+}
 
 export {};
