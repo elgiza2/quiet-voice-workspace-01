@@ -585,41 +585,50 @@ export type Database = {
       payment_orders: {
         Row: {
           amount: number
+          checkout_ref: string | null
           created_at: string
           currency: string
           id: string
           interval: string
+          method: string | null
           provider: string
           provider_ref: string | null
           status: string
           tier: string
           updated_at: string
+          usd_amount: number | null
           user_id: string
         }
         Insert: {
           amount: number
+          checkout_ref?: string | null
           created_at?: string
           currency: string
           id: string
           interval: string
+          method?: string | null
           provider: string
           provider_ref?: string | null
           status?: string
           tier: string
           updated_at?: string
+          usd_amount?: number | null
           user_id: string
         }
         Update: {
           amount?: number
+          checkout_ref?: string | null
           created_at?: string
           currency?: string
           id?: string
           interval?: string
+          method?: string | null
           provider?: string
           provider_ref?: string | null
           status?: string
           tier?: string
           updated_at?: string
+          usd_amount?: number | null
           user_id?: string
         }
         Relationships: []
