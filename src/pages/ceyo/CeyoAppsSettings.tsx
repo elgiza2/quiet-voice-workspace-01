@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -23,6 +23,8 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
   const [cat, setCat] = useState("All");
   const [busy, setBusy] = useState("");
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(24);
+  const moreRef = useRef<HTMLDivElement>(null);
   const refresh = async (): Promise<boolean> => {
     try { const state = await loadIntegrationConnections(CATALOG); setConnected(state.connectedApps); setAccounts(state.accounts); setError(""); return true; } catch (e) { setError(e instanceof Error ? e.message : "Could not load accounts"); return false; }
   };
@@ -33,6 +35,17 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
   }, [ownerId]);
   const cats = useMemo(() => ["All", ...Array.from(new Set(CATALOG.map((item) => item.category)))], []);
   const filtered = CATALOG.filter((item) => (cat === "All" || cat === "Suggested" || item.category === cat) && (!query || `${item.name} ${item.description}`.toLowerCase().includes(query.toLowerCase())));
+  const visible = filtered.slice(0, visibleCount);
+  useEffect(() => { setVisibleCount(24); }, [cat, query]);
+  useEffect(() => {
+    const marker = moreRef.current;
+    if (!marker || visibleCount >= filtered.length) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) setVisibleCount((count) => count + 24);
+    }, { root: marker.closest(".gx-apps-scroll"), rootMargin: "240px" });
+    observer.observe(marker);
+    return () => observer.disconnect();
+  }, [visibleCount, filtered.length, appId]);
   const count = Object.values(connected).filter(Boolean).length;
   const toggle = async (item: Integration) => {
     setBusy(item.app);
@@ -74,9 +87,10 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
     <div className="gx-apps-scroll">
       {error && <p className="text-destructive p-4" role="alert">{error}</p>}
       {cat === "All" || cat === "Suggested" ? <>
-        {!query && <><h3 className="gx-sec">For You <ChevronRight size={18} /></h3>{filtered.slice(0, 4).map(row)}<h3 className="gx-sec">Featured plugins <ChevronRight size={18} /></h3></>}
-        {(query ? filtered : filtered.slice(4)).map(row)}
-      </> : filtered.map(row)}
+        {!query && <><h3 className="gx-sec">For You <ChevronRight size={18} /></h3>{visible.slice(0, 4).map(row)}<h3 className="gx-sec">Featured plugins <ChevronRight size={18} /></h3></>}
+        {(query ? visible : visible.slice(4)).map(row)}
+      </> : visible.map(row)}
+      {visibleCount < filtered.length && <div ref={moreRef}><Button variant="ghost" onClick={() => setVisibleCount((count) => count + 24)}>More apps</Button></div>}
     </div>
     <div className="gx-bottom-search"><Search size={20} /><input aria-label="Search apps" placeholder="Search across apps and skills" value={query} onChange={(event) => setQuery(event.target.value)} /></div>
   </div>;

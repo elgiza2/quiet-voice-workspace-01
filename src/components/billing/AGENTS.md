@@ -1,2 +1,3 @@
 - PaymentGatewaySheet is presentation-only; CheckoutSheet retains provider selection, server quotes and verified settlement. Why: importing reference UI must not grant subscriptions from browser state.
 - Checkout visuals use scoped subscriptions.css and checkout-sheet.css tokens after legacy styles. Why: global dialog and input rules otherwise override the reference design.
+- The method chooser mirrors the original menu and card details reuse its original photographic/glass presentation; retain payment logic independently. Why: future presentation changes must not silently swap provider behavior.

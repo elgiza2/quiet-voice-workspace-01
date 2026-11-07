@@ -1,9 +1,11 @@
 ## Exact reference, navigation and release preparation — 2026-11-07 17:56 UTC
-- [ ] Match original checkout colours and layout without added decoration; match uploaded pricing screenshots while keeping Ceyo prices.
-- [ ] Repair settings/integrations opening lag and navigation; verify affected flows.
-- [ ] Prepare Vercel deployment configuration and instructions (no deployment requested).
-- [ ] Prepare a Google Play Android upload bundle; identify signing/SDK/hosting blockers accurately.
-- [ ] Refine uploaded app icon, preserve its identity, and prepare clear web/Android icon sizes.
+- [x] Match original chooser colours/spacing and original photographic card form; pricing follows screenshots, keeping Ceyo prices. Visually reviewed at 320/434/1280.
+- [x] Separate integration/billing chunks; remove duplicate startup warmers and private-page prerenders; catalogue initially renders 24 instead of 1030 rows, then grows on scroll; detail/back checked with isolated components.
+- [x] Prepare conditional Vercel adapter and docs/VERCEL-AND-PLAY.md; not deployed or verified on Vercel.
+- [x] Create Capacitor Android project and compile unsigned API-36 AAB with Google Play Billing; prepare source archive and signing guide.
+- [ ] Google Play upload: blocked on owner-held upload-key signing, live app.ceyo.si and Play Console setup. Real purchases/restore/acknowledgment/renewal tests not complete; initial bundle only.
+- [x] Refine uploaded icon preserving ghost/sparkle; install clear web/Android icons and replace stock splash images.
+- [ ] Real signed-in navigation/performance check: external_unmanaged session unavailable; isolated route/detail/back and regression test passed, not real account verification.
 
 ## Subscription visual revision — 2026-11-07 17:29 UTC
 - [x] Reuse the reference repository's web payment sheet design while preserving payment verification.

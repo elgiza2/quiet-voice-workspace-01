@@ -43,3 +43,6 @@
 - Update README.md's current-work and verification sections after every implementation pass, keeping roadmap.md as the active task list. Why: successor agents need an accurate handoff rather than historical completion claims.
 
 - Read docs/ARCHITECTURE.md first for domains, payment split and code map. Why: one handoff map for successor agents.
+- Vercel selects the existing Nitro adapter only for VERCEL=1; Lovable retains its managed preset. Why: external hosting must not break preview builds or duplicate plugins.
+- Android uses the Capacitor shell and trusted native Play Billing plugin; the server verifies purchases before granting plans. Why: no web payment inside the store app and no client-side entitlement grants.
+- Use nextHop as the single sequential, connection-budgeted warm-up scheduler; never independently prerender private app pages or warm every heavy screen at startup. Why: avoid duplicate app boot and network/main-thread contention.
