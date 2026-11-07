@@ -30,7 +30,7 @@ const PageTransition = ({
     const save = () => { if (scroller && getAuthState().userId === owner) writePageState(owner, path, { ...readPageState(owner, path), scrollTop: scroller.scrollTop }); };
     const onScroll = () => { clearTimeout(timer); timer = setTimeout(save, 200); };
     const attach = () => {
-      const next = root.querySelector<HTMLElement>(".ceyo-scroll, .gx-apps-scroll, .hub-home-scroll");
+      const next = root.querySelector<HTMLElement>(".ceyo-scroll, .gx-apps-scroll, .hub-home-scroll, .subscription-content");
       if (next === scroller) return;
       if (frame !== undefined) cancelAnimationFrame(frame);
       clearTimeout(timer);
