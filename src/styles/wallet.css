@@ -67,7 +67,7 @@ em.wl-delta[data-up="true"] { color: hsl(145 60% 50%); }
 .wl button { font: inherit; color: inherit; cursor: pointer; }
 .wl-top .wl-tabs { flex: 1; }
 .wl-tap { cursor: pointer; transition: background .15s; } .wl-tap:active { background: var(--wl-line); }
-.wl-qa { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 24px 0 6px; }
+.wl-qa { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 24px 0 6px; }
 .wl-qa button { display: grid; justify-items: center; gap: 8px; padding: 14px 6px; border: 0; border-radius: 20px; background: var(--wl-card); font-size: 14px; font-weight: 600; }
 .wl-qa span { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--wl-accent); color: hsl(0 0% 6%); }
 .wl-h2 { font-size: 20px; font-weight: 700; margin: 0 0 10px; } .wl-big { font-size: 28px; margin: 4px 0 2px; }
