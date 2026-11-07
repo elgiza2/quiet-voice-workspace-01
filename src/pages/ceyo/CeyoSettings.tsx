@@ -718,10 +718,10 @@ function Appearance({ nav }: { nav: Nav }) {
   const chooseSurface = (value: SurfaceMode) => { setSurface(value); applySurface(value); };
   return (
     <Shell title="Appearance" back={() => nav("/settings")}>
-      <Group title="Theme"><span hidden /></Group>
-      <div className="ceyo-theme-grid" style={{ marginTop: -16, marginBottom: 28 }}>{options.map(([value, label, icon]) => <button type="button" key={value} data-active={mode === value} onClick={() => { setTheme(value); setMode(value); }}><span>{icon}</span><strong>{label}</strong></button>)}</div>
-      <Group title="Chat background"><span hidden /></Group>
-      <div className="ceyo-surface-grid" style={{ marginTop: -16 }}>
+      <h2 className="st-section">Theme</h2>
+      <div className="ceyo-theme-grid" style={{ marginBottom: 28 }}>{options.map(([value, label, icon]) => <button type="button" key={value} data-active={mode === value} onClick={() => { setTheme(value); setMode(value); }}><span>{icon}</span><strong>{label}</strong></button>)}</div>
+      <h2 className="st-section">Chat background</h2>
+      <div className="ceyo-surface-grid">
         <button type="button" data-active={surface === "black"} onClick={() => chooseSurface("black")}><span><i className="ceyo-black-dot" /></span><strong>Black</strong></button>
         <button type="button" data-active={surface === "bot"} onClick={() => chooseSurface("bot")}><span><i className="ceyo-bot-color-dot" /></span><strong>Bot color</strong></button>
       </div>

@@ -157,3 +157,4 @@
 .gx-create:not(.ob-bot *) .gx-create-preview { align-self: center; }
 .gx-create .st-hint { margin: 8px 4px 0; text-align: start; }
 .ob-bot .gx-create-foot { display: contents; }
+.agent-hub.ceyo-page .st-section { margin: 0 4px 10px; color: var(--st-muted); font-size: 13px; font-weight: 500; }
