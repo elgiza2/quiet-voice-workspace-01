@@ -15,7 +15,11 @@ function valid(value: unknown): value is PageState {
 function key(owner: string, path: string) { return PAGE_STATE_PREFIX + encodeURIComponent(owner) + ":" + path; }
 function storageKeys() { return Object.keys(localStorage).filter(k => k.startsWith(PAGE_STATE_PREFIX)); }
 /** Run on every identity transition, including a first session on a shared device. */
-export function syncPageStateOwner(previous: string | null, next: string | null) { if (previous !== next || next === null) clearPageStates(); }
+export function syncPageStateOwner(previous: string | null, next: string | null) {
+  if (!next || (previous && previous !== next)) { clearPageStates(); return; }
+  if (previous === next) return;
+  try { const own = PAGE_STATE_PREFIX + encodeURIComponent(next) + ":"; storageKeys().filter(k => !k.startsWith(own)).forEach(k => localStorage.removeItem(k)); } catch {}
+}
 export function clearPageStates() { try { storageKeys().forEach(k => localStorage.removeItem(k)); } catch { /* Storage may be disabled. */ } }
 export function readPageState(owner: string | null, path: string): PageState | null {
   if (!owner || !PATHS.has(path)) return null;

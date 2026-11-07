@@ -43,4 +43,9 @@ describe("safe page state", () => {
     for (let i = 0; i < 50; i++) writePageState(`owner-${i}`, "/settings", { tab: 0 });
     expect(Object.keys(localStorage).filter(k => k.startsWith(PAGE_STATE_PREFIX))).toHaveLength(32);
   });
+  it("retains the same owner's saved state after a reload but discards other owners", () => {
+    writePageState("a", "/settings", { tab: 1 }); writePageState("b", "/settings", { tab: 2 });
+    syncPageStateOwner(null, "a");
+    expect(readPageState("a", "/settings")).toEqual({ tab: 1 }); expect(readPageState("b", "/settings")).toBeNull();
+  });
 });
