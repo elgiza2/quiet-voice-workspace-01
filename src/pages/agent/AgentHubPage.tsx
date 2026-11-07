@@ -339,7 +339,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
         <button type="button" aria-label="Account" className="hub-user-avatar" onClick={() => nav("/settings")}>{userAvatar ? <img src={userAvatar} alt="" /> : <span>{userInitial}</span>}</button>
         <div className="hub-plus-wrap" ref={plusRef}>
           <HubIconButton label={ar ? "إنشاء" : "Create"} onClick={() => setPlusOpen((open) => !open)} active={plusOpen}><Plus size={22} /></HubIconButton>
-          {plusOpen && <div className="hub-menu hub-plus-menu" role="menu"><button type="button" role="menuitem" onClick={() => go({ new: "bot" })}>{ar ? "بوت جديد" : "New Bot"}</button><button type="button" role="menuitem" onClick={() => go({ new: "group" })}>{ar ? "جروب جديد" : "New Group Chat"}</button><button type="button" role="menuitem" onClick={() => go({ new: "dm" })}>{ar ? "رسالة لشخص" : "New Message"}</button><button type="button" role="menuitem" onClick={() => go({ new: "pgroup" })}>{ar ? "جروب مع ناس" : "New People Group"}</button></div>}
+          {plusOpen && <div className="hub-menu hub-plus-menu" role="menu"><button type="button" role="menuitem" onClick={() => go({ new: "bot" })}>{ar ? "بوت جديد" : "New Bot"}</button><button type="button" role="menuitem" onClick={() => go({ new: "pgroup" })}>{ar ? "جروب جديد" : "New Group"}</button><button type="button" role="menuitem" onClick={() => go({ new: "dm" })}>{ar ? "رسالة لشخص" : "New Message"}</button></div>}
         </div>
       </header>
 
