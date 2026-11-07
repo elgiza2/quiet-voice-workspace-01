@@ -24,6 +24,7 @@ import {
 } from "./settingsPreferences";
 import "@/styles/agent-hub.css";
 import "@/styles/ceyo.css";
+import "@/styles/settings-polish.css";
 
 type Nav = (to: string) => void;
 
@@ -64,7 +65,7 @@ function Row({ icon, label, value, onClick, danger, right, sub, checked, disable
       tabIndex={onClick ? 0 : -1}
     >
       {icon && <span className="ceyo-row-icon">{icon}</span>}
-      <span className="ceyo-row-label">{sub ? <><strong>{label}</strong><small>{sub}</small></> : label}</span>
+      <span className="ceyo-row-label"><strong>{label}</strong>{sub && <small>{sub}</small>}</span>
       {value && <span className="ceyo-row-value">{value}</span>}
       {right ?? (onClick && !danger ? <ChevronRight size={17} className="ceyo-row-chev" /> : null)}
     </button>
@@ -125,7 +126,6 @@ function usageFor(credits: number | null, plan: string) {
 function Main({ nav }: { nav: Nav }) {
   const [haptics, setHaptics] = useState(true);
   const [notify, setNotify] = useState(false);
-  const [autoTz, setAutoTz] = useState(true);
   const [theme, setThemeMode] = useState<ThemeMode>("dark");
   const [language, setLanguage] = useState("System");
   const [permissions, setPermissions] = useState<PermissionPreferences>(DEFAULT_PERMISSIONS);
@@ -136,7 +136,6 @@ function Main({ nav }: { nav: Nav }) {
   useEffect(() => {
     setHaptics(localStorage.getItem("ceyo_haptics") !== "off");
     setNotify(localStorage.getItem("ceyo_notify") === "on");
-    setAutoTz(localStorage.getItem("ceyo_auto_tz") !== "off");
     setThemeMode(getStoredTheme());
     const savedLanguage = localStorage.getItem("ceyo_language") || "system";
     setLanguage(LANGUAGES.find(([code]) => code === savedLanguage)?.[1] || "System");
@@ -171,7 +170,6 @@ function Main({ nav }: { nav: Nav }) {
       <Group title="Agent">
         <Row label="Permissions" sub={permissionSummary(permissions)} onClick={() => nav("/settings/permissions")} />
         <Row label="Phone calls" sub="Your mobile, agent numbers and call history" onClick={() => nav("/settings/phone")} />
-        <Row label="Set Time Zone Automatically" sub="Saved preference; no computer is connected." checked={autoTz} disabled right={<Toggle on={autoTz} />} />
         <Row label="Time Zone" value={tz} right={<span />} />
         <Row label="Agent Computer" onClick={() => nav("/settings/computer")} />
         <Row label="Manage your devices" onClick={() => nav("/settings/devices")} />
@@ -300,13 +298,13 @@ function Storage({ nav }: { nav: Nav }) {
 
 const PLANS = [
   { id: "plus", name: "Plus", price: 20, yearly: 199, mult: "4x", base: "", groups: [
-    { title: "SI benefits", items: ["Ceyo Bot", "Newest Ceyo models", "Faster chat replies", "Create images and videos with SI", "Cloud agents and automation", "Code hosting and SI code reviews"] },
+    { title: "Included", items: ["Ceyo Bot", "Newest Ceyo models", "Faster chat replies", "Create images and videos with AI", "Cloud agents and automation", "Code hosting and AI code reviews"] },
   ] },
   { id: "pro", name: "Pro", price: 60, yearly: 0, mult: "15x", base: "Plus", groups: [
-    { title: "SI benefits", items: ["Create 1080p videos", "Priority model access at peak times", "Faster replies and generations"] },
+    { title: "Included", items: ["Create 1080p videos", "Priority model access at peak times", "Faster replies and generations"] },
   ] },
   { id: "ultra", name: "Ultra", price: 120, yearly: 0, mult: "50x", base: "Pro", groups: [
-    { title: "SI benefits", items: ["Most capable chat models", "Early access to new products and models", "Fastest replies and generations"] },
+    { title: "Included", items: ["Most capable chat models", "Early access to new products and models", "Fastest replies and generations"] },
   ] },
 ] as const;
 
@@ -483,7 +481,7 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
     {button(item)}
   </div>;
   return <div className="gx-apps">
-    <header className="gx-apps-head"><button type="button" className="gx-round" aria-label="Back" onClick={() => nav("/")}><ChevronLeft size={24} /></button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
+    <header className="gx-apps-head"><button type="button" className="gx-round" aria-label="Back" onClick={() => (window.history.length > 1 ? window.history.back() : nav("/settings"))}><ChevronLeft size={24} /></button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
     <div className="gx-chips">{cats.map((category) => <button type="button" key={category} data-active={cat === category || (category === "All" && cat === "Suggested")} onClick={() => setCat(category)}>{category}</button>)}</div>
     <div className="gx-apps-scroll">
       {error && <p className="text-destructive p-4" role="alert">{error}</p>}
@@ -513,7 +511,7 @@ function Devices({ nav }: { nav: Nav }) {
   return (
     <Shell title="Manage your devices" back={() => nav("/settings")}>
       <Group title="This device">
-        <Row icon={<span className="ceyo-device-icon"><Smartphone size={19} /><i /></span>} label={`${name} · This device`} value="Active now" onClick={() => setExpanded((value) => !value)} />
+        <Row icon={<span className="ceyo-device-icon"><Smartphone size={19} /><i /></span>} label={name === "This device" ? "This device" : `${name} · This device`} value="Active now" onClick={() => setExpanded((value) => !value)} />
       </Group>
       {expanded && <Group title="Device details"><Row label="Platform" value={name} /><Row label="Time Zone" value={tz} /><Row label="Status" value="Current session" /></Group>}
       <Group><Row label={busy ? "Signing out…" : "Sign out of other devices"} disabled={busy} onClick={() => void signOutOthers()} /></Group>
@@ -616,7 +614,7 @@ function Phone({ nav }: { nav: Nav }) {
 function Computer({ nav }: { nav: Nav }) {
   const [confirming, setConfirming] = useState(false);
   return (
-    <Shell title="Bot Computer" back={() => nav("/settings")}>
+    <Shell title="Agent Computer" back={() => nav("/settings")}>
       <Group><Row label="Reset Computer" sub="No computer service connected" disabled right={<span />} /></Group>
       <p className="ceyo-note">Computer execution is unavailable. Web research and saved text files remain available.</p>
       {confirming && <div className="ceyo-card ceyo-confirm-card"><strong>Reset this computer?</strong><p>This requires a connected bot computer. Recent changes may be lost.</p><div className="hub-form-footer"><button type="button" className="hub-button hub-button-primary" onClick={() => { setConfirming(false); toast.error("No connected bot computer is available to reset"); }}>Reset</button><button type="button" className="hub-button hub-button-secondary" onClick={() => setConfirming(false)}>Cancel</button></div></div>}
@@ -683,11 +681,20 @@ function Memory({ nav }: { nav: Nav }) {
   };
   return (
     <Shell title="Import Memory" back={() => nav("/settings")}>
-      <section className="ceyo-memory-step"><h2>1. Copy this prompt into a chat with your other SI assistant</h2><div className="ceyo-memory-prompt"><p>{MEMORY_PROMPT}</p><button type="button" onClick={() => void copyPrompt()}><Copy size={16} />Copy prompt</button></div></section>
+      <section className="ceyo-memory-step"><h2>1. Copy this prompt into a chat with your other AI assistant</h2><div className="ceyo-memory-prompt"><p>{MEMORY_PROMPT}</p><button type="button" onClick={() => void copyPrompt()}><Copy size={16} />Copy prompt</button></div></section>
       <section className="ceyo-memory-step"><h2>2. Paste the results below to add them to Ceyo Bot's memory</h2><textarea className="ceyo-input ceyo-textarea" maxLength={5000} placeholder="Paste your memory details here" value={text} onChange={(event) => setText(event.target.value)} /></section>
-      <Button type="button" className="hub-button hub-button-primary ceyo-wide ceyo-memory-add" disabled={!text.trim() || saving} onClick={() => void add()}>{saving ? "Adding…" : "Add to Memory"}</Button>
-      {error && <p role="alert" className="text-destructive p-4">{error}</p>}
-      <section className="px-4 py-4"><h2>Saved memories</h2>{memories.map((memory) => <div key={memory.id} className="flex gap-2 border-b border-border py-3"><p className="min-w-0 flex-1 whitespace-pre-wrap break-words">{memory.content}</p><Button variant="ghost" size="icon-sm" aria-label="Delete memory" onClick={async () => { const { error } = await supabase.from("agent_memories").delete().eq("id", memory.id); if (error) toast.error(error.message); else await refresh(); }}><Trash2 /></Button></div>)}</section>
+      <button type="button" className="st-btn st-btn-wide" disabled={!text.trim() || saving} onClick={() => void add()}>{saving ? "Adding…" : "Add to Memory"}</button>
+      {error && <p role="alert" className="st-hint">{error}</p>}
+      <div style={{ height: 28 }} />
+      <Group title={`Saved memories${memories.length ? ` · ${memories.length}` : ""}`}>
+        <div className="st-memory-list">
+          {memories.length ? memories.map((memory) => <Row key={memory.id} label={memory.content} onClick={async () => {
+            if (!(await askConfirm({ title: "Delete this memory?", body: "Your agents will forget it.", confirm: "Delete", danger: true }))) return;
+            const { error } = await supabase.from("agent_memories").delete().eq("id", memory.id);
+            if (error) toast.error(error.message); else await refresh();
+          }} right={<Trash2 size={16} className="ceyo-row-chev" />} />) : <p className="st-empty">No saved memories yet.</p>}
+        </div>
+      </Group>
     </Shell>
   );
 }
@@ -711,8 +718,10 @@ function Appearance({ nav }: { nav: Nav }) {
   const chooseSurface = (value: SurfaceMode) => { setSurface(value); applySurface(value); };
   return (
     <Shell title="Appearance" back={() => nav("/settings")}>
-      <div className="ceyo-theme-grid">{options.map(([value, label, icon]) => <button type="button" key={value} data-active={mode === value} onClick={() => { setTheme(value); setMode(value); }}><span>{icon}</span><strong>{label}</strong></button>)}</div>
-      <div className="ceyo-surface-grid">
+      <Group title="Theme"><span hidden /></Group>
+      <div className="ceyo-theme-grid" style={{ marginTop: -16, marginBottom: 28 }}>{options.map(([value, label, icon]) => <button type="button" key={value} data-active={mode === value} onClick={() => { setTheme(value); setMode(value); }}><span>{icon}</span><strong>{label}</strong></button>)}</div>
+      <Group title="Chat background"><span hidden /></Group>
+      <div className="ceyo-surface-grid" style={{ marginTop: -16 }}>
         <button type="button" data-active={surface === "black"} onClick={() => chooseSurface("black")}><span><i className="ceyo-black-dot" /></span><strong>Black</strong></button>
         <button type="button" data-active={surface === "bot"} onClick={() => chooseSurface("bot")}><span><i className="ceyo-bot-color-dot" /></span><strong>Bot color</strong></button>
       </div>
@@ -750,7 +759,7 @@ const PLAY_BILLING = "https://play.google.com/store/account/subscriptions";
 function Subscription({ nav }: { nav: Nav }) {
   const openBilling = () => window.open(PLAY_BILLING, "_blank", "noopener");
   return (
-    <Shell title="Premium" back={() => nav("/settings")}>
+    <Shell title="Manage Subscription" back={() => nav("/settings")}>
       <Group>
         <Row label="Manage subscription in Google Play" sub="Card details are handled outside the app." onClick={openBilling} right={<Ext />} />
         <Row label="Change plan" sub="Change your subscription plan." onClick={() => nav("/settings/plans")} />
