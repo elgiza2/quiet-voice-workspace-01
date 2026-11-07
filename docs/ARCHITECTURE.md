@@ -24,6 +24,13 @@ Platform detection should pick the payment path: Android shell → Google Play; 
 - `src/lib/ceyo/` agent loop + tools; `src/lib/phone/` Telnyx; `src/lib/calls/` voice/video; `src/lib/wallet/` signing; `src/lib/keys/` provider key pool.
 - Each folder's `AGENTS.md` holds its rules — read it before editing that folder.
 
+## Payments
+- Prices live in `src/lib/payments/plans.ts` (USD; server prices every order from it).
+- `/api/billing` (signed-in) starts Kashier hosted checkout or verifies a Google Play token; `/api/public/kashier-webhook` verifies the HMAC signature and calls `settle_payment_order` (one-time, atomic).
+- Tables: `payment_orders`, `subscriptions` (owner read-only; server writes). Popup: `src/components/billing/CheckoutSheet.tsx`.
+- Kashier keys: provider keys `kashier_merchant_id`, `kashier_api_key` (env fallback); `KASHIER_MODE=test`, `KASHIER_CURRENCY` optional.
+- Domains: `src/config/domains.ts` decides the surface by host.
+
 ## Groups
 One "New Group" flow (`NewPeopleChat` mode `group`): add any mix of people and bots. There is no separate "people group" entry.
 

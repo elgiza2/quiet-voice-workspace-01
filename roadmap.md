@@ -3,10 +3,11 @@
 - [x] Settings headers back to normal page color.
 - [x] Wrote docs/ARCHITECTURE.md (domains, payments, code map) for the next agent.
 - [x] Cleanup pass 1: removed unused Trigger.dev task/config/package and dated verification notes.
-- [ ] Cleanup pass 2: unused files/packages/legacy Edge Functions (dodo, tiktok, alibaba) — needs a careful usage audit.
-- [ ] Fast navigation: intent preloading, query cache, lazy heavy screens.
-- [ ] Domain split ceyo.si / web.ceyo.si / app.ceyo.si: needs the app published and DNS access.
-- [ ] Kashier popup from nova-quest-rewards-hub on web; Google Play Billing on Android (needs Play Console setup).
+- [x] Cleanup pass 2: removed 4 unused files and 4 unused packages (knip audit). Unused legacy Edge Functions (dodo-*, team-*, agent-scheduler, subscription-manage, media-video-poll) could not be deleted from this editor — remove them from the Supabase dashboard.
+- [x] Fast navigation: idle warm-up of Home/Settings/Wallet screens + prefetch registry entries; immutable asset caching and security headers in vercel.json.
+- [x] Domain split in code (src/config/domains.ts): app paths on ceyo.si move to web.ceyo.si. [ ] DNS + Vercel domains: owner.
+- [x] Kashier complete-payment popup (hosted secure page, server-priced orders, signed webhook, atomic settlement). [ ] Blocked on Kashier merchant ID + payment API key (provider keys kashier_merchant_id / kashier_api_key) and webhook URL in Kashier dashboard.
+- [x] Google Play path in the same popup via MegsyAndroid.purchase + server verification. [ ] Blocked on Play Console products (ceyo_<tier>_<interval>), GOOGLE_PLAY_SERVICE_ACCOUNT and GOOGLE_PLAY_PACKAGE_NAME, and native purchase() in the Android app.
 - [ ] Landing page: later, section by section, per owner.
 
 ## Arabic recording language regression — 2026-11-07 13:17 UTC

@@ -221,3 +221,7 @@ bunx vitest run
 ### Settings/phone/bot editor visual pass — 2026-11-07 16:33 UTC
 - New final style layer `src/styles/settings-polish.css`; bot editor now edits description and instructions (saved through the existing update path).
 - Verified visually with a mocked signed-in browser (fake session + intercepted backend responses), all settings sections, phone page, bot create/edit. Not verified with a real account.
+
+## Payments, domains, cleanup — 2026-11-07 17:15 UTC
+- Current: Kashier popup on web and Google Play path on Android share CheckoutSheet; domain split helper; idle screen warm-up; knip cleanup.
+- Verified: plan-price and domain tests (12) pass, typecheck clean. Not verified: real Kashier payment (keys missing), Play purchase (native + Console missing), popup in a signed-in browser.
