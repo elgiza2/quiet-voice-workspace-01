@@ -1,3 +1,8 @@
+## Continue quiet cleanup — 2026-11-07 23:45 UTC
+- [ ] Inspect remaining unused designs/dependencies and remove only verified leftovers.
+- [ ] Correct any confirmed local page-retention/navigation defects and run regression tests.
+- [ ] Verify available public/isolated browser behavior and update the handoff; real-account checks remain blocked by external unmanaged auth.
+
 ## Separate home controls — 2026-11-07 23:40 UTC
 - [x] Separate star and More into two neutral circular controls with a clean gap. Isolated browser check: 46×46 circles, 8px gap, no shared border.
 
