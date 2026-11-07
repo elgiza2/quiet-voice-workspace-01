@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@anam-ai/js-sdk": "^4.29.1",
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "@clerk/clerk-react": "^5.61.3",
     "@lovable.dev/ai-gateway": "^0.1.11",
     "@noble/curves": "^2.4.0",
@@ -64,6 +66,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.26.5",
     "@testing-library/jest-dom": "^7.0.1",
