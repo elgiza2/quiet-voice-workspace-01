@@ -309,6 +309,7 @@ const PLANS = [
 ] as const;
 
 function Plans({ nav }: { nav: Nav }) {
+  const navigate = useNavigate();
   const { plan } = useCredits() as { plan: string };
   const [tab, setTab] = useState(0);
   const [yearly, setYearly] = useState(false);
@@ -331,7 +332,7 @@ function Plans({ nav }: { nav: Nav }) {
   };
   return (
     <div className="agent-hub ceyo-page subscription-page" data-no-translate dir={ar ? "rtl" : "ltr"}>
-      <header className="subscription-header"><span className="subscription-brand">Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => window.history.length > 1 ? window.history.back() : nav("/")}><X/></Button></header>
+      <header className="subscription-header"><span className="subscription-brand">Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => { if (window.history.state?.idx > 0) navigate(-1); else nav("/"); }}><X/></Button></header>
       <h1 className="subscription-title">{ar ? <>اشتراك واحد.<br/>الوصول إلى كل شيء.</> : <>One subscription.<br/>Access to everything.</>}</h1>
       <main className="subscription-content">
         <div className="subscription-tabs" role="tablist" aria-label="Plans">

@@ -85,7 +85,7 @@ function Apps({ nav, appId }: { nav: Nav; appId?: string }) {
     {button(item)}
   </div>;
   return <div className="gx-apps">
-    <header className="gx-apps-head"><button type="button" className="gx-round" aria-label="Back" onClick={() => (window.history.length > 1 ? window.history.back() : nav("/settings"))}><ChevronLeft size={24} /></button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
+    <header className="gx-apps-head"><Button variant="ghost" size="icon" className="gx-round" aria-label="Back" onClick={() => nav("/settings")}><ChevronLeft size={24} /></Button><h1>Connect apps</h1><span className="gx-count">{count} connected</span></header>
     <div className="gx-chips">{cats.map((category) => <Button variant="ghost" key={category} data-active={cat === category || (category === "All" && cat === "Suggested")} onClick={() => chooseCategory(category)}>{category}</Button>)}</div>
     <div className="gx-apps-scroll">
       {error && <p className="text-destructive p-4" role="alert">{error}</p>}
