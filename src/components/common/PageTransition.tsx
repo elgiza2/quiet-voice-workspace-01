@@ -1,5 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import type { Location } from "react-router-dom";
+import { getAuthState } from "@/lib/authStore";
+import { readPageState, writePageState } from "@/lib/pageStateCache";
 
 /**
  * PageTransition — wraps route content.
@@ -19,10 +21,19 @@ const PageTransition = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const animation = ref.current?.animate([{ opacity: 0.92, transform: "translateY(3px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 160, easing: "cubic-bezier(.2,.8,.2,1)" });
-    return () => animation?.cancel();
-  }, [location?.pathname]);
+    const root = ref.current, path = location?.pathname;
+    const owner = getAuthState().userId;
+    if (!root || !path || location?.search || !owner) return;
+    const scroller = root.querySelector<HTMLElement>(".ceyo-scroll, .gx-apps-scroll, .hub-home-scroll");
+    if (!scroller) return;
+    const cached = readPageState(owner, path);
+    const frame = requestAnimationFrame(() => { if (cached?.scrollTop) scroller.scrollTop = cached.scrollTop; });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const save = () => { if (getAuthState().userId === owner) writePageState(owner, path, { ...readPageState(owner, path), scrollTop: scroller.scrollTop }); };
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(save, 200); };
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    return () => { cancelAnimationFrame(frame); clearTimeout(timer); scroller.removeEventListener("scroll", onScroll); save(); };
+  }, [location?.pathname, location?.search]);
   return <div ref={ref} className="min-h-dvh">{children}</div>;
 };
 

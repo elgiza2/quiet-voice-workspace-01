@@ -23,6 +23,8 @@ import "@/styles/settings-polish.css";
 const CheckoutSheet = lazy(() => import("@/components/billing/CheckoutSheet").then((m) => ({ default: m.CheckoutSheet })));
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
+import { getAuthState } from "@/lib/authStore";
+import { readPageState, writePageState } from "@/lib/pageStateCache";
 
 type Nav = (to: string) => void;
 
@@ -311,6 +313,12 @@ function Plans({ nav }: { nav: Nav }) {
   const [tab, setTab] = useState(0);
   const [yearly, setYearly] = useState(false);
   const [paying, setPaying] = useState(false);
+  useEffect(() => { const saved = readPageState(getAuthState().userId, "/settings/plans"); if (saved?.tab !== undefined) setTab(saved.tab); }, []);
+  const chooseTab = (value: number) => {
+    setTab(value); setYearly(false); setPaying(false);
+    const owner = getAuthState().userId;
+    writePageState(owner, "/settings/plans", { ...readPageState(owner, "/settings/plans"), tab: value });
+  };
   const p = PLANS[tab];
   const current = plan?.toLowerCase() === p.id;
   const ar = useUserLang().startsWith("ar");
@@ -327,7 +335,7 @@ function Plans({ nav }: { nav: Nav }) {
       <h1 className="subscription-title">{ar ? <>اشتراك واحد.<br/>الوصول إلى كل شيء.</> : <>One subscription.<br/>Access to everything.</>}</h1>
       <main className="subscription-content">
         <div className="subscription-tabs" role="tablist" aria-label="Plans">
-          {PLANS.map((x,i) => <Button variant="ghost" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => {setTab(i);setYearly(false);}}>{x.name}</Button>)}
+          {PLANS.map((x,i) => <Button variant="ghost" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => chooseTab(i)}>{x.name}</Button>)}
         </div>
         <section id="subscription-details" role="tabpanel" aria-label={p.name}>
           {p.base && <p className="subscription-base">{ar ? `كل شيء في ${p.base}، و:` : `Everything in ${p.base}, and:`}</p>}
