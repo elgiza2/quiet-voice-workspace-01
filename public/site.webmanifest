@@ -1,7 +1,7 @@
 {
-  "name": "Nova AI — All-in-One AI Platform",
-  "short_name": "Nova",
-  "description": "Chat, images, video, slides and agents in one AI workspace.",
+  "name": "Ceyo — Your Personal Bots",
+  "short_name": "Ceyo",
+  "description": "Personal bots and group chats in your Ceyo workspace.",
   "id": "/",
   "start_url": "/?source=pwa",
   "scope": "/",
@@ -20,8 +20,7 @@
     { "src": "/app-icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
-    { "name": "New chat", "url": "/chat", "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }] },
-    { "name": "Pricing", "url": "/pricing" },
-    { "name": "Library", "url": "/library" }
+    { "name": "Bots", "url": "/", "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Subscriptions", "url": "/settings/plans" }
   ]
 }
