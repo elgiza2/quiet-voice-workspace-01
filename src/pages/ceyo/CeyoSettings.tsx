@@ -340,7 +340,7 @@ function Plans({ nav }: { nav: Nav }) {
           <Button variant="ghost" type="button" aria-pressed={!yearly} data-on={!yearly} onClick={() => setYearly(false)}><b>${p.price}</b> <span>{p.yearly ? "monthly" : "billed monthly"}</span></Button>
           {p.yearly > 0 && <Button variant="ghost" type="button" aria-pressed={yearly} data-on={yearly} onClick={() => setYearly(true)}><b>${p.yearly}</b> <span>yearly</span><small>${(p.yearly / 12).toFixed(2)}/mo · <em>Save 17%</em></small></Button>}
         </div>
-        <Button variant="ghost" type="button" className="ceyo-plans-cta" data-current={current} disabled={current} onClick={() => setPaying(true)}>{current ? "Current plan" : "Change plan"}</Button>
+        <Button variant="ghost" type="button" className="ceyo-plans-cta" data-current={current} disabled={current} onClick={() => setPaying(true)}>{current ? "Current plan" : "Subscribe"}</Button>
         <p className="ceyo-plans-legal">Cancel anytime. <a href="/subscription-terms">Subscription terms</a></p>
         {paying && <CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} />}
       </div>
@@ -807,7 +807,7 @@ function Subscription({ nav }: { nav: Nav }) {
     <Shell title="Manage Subscription" back={() => nav("/settings")}>
       <Group>
         <Row label="Manage subscription in Google Play" sub="Card details are handled outside the app." onClick={openBilling} right={<Ext />} />
-        <Row label="Change plan" sub="Change your subscription plan." onClick={() => nav("/settings/plans")} />
+        <Row label="Subscribe" sub="Choose a Ceyo plan." onClick={() => nav("/settings/plans")} />
         <Row label="Cancel subscription" sub="Cancel your subscription through Google Play." onClick={openBilling} right={<Ext />} />
       </Group>
       <p className="ceyo-sub-note">Ceyo never stores your card. Google Play handles billing, receipts, tax and cancellation, and you can bring a cancelled plan back before the period ends.</p>
