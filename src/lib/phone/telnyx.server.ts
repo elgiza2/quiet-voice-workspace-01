@@ -59,7 +59,7 @@ export async function ensureCallControlApp(): Promise<string> {
   if (!profileId) {
     const body = (countries: string[]) => ({
       name: "Ceyo agents outbound", traffic_type: "conversational", service_plan: "global",
-      whitelisted_destinations: countries, daily_spend_limit: "3.00", daily_spend_limit_enabled: true, concurrent_call_limit: 5,
+      whitelisted_destinations: countries, daily_spend_limit: "3.00", daily_spend_limit_enabled: true,
     });
     const allowed = await tx("/outbound_voice_profiles", { body: body(OUTBOUND_COUNTRIES) }).then(
       (profile) => ({ profile, full: true }),
@@ -71,7 +71,7 @@ export async function ensureCallControlApp(): Promise<string> {
   }
   const app = await tx("/call_control_applications", { body: {
     application_name: "Ceyo agents", webhook_event_url: webhookUrl(), anchorsite_override: "Latency",
-    outbound: { outbound_voice_profile_id: profileId, channel_limit: 5 },
+    outbound: { outbound_voice_profile_id: profileId },
   } });
   const id = String(app.data.id);
   await saveSetting("call_control_app_id", id);
