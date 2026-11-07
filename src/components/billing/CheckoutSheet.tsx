@@ -9,6 +9,7 @@ import { PaymentGatewaySheet, PaymentMethodMark } from "./PaymentGatewaySheet";
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
 import "@/styles/checkout-sheet.css";
+import checkoutArt from "@/assets/ceyo-checkout-coat.png.asset.json";
 
 type PlayApi = { purchase?: (json: string) => void };
 declare global { interface Window { ceyoPlayPurchase?: (token: string) => void } }
@@ -141,14 +142,15 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
   const busy = state === "loading";
 
   return (
-    <div dir={ar ? "rtl" : "ltr"} className="ck-scrim" role="presentation" onClick={onClose}>
-      <section className="ck-sheet" role="dialog" aria-modal="true" aria-label={ar ? "اشترك" : "Subscribe"} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
+    <div dir={ar ? "rtl" : "ltr"} className={`ck-scrim ${stage === "details" ? "ck-details-scrim" : ""}`} role="presentation" onClick={onClose}>
+      <section className={`ck-sheet ${stage === "details" ? "ck-details" : ""}`} role="dialog" aria-modal="true" aria-label={ar ? "اشترك" : "Subscribe"} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
+        {stage === "details" && <div className="ck-art" aria-hidden="true"><img src={checkoutArt.url} alt=""/><div/></div>}
         <div className="ck-grabber" aria-hidden="true"><i/></div>
         <header className="ck-head">
           {stage === "details" && state !== "paid" && <Button variant="ghost" size="icon" className="ck-back" aria-label={ar ? "طرق الدفع" : "Payment methods"} onClick={() => {setStage("methods");setError("");}}><ChevronLeft/></Button>}
           <h2>{state === "paid" ? ar ? "تم الاشتراك" : "You're all set" : stage === "methods" && !native ? ar ? "طريقة الدفع" : "Choose payment method" : ar ? `اشترك في Ceyo ${name}` : `Subscribe to Ceyo ${name}`}</h2>
-          <p>Ceyo {name} · {interval === "yearly" ? ar ? "سنوي" : "Yearly" : ar ? "شهري" : "Monthly"} · {total}</p>
-          <Button variant="ghost" size="icon" className="ck-x" aria-label={ar ? "إغلاق" : "Close"} onClick={onClose}><X size={18} /></Button>
+          {stage === "methods" && <p>{ar ? "اختار طريقة الدفع اللي تناسبك." : "Pick an option."}</p>}
+          {stage !== "methods" && <Button variant="ghost" size="icon" className="ck-x" aria-label={ar ? "إغلاق" : "Close"} onClick={onClose}><X size={18} /></Button>}
         </header>
 
         {state === "paid" ? (
@@ -173,19 +175,19 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
 
             {!native && quote?.provider === "kashier" && (
               <>
-                <div className="ck-selected-method"><PaymentMethodMark method={method}/><strong>{method === "card" ? ar ? "فيزا أو ماستركارد" : "Visa or Mastercard" : "Vodafone Cash"}</strong></div>
+                <div className="ck-method-tabs" role="tablist" aria-label="Payment method">{(["card", "wallet"] as const).map((m) => <Button variant="ghost" role="tab" aria-selected={method === m} key={m} onClick={() => {setMethod(m);setError("");}}><PaymentMethodMark method={m}/><span>{m === "card" ? ar ? "بطاقة" : "Card" : "Vodafone Cash"}</span></Button>)}</div>
                 {method === "card" ? (
                   <div className="ck-form">
-                    <input inputMode="numeric" autoComplete="cc-number" aria-label="Card number" placeholder="Card number" value={card.number.replace(/(\d{4})(?=\d)/g, "$1 ")} onChange={(e) => setCard({ ...card, number: digits(e.target.value, 19) })} />
-                    <input autoComplete="cc-name" aria-label="Name on card" placeholder="Name on card" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.slice(0, 60) })} />
+                    <label><span>{ar ? "رقم البطاقة" : "Card number"}</span><input dir="ltr" inputMode="numeric" autoComplete="cc-number" aria-label="Card number" placeholder="Card number" value={card.number.replace(/(\d{4})(?=\d)/g, "$1 ")} onChange={(e) => setCard({ ...card, number: digits(e.target.value, 19) })} /></label>
+                    <label><span>{ar ? "الاسم على البطاقة" : "Name on card"}</span><input autoComplete="cc-name" aria-label="Name on card" placeholder="Name on card" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.slice(0, 60) })} /></label>
                     <div className="ck-row">
-                      <input inputMode="numeric" autoComplete="cc-exp" aria-label="Expiry date" placeholder="MM/YY" value={card.exp} onChange={(e) => { const d = digits(e.target.value, 4); setCard({ ...card, exp: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d }); }} />
-                      <input inputMode="numeric" autoComplete="cc-csc" aria-label="CVV" type="password" placeholder="CVV" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: digits(e.target.value, 4) })} />
+                      <label><span>{ar ? "تاريخ الانتهاء" : "Expiry"}</span><input dir="ltr" inputMode="numeric" autoComplete="cc-exp" aria-label="Expiry date" placeholder="MM/YY" value={card.exp} onChange={(e) => { const d = digits(e.target.value, 4); setCard({ ...card, exp: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d }); }} /></label>
+                      <label><span>CVV</span><input dir="ltr" inputMode="numeric" autoComplete="cc-csc" aria-label="CVV" type="password" placeholder="CVV" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: digits(e.target.value, 4) })} /></label>
                     </div>
                   </div>
                 ) : (
                   <div className="ck-form">
-                    <input inputMode="tel" aria-label="Vodafone Cash number" placeholder="Wallet number (01xxxxxxxxx)" value={phone} onChange={(e) => setPhone(digits(e.target.value, 11))} />
+                    <label><span>{ar ? "رقم المحفظة" : "Wallet number"}</span><input dir="ltr" inputMode="tel" aria-label="Vodafone Cash number" placeholder="Wallet number (01xxxxxxxxx)" value={phone} onChange={(e) => setPhone(digits(e.target.value, 11))} /></label>
                   </div>
                 )}
               </>
