@@ -320,7 +320,7 @@ function Plans({ nav }: { nav: Nav }) {
   const ar = (localStorage.getItem("ceyo_language") || "").startsWith("ar");
   return (
     <div className="agent-hub ceyo-page subscription-page" data-no-translate dir={ar ? "rtl" : "ltr"}>
-      <header className="subscription-header"><span className="subscription-brand"><Star/>Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => nav(-1 as unknown as string)}><X/></Button></header>
+      <header className="subscription-header"><span className="subscription-brand"><Star/>Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => window.history.length > 1 ? window.history.back() : nav("/")}><X/></Button></header>
       <main className="subscription-content">
         <h1>{ar ? "الاشتراكات" : "Subscriptions"}</h1>
         <div className="subscription-tabs" role="tablist" aria-label="Plans">
