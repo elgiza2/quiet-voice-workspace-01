@@ -28,3 +28,4 @@
 .ck-scrim .ck-gateway-row {background:transparent!important;color:var(--subscription-ink)!important;box-shadow:none!important}
 .ck-scrim .ck-form input {background:var(--subscription-surface)!important;color:var(--subscription-ink)!important;border:1px solid var(--subscription-line)!important;box-shadow:none!important}
 .ck-scrim .ck-cta {background:var(--subscription-ink)!important;color:var(--subscription-inverse)!important;box-shadow:none!important}
+html body .ck-scrim .ck-sheet .ck-form input {background:var(--subscription-surface)!important;color:var(--subscription-ink)!important;border-color:var(--subscription-line)!important;box-shadow:none!important;outline-color:var(--subscription-muted)}
