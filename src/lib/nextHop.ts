@@ -19,7 +19,7 @@ const NEXT_HOPS: Array<{ match: RegExp; hops: Loader[] }> = [
     match: /^\/(index)?$/,
     hops: [
       () => import("@/pages/ceyo/CeyoSettings"),
-      () => import("@/pages/legal/LegalDocPage"),
+      () => import("@/pages/ceyo/CeyoAppsSettings"),
     ],
   },
   // Auth → the chat is the only destination after signing in.
@@ -35,16 +35,15 @@ const NEXT_HOPS: Array<{ match: RegExp; hops: Loader[] }> = [
     match: /^\/chat(\/|$)/,
     hops: [
       () => import("@/pages/ceyo/CeyoSettings"),
-      () => import("@/pages/ceyo/CeyoSettings"),
+      () => import("@/pages/ceyo/CeyoAppsSettings"),
     ],
   },
   // Settings → the data/usage screens people open from the list.
   {
     match: /^\/settings\/?$/,
     hops: [
-      () => import("@/pages/ceyo/CeyoSettings"),
-      () => import("@/pages/ceyo/CeyoSettings"),
-      () => import("@/pages/ceyo/CeyoSettings"),
+      () => import("@/pages/ceyo/CeyoAppsSettings"),
+      () => import("@/components/billing/CheckoutSheet"),
     ],
   },
   // Pricing → checkout return screens.

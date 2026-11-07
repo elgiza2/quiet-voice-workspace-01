@@ -131,18 +131,7 @@ export const preloadCommonRoutes = () => {
   if (typeof ric === "function") ric(run, { timeout: 4500 });
   else window.setTimeout(run, 1800);
 };
-if (typeof window !== "undefined") {
-  // Kick off shared-chunk warming as soon as first paint is likely done —
-  // ~400 ms after `load` is short enough that even fast clickers find the
-  // shared chunks in cache, but long enough not to fight LCP.
-  if (document.readyState === "complete") {
-    window.setTimeout(preloadCommonRoutes, 1400);
-  } else {
-    window.addEventListener("load", () => window.setTimeout(preloadCommonRoutes, 1400), {
-      once: true,
-    });
-  }
-}
+// Next-hop prefetch is the single warm-up scheduler; no independent startup storm.
 
 // Scroll to top on every route change
 export const ScrollToTop = () => {

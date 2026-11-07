@@ -116,9 +116,12 @@ export default function BackgroundJobNotifier() {
         .gte("updated_at", since)
         .limit(50);
       (old as any[] | null)?.forEach((r) => seen.current.add(`job:${r.id}:${r.status}`));
+      // Cleanup can happen while the seed query is in flight (StrictMode or navigation).
+      if (cancelled) return;
+      const instanceId = crypto.randomUUID();
 
       jobChannel = supabase
-        .channel(`bg-jobs-notify-${userId}`)
+        .channel(`bg-jobs-notify-${userId}-${instanceId}`)
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "background_jobs", filter: `user_id=eq.${userId}` },
@@ -127,7 +130,7 @@ export default function BackgroundJobNotifier() {
         .subscribe();
 
       runChannel = supabase
-        .channel(`long-runs-notify-${userId}`)
+        .channel(`long-runs-notify-${userId}-${instanceId}`)
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "long_runs", filter: `user_id=eq.${userId}` },
@@ -138,7 +141,7 @@ export default function BackgroundJobNotifier() {
       timer = window.setInterval(() => void sweep(), POLL_MS);
     };
 
-    void start();
+    void start().catch(() => { /* Realtime is optional; do not crash navigation. */ });
 
     return () => {
       cancelled = true;

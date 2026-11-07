@@ -9,6 +9,8 @@ import { PaymentGatewaySheet, PaymentMethodMark } from "./PaymentGatewaySheet";
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
 import "@/styles/checkout-sheet.css";
+import checkoutArt from "@/assets/ceyo-checkout-coat.png.asset.json";
+import { isPlayApp, purchasePlay } from "@/lib/native/playBilling";
 
 type PlayApi = { purchase?: (json: string) => void };
 declare global { interface Window { ceyoPlayPurchase?: (token: string) => void } }
@@ -34,6 +36,8 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
   const ar = useUserLang().startsWith("ar");
   const [stage, setStage] = useState<"methods" | "details">("methods");
   const native = playApi();
+  const playNative = isPlayApp();
+  const androidBilling = playNative || !!native;
   const [quote, setQuote] = useState<Quote | null>(null);
   const [method, setMethod] = useState<"card" | "wallet">("card");
   const [card, setCard] = useState({ number: "", name: "", exp: "", cvv: "" });
@@ -65,10 +69,10 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
   }, [onClose]);
 
   useEffect(() => {
-    if (native) return;
+    if (androidBilling) return;
     billing<Quote>({ action: "quote", tier, interval, tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "" })
       .then(setQuote).catch((e) => setError((e as Error).message));
-  }, [tier, interval, native]);
+  }, [tier, interval, androidBilling]);
 
   const done = () => { setState("paid"); window.dispatchEvent(new Event(CREDITS_CHANGED_EVENT)); };
 
@@ -91,6 +95,15 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
   const payPlay = async () => {
     setState("loading");
     const { data } = await supabase.auth.getUser();
+    if (playNative) {
+      try {
+        if (!data.user) throw new Error("Please sign in first");
+        const token = await purchasePlay(playProductId(tier, interval), data.user.id);
+        await billing({ action: "play", tier, interval, purchaseToken: token });
+        done();
+      } catch (e) { fail(e); }
+      return;
+    }
     window.ceyoPlayPurchase = async (token) => {
       try { await billing({ action: "play", tier, interval, purchaseToken: token }); done(); } catch (e) { fail(e); }
     };
@@ -137,18 +150,19 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
     } catch (e) { fail(e); }
   };
 
-  const total = native ? `$${usd}` : quote ? money(quote.amount, quote.currency) : "…";
+  const total = androidBilling ? `$${usd}` : quote ? money(quote.amount, quote.currency) : "…";
   const busy = state === "loading";
 
   return (
-    <div dir={ar ? "rtl" : "ltr"} className="ck-scrim" role="presentation" onClick={onClose}>
-      <section className="ck-sheet" role="dialog" aria-modal="true" aria-label={ar ? "اشترك" : "Subscribe"} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
+    <div dir={ar ? "rtl" : "ltr"} className={`ck-scrim ${stage === "details" ? "ck-details-scrim" : ""}`} role="presentation" onClick={onClose}>
+      <section className={`ck-sheet ${stage === "details" ? "ck-details" : ""}`} role="dialog" aria-modal="true" aria-label={ar ? "اشترك" : "Subscribe"} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
+        {stage === "details" && <div className="ck-art" aria-hidden="true"><img src={checkoutArt.url} alt=""/><div/></div>}
         <div className="ck-grabber" aria-hidden="true"><i/></div>
         <header className="ck-head">
           {stage === "details" && state !== "paid" && <Button variant="ghost" size="icon" className="ck-back" aria-label={ar ? "طرق الدفع" : "Payment methods"} onClick={() => {setStage("methods");setError("");}}><ChevronLeft/></Button>}
-          <h2>{state === "paid" ? ar ? "تم الاشتراك" : "You're all set" : stage === "methods" && !native ? ar ? "طريقة الدفع" : "Choose payment method" : ar ? `اشترك في Ceyo ${name}` : `Subscribe to Ceyo ${name}`}</h2>
-          <p>Ceyo {name} · {interval === "yearly" ? ar ? "سنوي" : "Yearly" : ar ? "شهري" : "Monthly"} · {total}</p>
-          <Button variant="ghost" size="icon" className="ck-x" aria-label={ar ? "إغلاق" : "Close"} onClick={onClose}><X size={18} /></Button>
+          <h2>{state === "paid" ? ar ? "تم الاشتراك" : "You're all set" : stage === "methods" && !androidBilling ? ar ? "طريقة الدفع" : "Choose payment method" : ar ? `اشترك في Ceyo ${name}` : `Subscribe to Ceyo ${name}`}</h2>
+          {stage === "methods" && <p>{ar ? "اختار طريقة الدفع اللي تناسبك." : "Pick an option."}</p>}
+          {stage !== "methods" && <Button variant="ghost" size="icon" className="ck-x" aria-label={ar ? "إغلاق" : "Close"} onClick={onClose}><X size={18} /></Button>}
         </header>
 
         {state === "paid" ? (
@@ -162,7 +176,7 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
           <iframe className="ck-frame" src={frame} title="Card verification" />
         ) : state === "waiting" ? (
           <div className="ck-wait"><Loader2 size={28} className="animate-spin" /><p>Confirming your payment…</p></div>
-        ) : stage === "methods" && !native ? (
+        ) : stage === "methods" && !androidBilling ? (
           <>{error && <p className="ck-error" role="alert">{error}</p>}<PaymentGatewaySheet provider={quote?.provider} methods={quote?.methods ?? []} loading={!quote && !error} ar={ar} onCancel={onClose} onSelect={(selected) => {setMethod(selected);setError("");if (quote?.provider === "dodo") {void payDodo();} else setStage("details");}}/>{error && !quote && <Button variant="ghost" className="ck-cta" onClick={() => {setError("");void billing<Quote>({action:"quote",tier,interval,tz:Intl.DateTimeFormat().resolvedOptions().timeZone}).then(setQuote).catch(fail);}}>Retry</Button>}</>
         ) : (
           <>
@@ -171,36 +185,36 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
               <b>{total}</b>
             </div>
 
-            {!native && quote?.provider === "kashier" && (
+            {!androidBilling && quote?.provider === "kashier" && (
               <>
-                <div className="ck-selected-method"><PaymentMethodMark method={method}/><strong>{method === "card" ? ar ? "فيزا أو ماستركارد" : "Visa or Mastercard" : "Vodafone Cash"}</strong></div>
+                <div className="ck-method-tabs" role="tablist" aria-label="Payment method">{(["card", "wallet"] as const).map((m) => <Button variant="ghost" role="tab" aria-selected={method === m} key={m} onClick={() => {setMethod(m);setError("");}}><PaymentMethodMark method={m}/><span>{m === "card" ? ar ? "بطاقة" : "Card" : "Vodafone Cash"}</span></Button>)}</div>
                 {method === "card" ? (
                   <div className="ck-form">
-                    <input inputMode="numeric" autoComplete="cc-number" aria-label="Card number" placeholder="Card number" value={card.number.replace(/(\d{4})(?=\d)/g, "$1 ")} onChange={(e) => setCard({ ...card, number: digits(e.target.value, 19) })} />
-                    <input autoComplete="cc-name" aria-label="Name on card" placeholder="Name on card" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.slice(0, 60) })} />
+                    <label><span>{ar ? "رقم البطاقة" : "Card number"}</span><input dir="ltr" inputMode="numeric" autoComplete="cc-number" aria-label="Card number" placeholder="Card number" value={card.number.replace(/(\d{4})(?=\d)/g, "$1 ")} onChange={(e) => setCard({ ...card, number: digits(e.target.value, 19) })} /></label>
+                    <label><span>{ar ? "الاسم على البطاقة" : "Name on card"}</span><input autoComplete="cc-name" aria-label="Name on card" placeholder="Name on card" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.slice(0, 60) })} /></label>
                     <div className="ck-row">
-                      <input inputMode="numeric" autoComplete="cc-exp" aria-label="Expiry date" placeholder="MM/YY" value={card.exp} onChange={(e) => { const d = digits(e.target.value, 4); setCard({ ...card, exp: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d }); }} />
-                      <input inputMode="numeric" autoComplete="cc-csc" aria-label="CVV" type="password" placeholder="CVV" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: digits(e.target.value, 4) })} />
+                      <label><span>{ar ? "تاريخ الانتهاء" : "Expiry"}</span><input dir="ltr" inputMode="numeric" autoComplete="cc-exp" aria-label="Expiry date" placeholder="MM/YY" value={card.exp} onChange={(e) => { const d = digits(e.target.value, 4); setCard({ ...card, exp: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d }); }} /></label>
+                      <label><span>CVV</span><input dir="ltr" inputMode="numeric" autoComplete="cc-csc" aria-label="CVV" type="password" placeholder="CVV" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: digits(e.target.value, 4) })} /></label>
                     </div>
                   </div>
                 ) : (
                   <div className="ck-form">
-                    <input inputMode="tel" aria-label="Vodafone Cash number" placeholder="Wallet number (01xxxxxxxxx)" value={phone} onChange={(e) => setPhone(digits(e.target.value, 11))} />
+                    <label><span>{ar ? "رقم المحفظة" : "Wallet number"}</span><input dir="ltr" inputMode="tel" aria-label="Vodafone Cash number" placeholder="Wallet number (01xxxxxxxxx)" value={phone} onChange={(e) => setPhone(digits(e.target.value, 11))} /></label>
                   </div>
                 )}
               </>
             )}
 
-            {!native && quote?.provider === "dodo" && (
+            {!androidBilling && quote?.provider === "dodo" && (
               <div className="ck-methods">{quote.methods.map((m) => <span key={m}>{m}</span>)}</div>
             )}
 
             {error && <p className="ck-error" role="alert">{error}</p>}
-            <Button variant="ghost" type="button" className="ck-cta" disabled={busy || (!native && !quote)}
-              onClick={() => void (native ? payPlay() : quote?.provider === "kashier" ? (method === "card" ? payCard() : payWallet()) : payDodo())}>
-              {busy ? <Loader2 size={18} className="animate-spin" /> : native ? "Subscribe with Google Play" : `${ar ? "اشترك" : "Subscribe"} · ${total}`}
+            <Button variant="ghost" type="button" className="ck-cta" disabled={busy || (!androidBilling && !quote)}
+              onClick={() => void (androidBilling ? payPlay() : quote?.provider === "kashier" ? (method === "card" ? payCard() : payWallet()) : payDodo())}>
+              {busy ? <Loader2 size={18} className="animate-spin" /> : androidBilling ? "Subscribe with Google Play" : `${ar ? "اشترك" : "Subscribe"} · ${total}`}
             </Button>
-            <p className="ck-note"><Lock size={12} /> {native ? "Billed through your Google Play account." : quote?.provider === "dodo" ? "Secure payment by Dodo Payments. Cancel anytime." : "Card details go directly to Kashier and are never stored by Ceyo."}</p>
+            <p className="ck-note"><Lock size={12} /> {androidBilling ? "Billed through your Google Play account." : quote?.provider === "dodo" ? "Secure payment by Dodo Payments. Cancel anytime." : "Card details go directly to Kashier and are never stored by Ceyo."}</p>
           </>
         )}
       </section>
