@@ -274,8 +274,8 @@
 
 - [x] Live voice call via Deepgram Voice Agent — key with Member role saved; server-side Arabic round trip verified. Phone test pending.
 - [ ] Wallet sending (sign + broadcast, 0.5% fee to owner address) — needs owner's fee-receiving address
-- [ ] Phone number per agent (Telnyx/Twilio) — needs provider key
-- [ ] Agent phone numbers via Telnyx (key saved, $5 balance) — buy number, inbound/outbound AI calls, user credit
+- [x] Phone number per agent (Telnyx/Twilio) — see "Agent phone calls (Telnyx)"
+- [x] Agent phone numbers via Telnyx — see "Agent phone calls (Telnyx)" (outbound waits on account upgrade)
 
 ## Agent phone calls (Telnyx) — 2026-11-07 15:50 UTC
 - [x] phone_call agent tool: real calls to numbers the user gives (or that appear in the chat) and to the user's saved mobile; one call per request, 10/day, 10 min each; summary posted in the chat after the call.
