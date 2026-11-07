@@ -1,3 +1,11 @@
+## Quiet UI, safe cache and cleanup — 2026-11-07 18:49 UTC
+- [ ] One animated purple subscription star using the supplied motion, joined to More; reduced-motion support.
+- [ ] Remove decorative coloured borders/glows while preserving errors and accessible neutral focus.
+- [ ] Diagnose pricing duplication and consolidate navigation; verify repeated open/back.
+- [ ] Versioned, bounded local cache for safe page preferences/public data only; refresh, expiry and account-change clearing tests.
+- [ ] Audit reachable source/dependencies; remove confirmed dead code/designs without deleting working features.
+- [ ] Run regression tests, inspect current preview and update handoff with exact verification limits.
+
 ## Exact reference, navigation and release preparation — 2026-11-07 17:56 UTC
 - [x] Match original chooser colours/spacing and original photographic card form; pricing follows screenshots, keeping Ceyo prices. Visually reviewed at 320/434/1280.
 - [x] Separate integration/billing chunks; remove duplicate startup warmers and private-page prerenders; catalogue initially renders 24 instead of 1030 rows, then grows on scroll; detail/back checked with isolated components.
