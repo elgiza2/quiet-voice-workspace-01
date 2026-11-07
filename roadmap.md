@@ -3,6 +3,7 @@
 - [ ] Repair settings/integrations opening lag and navigation; verify affected flows.
 - [ ] Prepare Vercel deployment configuration and instructions (no deployment requested).
 - [ ] Prepare a Google Play Android upload bundle; identify signing/SDK/hosting blockers accurately.
+- [ ] Refine uploaded app icon, preserve its identity, and prepare clear web/Android icon sizes.
 
 ## Subscription visual revision — 2026-11-07 17:29 UTC
 - [x] Reuse the reference repository's web payment sheet design while preserving payment verification.
