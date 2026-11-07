@@ -117,7 +117,7 @@ export function NewPeopleChat({ lang, mode, agents, onCancel, onOpened }: { lang
   };
   const ready = mode === "dm" ? picked.length === 1 : name.trim().length > 0 && picked.length + bots.length > 0;
   return <section className="pp-panel">
-    <header className="pp-panel-head"><button type="button" className="pp-icon" aria-label="Back" onClick={onCancel}><ChevronLeft size={20} /></button><h2>{mode === "dm" ? (ar ? "رسالة جديدة" : "New message") : (ar ? "جروب مع ناس" : "New people group")}</h2></header>
+    <header className="pp-panel-head"><button type="button" className="pp-icon" aria-label="Back" onClick={onCancel}><ChevronLeft size={20} /></button><h2>{mode === "dm" ? (ar ? "رسالة جديدة" : "New message") : (ar ? "جروب جديد" : "New group")}</h2></header>
     <UsernameGate lang={lang}>
       {mode === "group" && <label className="pp-field"><input value={name} onChange={(e) => setName(e.target.value)} placeholder={ar ? "اسم الجروب" : "Group name"} maxLength={80} /></label>}
       {picked.length > 0 && <div className="pp-chips">{picked.map((p) => <button type="button" key={p.id} className="pp-chip" onClick={() => toggle(p)}>@{p.username}<X size={14} /></button>)}</div>}
