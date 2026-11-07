@@ -80,7 +80,6 @@ type ClTicker = { symbol: string; name: string; nameid: string; rank: number; pr
 /** Paprika id for a CoinGecko id, found by our table or by symbol search. */
 async function paprikaId(id: string, signal?: AbortSignal): Promise<string | null> {
   if (PP_IDS[id]) return PP_IDS[id];
-  if (id.includes("-") && /^[a-z0-9]+-[a-z0-9-]+$/.test(id) && id.startsWith((symbolHint.get(id) || "~").toLowerCase() + "-")) return id;
   const sym = symbolHint.get(id);
   if (!sym) return null;
   const r = await getJson<{ currencies?: { id: string; symbol: string; rank: number }[] }>(`${PP}/search/?q=${encodeURIComponent(sym)}&c=currencies&limit=6`, signal, 1);

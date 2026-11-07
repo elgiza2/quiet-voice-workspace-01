@@ -34,14 +34,10 @@ export async function fetchWallet(): Promise<{ addresses: Addresses; balances: R
 
 export type Market = { id: string; image: string; current_price: number; price_change_percentage_24h: number | null };
 
+/** Live wallet prices from several sources (see marketData.ts). */
 export async function fetchMarkets(signal?: AbortSignal): Promise<Record<string, Market>> {
-  const ids = [...new Set(WALLET_TOKENS.map((t) => t.priceId ?? t.id))].join(",");
-  const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}`, { signal });
-  if (!res.ok) throw new Error(`Prices unavailable (${res.status})`);
-  const list = (await res.json()) as Market[];
-  const map: Record<string, Market> = Object.fromEntries(list.map((m) => [m.id, m]));
-  for (const t of WALLET_TOKENS) if (t.priceId && map[t.priceId]) map[t.id] = map[t.priceId];
-  return map;
+  const { fetchWalletPrices } = await import("./marketData");
+  return fetchWalletPrices(signal);
 }
 
 /** Authenticated wallet actions (send, Solana quote/swap/balance). */
