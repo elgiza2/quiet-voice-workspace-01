@@ -112,7 +112,8 @@ export async function ensureBotAssistant(bot: Bot): Promise<{ assistantId: strin
   const instructions = phoneInstructions({ botName: bot.name, botInstructions: bot.instructions, ownerName: owner, direction: "inbound" });
   const greeting = phoneGreeting({ botName: bot.name, ownerName: owner, arabic: true, direction: "inbound" });
   const config = {
-    name: `Ceyo · ${bot.name}`.slice(0, 120), model: PHONE_MODEL, instructions, greeting,
+    // Telnyx derives a SIP user name from this, so keep it ASCII and starting with letters.
+    name: `Ceyo agent ${bot.name.replace(/[^A-Za-z0-9 _-]/g, "").trim() || bot.id.slice(0, 8)}`.slice(0, 120), model: PHONE_MODEL, instructions, greeting,
     voice_settings: { voice: phoneVoice(bot.id, gender) },
     transcription: { model: "deepgram/nova-3", language: "auto" },
     telephony_settings: { time_limit_secs: PHONE_CALL_MAX_SECONDS, user_idle_timeout_secs: 45 },
