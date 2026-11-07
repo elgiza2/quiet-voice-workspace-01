@@ -46,7 +46,7 @@ const PageTransition = ({
     };
     // Auth gates and lazy pages can insert/replace the scroller after this effect.
     const observer = new MutationObserver(attach);
-    observer.observe(root, { childList: true, subtree: true });
+    observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
     attach();
     return () => {
       observer.disconnect();
