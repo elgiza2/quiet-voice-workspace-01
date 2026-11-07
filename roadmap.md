@@ -1,5 +1,5 @@
 ## Separate home controls — 2026-11-07 23:40 UTC
-- [ ] Separate star and More into two neutral circular controls with a clean gap.
+- [x] Separate star and More into two neutral circular controls with a clean gap. Isolated browser check: 46×46 circles, 8px gap, no shared border.
 
 ## Static subscription star — 2026-11-07 23:39 UTC
 - [x] Stop home subscription star animation; retain one purple star and the existing shortcut. Browser confirms no animations, no transform and constant opacity.
