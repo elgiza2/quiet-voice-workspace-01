@@ -28,7 +28,11 @@ export const Route = createFileRoute("/api/billing")({ server: { handlers: {
     if (!parsed.success) return new Response("Invalid request", { status: 400 });
     const k = await import("@/lib/payments/kashier.server");
     const origin = new URL(request.url).origin;
-    const email = String((auth as { claims?: { email?: string } }).claims?.email ?? "");
+    const email = async () => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin.auth.admin.getUserById(auth.userId);
+      return data.user?.email ?? "";
+    };
     try {
       const i = parsed.data;
       switch (i.action) {
@@ -42,11 +46,11 @@ export const Route = createFileRoute("/api/billing")({ server: { handlers: {
           return Response.json({ country, provider, methods: methodsFor(country), ...local });
         }
         case "kashier_card": return Response.json(await k.createKashierOrder(auth.userId, i.tier, i.interval, "card", origin));
-        case "kashier_wallet": return Response.json(await k.requestKashierWallet(auth.userId, email, i.tier, i.interval, i.phone, origin));
+        case "kashier_wallet": return Response.json(await k.requestKashierWallet(auth.userId, await email(), i.tier, i.interval, i.phone, origin));
         case "kashier_wallet_check": return Response.json(await k.reconcileKashierWallet(auth.userId, i.orderId));
         case "dodo": {
           const { createDodoCheckout } = await import("@/lib/payments/dodo.server");
-          return Response.json(await createDodoCheckout(auth.userId, email, i.tier, i.interval, i.country.toUpperCase(), origin));
+          return Response.json(await createDodoCheckout(auth.userId, await email(), i.tier, i.interval, i.country.toUpperCase(), origin));
         }
         case "dodo_check": {
           const { confirmDodo } = await import("@/lib/payments/dodo.server");
