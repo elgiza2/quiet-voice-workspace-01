@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { askConfirm } from "@/components/common/CeyoConfirm";
 import {
   ArrowUpRight, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Contrast, Copy, CreditCard,
-  KeyRound, Moon, Plus, Search, Smartphone, Sun, Trash2, User, Vault, X,
+  KeyRound, Moon, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Sun, Trash2, User, Vault, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { useCredits } from "@/hooks/useCredits";
@@ -590,25 +590,65 @@ function Phone({ nav }: { nav: Nav }) {
     } finally { setBusy(null); }
   };
 
+  const callTone = (status: string) => status === "completed" ? "ok" : status === "failed" || status === "no_answer" ? "bad" : status === "dialing" || status === "in_progress" ? "live" : undefined;
+  const botName = (id: string) => bots.find((b) => b.id === id)?.name;
+  void botName;
+
   return (
     <Shell title="Phone calls" back={() => nav("/settings")}>
-      <Group title="Your mobile">
-        <form className="ceyo-phone-form" onSubmit={(event) => { event.preventDefault(); void saveMobile(); }}>
-          <input className="ceyo-input" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" placeholder="+20 101 234 5678" value={mobile} maxLength={24} onChange={(event) => setMobile(event.target.value)} />
-          <Button type="submit" disabled={mobile.trim() === savedMobile}>Save</Button>
-        </form>
-      </Group>
-      <p className="ceyo-note">Ask any agent "call me" and it rings this number.</p>
+      <h2 className="st-section">Your mobile number</h2>
+      <form className="st-phone-field" onSubmit={(event) => { event.preventDefault(); void saveMobile(); }}>
+        <input className="ceyo-input" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" aria-label="Your mobile number" placeholder="+20 101 234 5678" value={mobile} maxLength={24} onChange={(event) => setMobile(event.target.value)} />
+        <button type="submit" className="st-btn" disabled={mobile.trim() === savedMobile}>Save</button>
+      </form>
+      <p className="st-hint">Ask any agent "call me" and it rings this number.</p>
+
       <Group title="Agent numbers">
-        {bots.length ? bots.map((bot) => <Row key={bot.id} label={bot.name} sub={lines[bot.id] ? `Answers calls on ${lines[bot.id]}` : "No number yet"} disabled={busy === bot.id} onClick={() => void toggleLine(bot.id)} right={<span className="ceyo-row-value">{busy === bot.id ? "…" : lines[bot.id] ? "Remove" : "Get number"}</span>} />) : <Row label="No agents yet" right={<span />} />}
+        {bots.length ? bots.map((bot) => (
+          <div className="st-line" key={bot.id}>
+            <span className="st-call-icon" data-tone={lines[bot.id] ? "ok" : undefined}><PhoneIcon size={17} /></span>
+            <span className="st-line-copy">
+              <strong>{bot.name}</strong>
+              <small dir="ltr">{lines[bot.id] ? formatPhone(lines[bot.id]) : "No number yet"}</small>
+            </span>
+            <button type="button" className="st-chip" data-tone={lines[bot.id] ? "danger" : "primary"} disabled={busy === bot.id} onClick={() => void toggleLine(bot.id)}>
+              {busy === bot.id ? "…" : lines[bot.id] ? "Remove" : "Get number"}
+            </button>
+          </div>
+        )) : <p className="st-empty">No agents yet.</p>}
       </Group>
       <p className="ceyo-note">Anyone who calls an agent's number talks to that agent. A summary of each call appears in its chat.</p>
+
       <Group title="Recent calls">
-        {calls.length ? calls.map((call) => <Row key={call.id} label={`${call.direction === "inbound" ? "From" : "To"} ${call.counterpart}`} sub={(call.summary || call.purpose || "").slice(0, 140) || new Date(call.created_at).toLocaleString()} value={CALL_STATUS[call.status] || call.status} right={<span />} />) : <Row label="No phone calls yet" right={<span />} />}
+        {calls.length ? calls.map((call) => (
+          <div className="st-line" key={call.id}>
+            <span className="st-call-icon" data-tone={callTone(call.status) === "bad" ? "bad" : undefined}>{call.direction === "inbound" ? <PhoneIncoming size={17} /> : <PhoneOutgoing size={17} />}</span>
+            <span className="st-line-copy">
+              <strong dir="ltr" style={{ textAlign: "start" }}>{formatPhone(call.counterpart)}</strong>
+              <small>{(call.summary || call.purpose || "").slice(0, 140) || (call.direction === "inbound" ? "Incoming call" : "Outgoing call")} · {callTime(call.created_at)}</small>
+            </span>
+            <span className="st-badge" data-tone={callTone(call.status)}>{CALL_STATUS[call.status] || call.status}</span>
+          </div>
+        )) : <p className="st-empty">No phone calls yet.</p>}
       </Group>
       <p className="ceyo-note">These are real phone calls: up to 10 a day, 10 minutes each. Agents only call when you ask them in the chat.</p>
     </Shell>
   );
+}
+
+/** "+201001234567" → "+20 100 123 4567"; US numbers as "+1 235 204 7886". */
+function formatPhone(raw: string) {
+  const d = (raw || "").replace(/[^\d+]/g, "");
+  if (/^\+1\d{10}$/.test(d)) return `+1 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}`;
+  const m = d.match(/^\+(\d{1,3})(\d{3})(\d{3})(\d{3,4})$/);
+  return m ? `+${m[1]} ${m[2]} ${m[3]} ${m[4]}` : raw;
+}
+function callTime(iso: string) {
+  const t = new Date(iso); const mins = Math.round((Date.now() - t.getTime()) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  if (mins < 1440 && t.getDate() === new Date().getDate()) return t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return t.toLocaleDateString([], { month: "short", day: "numeric" }) + ", " + t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
 function Computer({ nav }: { nav: Nav }) {
