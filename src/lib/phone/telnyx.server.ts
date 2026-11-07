@@ -57,6 +57,11 @@ export async function ensureCallControlApp(): Promise<string> {
   if (saved) return saved;
   let profileId = await setting("outbound_profile_id");
   if (!profileId) {
+    const found = await tx("/outbound_voice_profiles?filter[name][contains]=Ceyo agents outbound");
+    const existing = (found.data ?? []).find((p: { name: string }) => p.name === "Ceyo agents outbound");
+    if (existing) { profileId = String(existing.id); await saveSetting("outbound_profile_id", profileId); }
+  }
+  if (!profileId) {
     const body = (countries: string[]) => ({
       name: "Ceyo agents outbound", traffic_type: "conversational", service_plan: "global",
       whitelisted_destinations: countries, daily_spend_limit: "3.00", daily_spend_limit_enabled: true,
@@ -69,6 +74,9 @@ export async function ensureCallControlApp(): Promise<string> {
     await saveSetting("outbound_profile_id", profileId);
     if (allowed.full) await saveSetting("outbound_full", "1");
   }
+  const apps = await tx("/call_control_applications?filter[application_name][contains]=Ceyo agents");
+  const known = (apps.data ?? []).find((a: { application_name: string }) => a.application_name === "Ceyo agents");
+  if (known) { await saveSetting("call_control_app_id", String(known.id)); return String(known.id); }
   const app = await tx("/call_control_applications", { body: {
     application_name: "Ceyo agents", webhook_event_url: webhookUrl(), anchorsite_override: "Latency",
     outbound: { outbound_voice_profile_id: profileId },
