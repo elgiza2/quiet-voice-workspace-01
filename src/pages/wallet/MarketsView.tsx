@@ -156,8 +156,8 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
         </div>
       ) : (
         <div className="wl-dock">
-          <button type="button" className="wl-btn" onClick={onReceive}><ArrowDownToLine size={18} />Receive</button>
           <button type="button" className="wl-btn wl-btn-main" disabled={!onSend || balance <= 0} onClick={onSend}><Send size={18} />Send</button>
+          <button type="button" className="wl-btn" onClick={onReceive}><ArrowDownToLine size={18} />Receive</button>
         </div>
       )}
       {trade && target && <TradePanel target={target} symbol={sym} side={trade} onClose={() => setTrade(null)} />}

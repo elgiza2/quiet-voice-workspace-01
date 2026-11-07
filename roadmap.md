@@ -292,3 +292,4 @@
 - [ ] Home: hide wallet button; integrations button becomes three dots and opens a menu (Integrations, Wallet, Phone number)
 - [ ] Chat: redesign voice/video call buttons
 - [ ] Fix video call not working
+- [ ] Research a Telnyx alternative: free number per agent, pay only per call minute, free trial credit, usable immediately

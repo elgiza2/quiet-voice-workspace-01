@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, ArrowDownToLine, Check, ChevronLeft, Copy, QrCode, Search, Send, X } from "lucide-react";
+import { ArrowDownToLine, Check, ChevronLeft, Copy, QrCode, Search, Send, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import SEOHead from "@/components/common/SEOHead";
 import { addressFor, fetchMarkets, fetchWallet, WALLET_TOKENS, type Addresses, type Market } from "./walletTokens";
@@ -92,11 +92,9 @@ export default function WalletPage() {
           {tab === "trade" ? <MarketsView onOpen={setCoin} /> : <>
           <p className="wl-acct">Account 1</p>
           <h1 className="wl-bal">{usd(total)}</h1>
-          <p className="wl-acct" style={{ marginTop: 6 }}>{WALLET_TOKENS.length} coins · prices update live</p>
           <div className="wl-qa">
-            <button type="button" onClick={() => setView("receive")}><span><ArrowDownToLine size={22} /></span>Receive</button>
             <button type="button" onClick={() => setView("send")}><span><Send size={22} /></span>Send</button>
-            <button type="button" onClick={() => setTab("trade")}><span><TrendingUp size={22} /></span>Markets</button>
+            <button type="button" onClick={() => setView("receive")}><span><ArrowDownToLine size={22} /></span>Receive</button>
           </div>
           <h2 className="wl-h">Tokens</h2>
           {walletError && <p className="wl-note" role="alert">{walletError}</p>}
