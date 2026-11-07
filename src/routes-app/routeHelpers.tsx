@@ -1,39 +1,10 @@
 import { useEffect, useState, useTransition, useDeferredValue } from "react";
 import { Routes, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import PageTransition from "@/components/common/PageTransition";
 import { useTrackInAppNavigation } from "@/hooks/useSmartBack";
 import { pathForZone } from "@/lib/zoneRouting";
 import { prefetchNextHop } from "@/lib/nextHop";
 import { bootstrapAuth, getAuthState, subscribeAuthState } from "@/lib/authStore";
-// Redirect legacy /tools/<slug> to /images/tools/<slug>
-export const LegacyToolsRedirect = () => {
-  const location = useLocation();
-  const rest = location.pathname.replace(/^\/tools/, "");
-  return <Navigate to={`/images/tools${rest}`} replace />;
-};
-
-/**
- * Retired route redirect. Instead of silently swapping the URL, we tell the
- * user the page has moved so the navigation never feels broken.
- */
-export const RetiredRedirect = ({ to }: { to: string }) => {
-  const location = useLocation();
-  useEffect(() => {
-    toast.message("This page has moved", {
-      description: `${location.pathname} is no longer available — taking you to ${to}.`,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return <Navigate to={to} replace />;
-};
-
-export const LegacyAiRedirect = () => {
-  const location = useLocation();
-  const rest = location.pathname.replace(/^\/ai/, "");
-  return <Navigate to={`/l${rest}`} replace />;
-};
 
 /**
  * No loading screen, ever. The next screen is prefetched from the current one
@@ -74,63 +45,6 @@ export const DeferredRoutes = ({ children }: { children: React.ReactNode }) => {
 };
 
 
-// Preload the most-likely next routes AND the heavy shared chunks (icons,
-// framer-motion, lucide-react) during idle time so navigation from the
-// landing page feels instant. Since we made those shared chunks lazy to
-// speed up first paint, we must warm them ASAP or the first click into any
-// authenticated page has to fetch ~1 MB before rendering.
-export const preloadCommonRoutes = () => {
-  const isMobile =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
-
-  const connection = (
-    navigator as unknown as {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }
-  ).connection;
-  const slowConnection =
-    connection?.saveData === true || /(^|-)2g$|slow-2g/i.test(connection?.effectiveType || "");
-  if (slowConnection) return;
-
-  // 1) Warm heavy shared chunks first — every real page uses them, so
-  //    fetching them once here means later route loads are chunk-only.
-  //    NOTE: never `import("lucide-react")` here — a dynamic barrel import
-  //    defeats tree-shaking and drags the ENTIRE icon library (600 kB) into
-  //    the shared chunk. The `icons` chunk is warmed for free by the route
-  //    chunks below, which import only the icons they render.
-  const warmShared: Array<() => Promise<unknown>> = [];
-
-  // 2) Then warm the most-likely destination routes.
-  const routeTasks: Array<() => Promise<unknown>> = isMobile
-    ? [() => import("@/pages/auth/AuthPage")]
-    : [
-        () => import("@/pages/agent/AgentHubPage"),
-        () => import("@/pages/auth/AuthPage"),
-        () => import("@/pages/ceyo/CeyoSettings"),
-      ];
-
-  const tasks = isMobile ? routeTasks : [...warmShared, ...routeTasks];
-  const run = () => {
-    tasks.forEach((t, i) => {
-      // Shared chunks fire immediately (i=0,1). Route chunks staggered by
-      // 250ms so they don't compete with each other on slow connections.
-      window.setTimeout(
-        () => {
-          t().catch(() => {});
-        },
-        i * (isMobile ? 900 : 500),
-      );
-    });
-  };
-  const ric = (
-    window as unknown as {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void;
-    }
-  ).requestIdleCallback;
-  if (typeof ric === "function") ric(run, { timeout: 4500 });
-  else window.setTimeout(run, 1800);
-};
 // Next-hop prefetch is the single warm-up scheduler; no independent startup storm.
 
 // Scroll to top on every route change

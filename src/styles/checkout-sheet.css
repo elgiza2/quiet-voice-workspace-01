@@ -33,3 +33,19 @@ html body :is(#root,#visual-review) .ck-scrim .ck-details .ck-method-tabs{backgr
 html body :is(#root,#visual-review) .ck-scrim .ck-details .ck-method-tabs button{border-radius:8px!important;background:var(--checkout-glass)!important;border:1px solid var(--checkout-glass-line)!important;box-shadow:var(--checkout-glass-shadow)!important;color:var(--checkout-glass-ink)!important}
 html body :is(#root,#visual-review) .ck-scrim .ck-details .ck-method-tabs button[aria-selected=true]{border-color:var(--checkout-glass-ink)!important}
 html body :is(#root,#visual-review) .ck-scrim .ck-details .ck-form input{border-radius:8px!important;background:var(--checkout-glass)!important;color:var(--checkout-glass-ink)!important;border:1px solid var(--checkout-glass-line)!important;box-shadow:var(--checkout-glass-shadow)!important}
+/* Current CustomCardForm reference: one screen, navigation then methods/form. */
+.ck-details{--checkout-selected:oklch(1 0 0 / .2);--checkout-selected-hover:oklch(1 0 0 / .15);--checkout-heading-shadow:0 1px 10px oklch(0 0 0 / .55),0 0 2px oklch(0 0 0 / .4);--checkout-accent:hsl(340 72% 52%);--checkout-accent-ink:oklch(1 0 0)}
+.dark .ck-details{--checkout-accent:hsl(0 0% 98%);--checkout-accent-ink:oklch(.18 0 0)}
+html body .ck-scrim .ck-details .ck-head{padding:78px 0 26px;flex:none}
+html body .ck-scrim .ck-details .ck-head h2{text-shadow:var(--checkout-heading-shadow)}
+html body .ck-scrim .ck-details .ck-back{top:0;width:44px;height:44px}
+html body .ck-scrim .ck-details .ck-method-tabs{grid-template-columns:repeat(auto-fit,minmax(72px,1fr));margin-bottom:18px}
+html body .ck-scrim .ck-details .ck-method-tabs button[aria-selected=true]{background:var(--checkout-selected)!important}
+html body .ck-scrim .ck-details .ck-method-tabs button:hover{background:var(--checkout-selected-hover)!important}
+.ck-details .ck-brand-card{background:transparent;flex-direction:column;gap:10px;width:44px;height:36px;border-radius:0}
+.ck-details .ck-brand-card .ck-visa{width:38px;height:13px}
+.ck-details .ck-brand-card .ck-master{width:29px;height:18px;margin:0}
+html body .ck-scrim .ck-details .ck-cta{margin-top:22px;background:var(--checkout-accent)!important;color:var(--checkout-accent-ink)!important;-webkit-text-fill-color:var(--checkout-accent-ink)!important}
+html body .ck-scrim .ck-details .ck-cta *{color:var(--checkout-accent-ink)!important;-webkit-text-fill-color:var(--checkout-accent-ink)!important}
+@media(min-width:640px){html body .ck-scrim .ck-details .ck-head{padding-top:88px}}
+@media(max-height:740px){html body .ck-scrim .ck-details .ck-head{padding-top:66px;padding-bottom:18px}.ck-details .ck-form{gap:12px}}
