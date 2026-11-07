@@ -217,3 +217,7 @@ bunx vitest run
 - Home: one three-dot button opens Integrations / Wallet / Phone number. Chat header: voice + video in one pill, menu button separate.
 - Video call: the call no longer ends after 30 s when the phone never reports the first video frame; it goes live once audio/conversation starts. Anam session tokens verified live; WebRTC itself cannot run in this sandbox, so the fix is verified by unit test and Anam session history only.
 - Verified: all sources and fallbacks via a live script with CoinGecko forced to fail; typecheck; wallet/call tests. Signed-in screens not visually checked (user-managed sign-in).
+
+### Settings/phone/bot editor visual pass — 2026-11-07 16:33 UTC
+- New final style layer `src/styles/settings-polish.css`; bot editor now edits description and instructions (saved through the existing update path).
+- Verified visually with a mocked signed-in browser (fake session + intercepted backend responses), all settings sections, phone page, bot create/edit. Not verified with a real account.

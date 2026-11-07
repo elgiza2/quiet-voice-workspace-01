@@ -293,3 +293,9 @@
 - [x] Chat: redesign voice/video call buttons
 - [x] Fix video call not working
 - [x] Research a Telnyx alternative — no provider gives a free number per agent; Vapi gives 1 free US number (incoming only) + $5 credit. Waiting for the owner to pick a provider.
+
+## Settings, phone page and bot editor visual pass — 2026-11-07 16:33 UTC
+- [x] One consistent style for every settings page (same text sizes, rows, cards, buttons); removed gradient buttons and misleading rows
+- [x] Phone page redesigned: number field + button, agent lines with action pills, call history with direction icons, status badges, formatted numbers
+- [x] Bot editor: fixed squashed name field, labelled sections, larger colours, and added Description + Instructions fields
+- [x] Wording fixes (AI instead of "SI", page titles); checked with a demo account in a test browser (real sign-in unavailable)
