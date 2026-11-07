@@ -19,6 +19,7 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SubscriptionTermsRouteImport } from './routes/subscription-terms'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiAnythingRouteImport } from './routes/api/anything'
+import { Route as ApiBillingRouteImport } from './routes/api/billing'
 import { Route as ApiCallFollowupRouteImport } from './routes/api/call-followup'
 import { Route as ApiCallVisionRouteImport } from './routes/api/call-vision'
 import { Route as ApiCeyoChatRouteImport } from './routes/api/ceyo-chat'
@@ -51,6 +52,7 @@ import { Route as ApiPublicCeyoJobsRouteImport } from './routes/api/public/ceyo-
 import { Route as ApiPublicCeyoRoutinesRouteImport } from './routes/api/public/ceyo-routines'
 import { Route as ApiPublicFxRouteImport } from './routes/api/public/fx'
 import { Route as ApiPublicGeoRouteImport } from './routes/api/public/geo'
+import { Route as ApiPublicKashierWebhookRouteImport } from './routes/api/public/kashier-webhook'
 import { Route as ApiPublicRemindersTickRouteImport } from './routes/api/public/reminders-tick'
 import { Route as ApiPublicTelegramKeysRouteImport } from './routes/api/public/telegram-keys'
 import { Route as ApiPublicTelnyxVoiceRouteImport } from './routes/api/public/telnyx-voice'
@@ -106,6 +108,11 @@ const TermsRoute = TermsRouteImport.update({
 const ApiAnythingRoute = ApiAnythingRouteImport.update({
   id: '/api/anything',
   path: '/api/anything',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBillingRoute = ApiBillingRouteImport.update({
+  id: '/api/billing',
+  path: '/api/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCallFollowupRoute = ApiCallFollowupRouteImport.update({
@@ -268,6 +275,11 @@ const ApiPublicGeoRoute = ApiPublicGeoRouteImport.update({
   path: '/api/public/geo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicKashierWebhookRoute = ApiPublicKashierWebhookRouteImport.update({
+  id: '/api/public/kashier-webhook',
+  path: '/api/public/kashier-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicRemindersTickRoute = ApiPublicRemindersTickRouteImport.update({
   id: '/api/public/reminders-tick',
   path: '/api/public/reminders-tick',
@@ -313,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
   '/api/anything': typeof ApiAnythingRoute
+  '/api/billing': typeof ApiBillingRoute
   '/api/call-followup': typeof ApiCallFollowupRoute
   '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
@@ -345,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ceyo-routines': typeof ApiPublicCeyoRoutinesRoute
   '/api/public/fx': typeof ApiPublicFxRoute
   '/api/public/geo': typeof ApiPublicGeoRoute
+  '/api/public/kashier-webhook': typeof ApiPublicKashierWebhookRoute
   '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
   '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
   '/api/public/telnyx-voice': typeof ApiPublicTelnyxVoiceRoute
@@ -363,6 +377,7 @@ export interface FileRoutesByTo {
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
   '/api/anything': typeof ApiAnythingRoute
+  '/api/billing': typeof ApiBillingRoute
   '/api/call-followup': typeof ApiCallFollowupRoute
   '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
@@ -395,6 +410,7 @@ export interface FileRoutesByTo {
   '/api/public/ceyo-routines': typeof ApiPublicCeyoRoutinesRoute
   '/api/public/fx': typeof ApiPublicFxRoute
   '/api/public/geo': typeof ApiPublicGeoRoute
+  '/api/public/kashier-webhook': typeof ApiPublicKashierWebhookRoute
   '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
   '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
   '/api/public/telnyx-voice': typeof ApiPublicTelnyxVoiceRoute
@@ -414,6 +430,7 @@ export interface FileRoutesById {
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
   '/api/anything': typeof ApiAnythingRoute
+  '/api/billing': typeof ApiBillingRoute
   '/api/call-followup': typeof ApiCallFollowupRoute
   '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
@@ -446,6 +463,7 @@ export interface FileRoutesById {
   '/api/public/ceyo-routines': typeof ApiPublicCeyoRoutinesRoute
   '/api/public/fx': typeof ApiPublicFxRoute
   '/api/public/geo': typeof ApiPublicGeoRoute
+  '/api/public/kashier-webhook': typeof ApiPublicKashierWebhookRoute
   '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
   '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
   '/api/public/telnyx-voice': typeof ApiPublicTelnyxVoiceRoute
@@ -466,6 +484,7 @@ export interface FileRouteTypes {
     | '/subscription-terms'
     | '/terms'
     | '/api/anything'
+    | '/api/billing'
     | '/api/call-followup'
     | '/api/call-vision'
     | '/api/ceyo-chat'
@@ -498,6 +517,7 @@ export interface FileRouteTypes {
     | '/api/public/ceyo-routines'
     | '/api/public/fx'
     | '/api/public/geo'
+    | '/api/public/kashier-webhook'
     | '/api/public/reminders-tick'
     | '/api/public/telegram-keys'
     | '/api/public/telnyx-voice'
@@ -516,6 +536,7 @@ export interface FileRouteTypes {
     | '/subscription-terms'
     | '/terms'
     | '/api/anything'
+    | '/api/billing'
     | '/api/call-followup'
     | '/api/call-vision'
     | '/api/ceyo-chat'
@@ -548,6 +569,7 @@ export interface FileRouteTypes {
     | '/api/public/ceyo-routines'
     | '/api/public/fx'
     | '/api/public/geo'
+    | '/api/public/kashier-webhook'
     | '/api/public/reminders-tick'
     | '/api/public/telegram-keys'
     | '/api/public/telnyx-voice'
@@ -566,6 +588,7 @@ export interface FileRouteTypes {
     | '/subscription-terms'
     | '/terms'
     | '/api/anything'
+    | '/api/billing'
     | '/api/call-followup'
     | '/api/call-vision'
     | '/api/ceyo-chat'
@@ -598,6 +621,7 @@ export interface FileRouteTypes {
     | '/api/public/ceyo-routines'
     | '/api/public/fx'
     | '/api/public/geo'
+    | '/api/public/kashier-webhook'
     | '/api/public/reminders-tick'
     | '/api/public/telegram-keys'
     | '/api/public/telnyx-voice'
@@ -617,6 +641,7 @@ export interface RootRouteChildren {
   SubscriptionTermsRoute: typeof SubscriptionTermsRoute
   TermsRoute: typeof TermsRoute
   ApiAnythingRoute: typeof ApiAnythingRoute
+  ApiBillingRoute: typeof ApiBillingRoute
   ApiCallFollowupRoute: typeof ApiCallFollowupRoute
   ApiCallVisionRoute: typeof ApiCallVisionRoute
   ApiCeyoChatRoute: typeof ApiCeyoChatRoute
@@ -649,6 +674,7 @@ export interface RootRouteChildren {
   ApiPublicCeyoRoutinesRoute: typeof ApiPublicCeyoRoutinesRoute
   ApiPublicFxRoute: typeof ApiPublicFxRoute
   ApiPublicGeoRoute: typeof ApiPublicGeoRoute
+  ApiPublicKashierWebhookRoute: typeof ApiPublicKashierWebhookRoute
   ApiPublicRemindersTickRoute: typeof ApiPublicRemindersTickRoute
   ApiPublicTelegramKeysRoute: typeof ApiPublicTelegramKeysRoute
   ApiPublicTelnyxVoiceRoute: typeof ApiPublicTelnyxVoiceRoute
@@ -727,6 +753,13 @@ declare module '@tanstack/react-router' {
       path: '/api/anything'
       fullPath: '/api/anything'
       preLoaderRoute: typeof ApiAnythingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/billing': {
+      id: '/api/billing'
+      path: '/api/billing'
+      fullPath: '/api/billing'
+      preLoaderRoute: typeof ApiBillingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/call-followup': {
@@ -953,6 +986,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGeoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/kashier-webhook': {
+      id: '/api/public/kashier-webhook'
+      path: '/api/public/kashier-webhook'
+      fullPath: '/api/public/kashier-webhook'
+      preLoaderRoute: typeof ApiPublicKashierWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/reminders-tick': {
       id: '/api/public/reminders-tick'
       path: '/api/public/reminders-tick'
@@ -1009,6 +1049,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubscriptionTermsRoute: SubscriptionTermsRoute,
   TermsRoute: TermsRoute,
   ApiAnythingRoute: ApiAnythingRoute,
+  ApiBillingRoute: ApiBillingRoute,
   ApiCallFollowupRoute: ApiCallFollowupRoute,
   ApiCallVisionRoute: ApiCallVisionRoute,
   ApiCeyoChatRoute: ApiCeyoChatRoute,
@@ -1041,6 +1082,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCeyoRoutinesRoute: ApiPublicCeyoRoutinesRoute,
   ApiPublicFxRoute: ApiPublicFxRoute,
   ApiPublicGeoRoute: ApiPublicGeoRoute,
+  ApiPublicKashierWebhookRoute: ApiPublicKashierWebhookRoute,
   ApiPublicRemindersTickRoute: ApiPublicRemindersTickRoute,
   ApiPublicTelegramKeysRoute: ApiPublicTelegramKeysRoute,
   ApiPublicTelnyxVoiceRoute: ApiPublicTelnyxVoiceRoute,
