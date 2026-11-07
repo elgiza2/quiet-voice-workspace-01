@@ -582,6 +582,48 @@ export type Database = {
           },
         ]
       }
+      payment_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          interval: string
+          provider: string
+          provider_ref: string | null
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency: string
+          id: string
+          interval: string
+          provider: string
+          provider_ref?: string | null
+          status?: string
+          tier: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          interval?: string
+          provider?: string
+          provider_ref?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       people_messages: {
         Row: {
           bot_id: string | null
@@ -927,6 +969,47 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string
+          interval: string
+          last_order_id: string | null
+          plan: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end: string
+          interval: string
+          last_order_id?: string | null
+          plan: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string
+          interval?: string
+          last_order_id?: string | null
+          plan?: string
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_last_order_id_fkey"
+            columns: ["last_order_id"]
+            isOneToOne: false
+            referencedRelation: "payment_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       telephony_settings: {
         Row: {
           key: string
@@ -1092,6 +1175,10 @@ export type Database = {
           id: string
           username: string
         }[]
+      }
+      settle_payment_order: {
+        Args: { p_order: string; p_ref: string }
+        Returns: boolean
       }
       store_agentsky_api_key: { Args: { p_key: string }; Returns: undefined }
       store_telegram_bot_token: {
