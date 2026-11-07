@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { askConfirm } from "@/components/common/CeyoConfirm";
 import {
   ArrowUpRight, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Contrast, Copy, CreditCard,
-  KeyRound, Moon, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Sun, Trash2, User, Vault, X,
+  KeyRound, Moon, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { useCredits } from "@/hooks/useCredits";
@@ -26,6 +26,8 @@ import "@/styles/agent-hub.css";
 import "@/styles/ceyo.css";
 import "@/styles/settings-polish.css";
 import { CheckoutSheet } from "@/components/billing/CheckoutSheet";
+import { useUserLang } from "@/lib/authI18n";
+import "@/styles/subscriptions.css";
 
 type Nav = (to: string) => void;
 
@@ -316,36 +318,28 @@ function Plans({ nav }: { nav: Nav }) {
   const [paying, setPaying] = useState(false);
   const p = PLANS[tab];
   const current = plan?.toLowerCase() === p.id;
+  const ar = useUserLang().startsWith("ar");
   return (
-    <div className="agent-hub ceyo-page ceyo-plans" data-no-translate>
-      <Button variant="ghost" size="icon" type="button" className="gx-round ceyo-plans-close" aria-label="Close" onClick={() => nav("/settings")}><X size={20} /></Button>
-      <div className="ceyo-scroll">
-        <div className="ceyo-plans-brand"><span className="ceyo-brand-orb" aria-hidden="true"><i /><i /></span><span className="ceyo-plans-brand-name">Ceyo</span></div>
-        <h1 className="ceyo-plans-title">Choose your plan</h1>
-        <div className="ceyo-plans-card">
-          <div className="ceyo-plans-tabs" role="tablist" aria-label="Plans">
-            {PLANS.map((x, i) => <Button variant="ghost" key={x.id} type="button" role="tab" aria-selected={i === tab} data-on={i === tab} onClick={() => { setTab(i); setYearly(false); }}>{x.name}</Button>)}
-          </div>
-          <div className="ceyo-plans-benefits">
-          {p.base && <p className="ceyo-plans-muted ceyo-plans-base">Everything in {p.base}, and:</p>}
-          <strong className="ceyo-plans-mult">{p.mult}</strong>
-          <p className="ceyo-plans-sub">more usage than Free</p>
-          {p.groups.map((g) => <div key={g.title}>
-            <p className="ceyo-plans-muted ceyo-plans-gt">{g.title}</p>
-            <ul>{g.items.map((it) => <li key={it}><Check size={16} />{it}</li>)}</ul>
-          </div>)}
-          </div>
-      <div className="ceyo-plans-foot">
-        <div className="ceyo-plans-prices">
-          <Button variant="ghost" type="button" aria-pressed={!yearly} data-on={!yearly} onClick={() => setYearly(false)}><b>${p.price}</b> <span>{p.yearly ? "monthly" : "billed monthly"}</span></Button>
-          {p.yearly > 0 && <Button variant="ghost" type="button" aria-pressed={yearly} data-on={yearly} onClick={() => setYearly(true)}><b>${p.yearly}</b> <span>yearly</span><small>${(p.yearly / 12).toFixed(2)}/mo · <em>Save 17%</em></small></Button>}
+    <div className="agent-hub ceyo-page subscription-page" data-no-translate dir={ar ? "rtl" : "ltr"}>
+      <header className="subscription-header"><span className="subscription-brand"><Star/>Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => window.history.length > 1 ? window.history.back() : nav("/")}><X/></Button></header>
+      <main className="subscription-content">
+        <h1>{ar ? "الاشتراكات" : "Subscriptions"}</h1>
+        <div className="subscription-tabs" role="tablist" aria-label="Plans">
+          {PLANS.map((x,i) => <Button variant="ghost" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => {setTab(i);setYearly(false);}}>{x.name}</Button>)}
         </div>
-        <Button variant="ghost" type="button" className="ceyo-plans-cta" data-current={current} disabled={current} onClick={() => setPaying(true)}>{current ? "Current plan" : "Subscribe"}</Button>
-        <p className="ceyo-plans-legal">Cancel anytime. <a href="/subscription-terms">Subscription terms</a></p>
-        {paying && <CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} />}
-      </div>
-        </div>
-      </div>
+        <section id="subscription-details" role="tabpanel" aria-label={p.name}>
+          <div className="subscription-heading"><h2>Ceyo {p.name}</h2><span className="subscription-usage"><b>{p.mult}</b>{ar ? "استخدام أكثر" : "more usage"}</span></div>
+          {p.base && <p className="subscription-base">{ar ? `كل مزايا ${p.base}، بالإضافة إلى:` : `Everything in ${p.base}, plus:`}</p>}
+          <ul className="subscription-benefits">{p.groups.flatMap(g => g.items).map(it => <li key={it}><Check/>{it}</li>)}</ul>
+        </section>
+      </main>
+      <footer className="subscription-footer">
+        {p.yearly > 0 && <div className="subscription-intervals" role="group" aria-label="Billing interval"><Button variant="ghost" aria-pressed={!yearly} onClick={() => setYearly(false)}>{ar ? "شهري" : "Monthly"}</Button><Button variant="ghost" aria-pressed={yearly} onClick={() => setYearly(true)}>{ar ? "سنوي · وفر 17%" : "Yearly · Save 17%"}</Button></div>}
+        <div className="subscription-price"><strong>${yearly ? p.yearly : p.price}</strong><span>{yearly ? ar ? "/ سنة" : "/ year" : ar ? "/ شهر" : "/ month"}</span></div>
+        <Button variant="ghost" className="subscription-submit" disabled={current} onClick={() => setPaying(true)}>{current ? ar ? "باقتك الحالية" : "Current plan" : ar ? "اشترك" : "Subscribe"}</Button>
+        <p className="subscription-legal">{ar ? "تقدر تلغي في أي وقت. " : "Cancel anytime. "}<a href="/subscription-terms">{ar ? "شروط الاشتراك" : "Subscription terms"}</a></p>
+      </footer>
+      {paying && <CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} />}
     </div>
   );
 }
