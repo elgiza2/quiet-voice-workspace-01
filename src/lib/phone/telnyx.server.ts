@@ -239,7 +239,9 @@ export async function dialOut(input: DialInput) {
     await db().from("phone_calls").update({ call_control_id: ccid }).eq("id", input.callId);
     return { id: input.callId, from: anyNum.e164 };
   } catch (e) {
-    await db().from("phone_calls").update({ status: "failed", error: (e as Error).message.slice(0, 500), ended_at: new Date().toISOString() }).eq("id", input.callId);
+    const message = (e as Error).message;
+    await db().from("phone_calls").update({ status: "failed", error: message.slice(0, 500), ended_at: new Date().toISOString() }).eq("id", input.callId);
+    if (/D61|upgrade/i.test(message)) throw new PhoneUnavailable("Outgoing phone calls are not enabled yet: the Telnyx account must be upgraded (verified) before agents can dial out. Incoming calls on agent numbers still work.");
     throw e;
   }
 }
