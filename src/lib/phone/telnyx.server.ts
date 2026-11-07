@@ -57,13 +57,17 @@ export async function ensureCallControlApp(): Promise<string> {
   if (saved) return saved;
   let profileId = await setting("outbound_profile_id");
   if (!profileId) {
-    const profile = await tx("/outbound_voice_profiles", { body: {
+    const body = (countries: string[]) => ({
       name: "Ceyo agents outbound", traffic_type: "conversational", service_plan: "global",
-      whitelisted_destinations: OUTBOUND_COUNTRIES, daily_spend_limit: "3.00", daily_spend_limit_enabled: true,
-      concurrent_call_limit: 5,
-    } });
-    profileId = String(profile.data.id);
+      whitelisted_destinations: countries, daily_spend_limit: "3.00", daily_spend_limit_enabled: true, concurrent_call_limit: 5,
+    });
+    const allowed = await tx("/outbound_voice_profiles", { body: body(OUTBOUND_COUNTRIES) }).then(
+      (profile) => ({ profile, full: true }),
+      async (e) => ({ profile: await tx("/outbound_voice_profiles", { body: body(allowedCountries(e)) }), full: false }),
+    );
+    profileId = String(allowed.profile.data.id);
     await saveSetting("outbound_profile_id", profileId);
+    if (allowed.full) await saveSetting("outbound_full", "1");
   }
   const app = await tx("/call_control_applications", { body: {
     application_name: "Ceyo agents", webhook_event_url: webhookUrl(), anchorsite_override: "Latency",
@@ -72,6 +76,32 @@ export async function ensureCallControlApp(): Promise<string> {
   const id = String(app.data.id);
   await saveSetting("call_control_app_id", id);
   return id;
+}
+
+/** Telnyx lists the countries an unverified account may not call yet; keep the rest. */
+function allowedCountries(e: unknown) {
+  const message = (e as Error).message || "";
+  if (!/upgrade/i.test(message)) throw e;
+  const blocked = new Set(message.match(/\b[A-Z]{2}\b/g) || []);
+  return OUTBOUND_COUNTRIES.filter((c) => !blocked.has(c));
+}
+
+/** After the Telnyx account is upgraded, open the remaining countries (checked at most hourly). */
+async function widenDestinations() {
+  if (await setting("outbound_full")) return;
+  const last = Number(await setting("outbound_widen_at")) || 0;
+  if (Date.now() - last < 3_600_000) return;
+  await saveSetting("outbound_widen_at", String(Date.now()));
+  const profileId = await setting("outbound_profile_id");
+  if (!profileId) return;
+  const ok = await tx(`/outbound_voice_profiles/${profileId}`, { method: "PATCH", body: { whitelisted_destinations: OUTBOUND_COUNTRIES } }).then(() => true, () => false);
+  if (ok) await saveSetting("outbound_full", "1");
+}
+
+/** ISO country for a few supported calling codes, used only to explain blocked destinations. */
+export function destinationCountry(e164: string) {
+  const codes: Array<[string, string]> = [["+1", "US/CA"], ["+20", "EG"], ["+966", "SA"], ["+971", "AE"], ["+965", "KW"], ["+974", "QA"], ["+973", "BH"], ["+968", "OM"], ["+962", "JO"], ["+44", "GB"], ["+49", "DE"], ["+33", "FR"]];
+  return codes.find(([p]) => e164.startsWith(p))?.[1] || null;
 }
 
 type Bot = { id: string; owner_id: string; name: string; instructions: string | null; look: Record<string, unknown> | null };
@@ -90,7 +120,7 @@ export async function ensureBotAssistant(bot: Bot): Promise<{ assistantId: strin
   const config = {
     name: `Ceyo · ${bot.name}`.slice(0, 120), model: PHONE_MODEL, instructions, greeting,
     voice_settings: { voice: phoneVoice(bot.id, gender) },
-    transcription: { model: "deepgram/nova-3", language: "multi" },
+    transcription: { model: "deepgram/nova-3", language: "auto" },
     telephony_settings: { time_limit_secs: PHONE_CALL_MAX_SECONDS, user_idle_timeout_secs: 45 },
     tools: [{ type: "hangup", hangup: { description: "Hang up after saying goodbye when the conversation is finished." } }],
     enabled_features: ["telephony"],
