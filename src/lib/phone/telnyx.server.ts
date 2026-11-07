@@ -186,10 +186,14 @@ export async function dialOut(input: DialInput) {
   const { count: active } = await db().from("phone_calls").select("id", { count: "exact", head: true }).eq("user_id", input.userId).in("status", ["dialing", "in_progress"]).gte("created_at", new Date(Date.now() - 20 * 60_000).toISOString());
   if ((active ?? 0) > 0) throw new Error("Another phone call is still in progress. Wait for it to finish.");
 
-  const { data: botRow } = input.botId
-    ? await db().from("bots").select("id,owner_id,name,instructions,look").eq("id", input.botId).eq("owner_id", input.userId).maybeSingle()
-    : { data: null };
-  const bot: Bot = botRow || { id: input.userId, owner_id: input.userId, name: "Ceyo", instructions: null, look: null };
+  let botId = input.botId;
+  if (!botId) {
+    const { data: profile } = await db().from("profiles").select("primary_bot_id").eq("id", input.userId).maybeSingle();
+    botId = profile?.primary_bot_id || null;
+  }
+  if (!botId) throw new Error("No agent is available to make this call");
+  const bot = await loadBot(botId, input.userId);
+  input = { ...input, botId };
   const owner = await ownerName(input.userId);
   const arabic = isArabic(input.languageHint);
 
