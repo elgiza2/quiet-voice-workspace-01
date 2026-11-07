@@ -414,3 +414,5 @@
 .hub-home-header .hub-icon-button{border:0 !important;background:var(--hub-surface) !important;box-shadow:none !important;color:var(--hub-ink);border-radius:999px}
 .hub-home-header .hub-icon-button:hover,.hub-home-header .hub-icon-button[data-active="true"]{background:var(--hub-surface-raised) !important}
 .hub-home-header .hub-user-avatar{box-shadow:none;background:var(--hub-surface);border:0}
+
+.hub-apps-menu{inset-inline-start:0;bottom:58px;z-index:61;min-width:210px}
