@@ -5,5 +5,7 @@ export const Route = createFileRoute("/api/public/ceyo-routines")({ server: { ha
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return new Response("Unauthorized", { status: 401 });
   const { runDueRoutines } = await import("@/lib/ceyo/routines.server");
   const { runStaleJobs } = await import("@/lib/ceyo/backgroundJobs.server");
-  return Response.json({ results: await runDueRoutines(), jobs: await runStaleJobs() });
+  const { syncPhoneCalls } = await import("@/lib/phone/telnyx.server");
+  const [results, jobs, phone] = await Promise.all([runDueRoutines(), runStaleJobs(), syncPhoneCalls().catch(() => [])]);
+  return Response.json({ results, jobs, phone });
 } } } });

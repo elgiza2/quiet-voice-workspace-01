@@ -798,3 +798,7 @@ html[data-ceyo-surface="bot"] .agent-hub.ceyo-page{--ceyo-page-bg:#1b1b20;--ceyo
 .cx-wa-up{transform:rotate(90deg);animation:cx-wa-bob 1s ease-in-out infinite}
 @keyframes cx-wa-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1}}
 @keyframes cx-wa-bob{50%{translate:0 -3px}}
+
+/* Phone settings: mobile number field with its save button on one line. */
+.ceyo-phone-form { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; }
+.ceyo-phone-form .ceyo-input { flex: 1; min-width: 0; margin: 0; }

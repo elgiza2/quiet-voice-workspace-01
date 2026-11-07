@@ -170,6 +170,7 @@ function Main({ nav }: { nav: Nav }) {
       <Group><Row label="Connect apps" sub="Search plugins" onClick={() => nav("/settings/apps")} /></Group>
       <Group title="Agent">
         <Row label="Permissions" sub={permissionSummary(permissions)} onClick={() => nav("/settings/permissions")} />
+        <Row label="Phone calls" sub="Your mobile, agent numbers and call history" onClick={() => nav("/settings/phone")} />
         <Row label="Set Time Zone Automatically" sub="Saved preference; no computer is connected." checked={autoTz} disabled right={<Toggle on={autoTz} />} />
         <Row label="Time Zone" value={tz} right={<span />} />
         <Row label="Agent Computer" onClick={() => nav("/settings/computer")} />
@@ -521,6 +522,97 @@ function Devices({ nav }: { nav: Nav }) {
   );
 }
 
+type PhoneCallRow = { id: string; direction: string; counterpart: string; status: string; purpose: string | null; summary: string | null; created_at: string };
+const CALL_STATUS: Record<string, string> = { dialing: "Calling…", in_progress: "On the call", completed: "Done", no_answer: "No answer", failed: "Failed" };
+
+async function phoneApi(body: Record<string, string>) {
+  const { data } = await supabase.auth.getSession();
+  const res = await fetch("/api/phone", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session?.access_token || ""}` }, body: JSON.stringify(body) });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.error || "Phone service unavailable");
+  return json;
+}
+
+function Phone({ nav }: { nav: Nav }) {
+  const [mobile, setMobile] = useState("");
+  const [savedMobile, setSavedMobile] = useState("");
+  const [bots, setBots] = useState<Array<{ id: string; name: string }>>([]);
+  const [lines, setLines] = useState<Record<string, string>>({});
+  const [calls, setCalls] = useState<PhoneCallRow[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = async () => {
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id;
+    if (!uid) return;
+    const [profile, botRows, numbers, callRows] = await Promise.all([
+      supabase.from("profiles").select("phone_e164").eq("id", uid).maybeSingle(),
+      supabase.from("bots").select("id,name").eq("owner_id", uid).order("created_at"),
+      supabase.from("phone_numbers").select("bot_id,e164"),
+      supabase.from("phone_calls").select("id,direction,counterpart,status,purpose,summary,created_at").order("created_at", { ascending: false }).limit(20),
+    ]);
+    const phone = profile.data?.phone_e164 || "";
+    setSavedMobile(phone);
+    setMobile((current) => current || phone);
+    setBots(botRows.data || []);
+    setLines(Object.fromEntries((numbers.data || []).filter((n: { bot_id: string | null }) => n.bot_id).map((n: { bot_id: string; e164: string }) => [n.bot_id, n.e164])));
+    setCalls(callRows.data || []);
+  };
+  useEffect(() => {
+    void load();
+    void phoneApi({ action: "sync" }).then(load).catch(() => undefined);
+  }, []);
+
+  const saveMobile = async () => {
+    const { normalizeE164 } = await import("@/lib/phone/phoneRules");
+    const value = mobile.trim() ? normalizeE164(mobile) : null;
+    if (mobile.trim() && !value) return toast.error("Use international format, e.g. +20 101 234 5678");
+    const { data: auth } = await supabase.auth.getUser();
+    const { error } = await supabase.from("profiles").update({ phone_e164: value }).eq("id", auth.user?.id || "");
+    if (error) return toast.error(error.message);
+    setSavedMobile(value || "");
+    setMobile(value || "");
+    toast.success(value ? "Mobile number saved" : "Mobile number removed");
+  };
+
+  const toggleLine = async (botId: string) => {
+    setBusy(botId);
+    try {
+      if (lines[botId]) {
+        if (!(await askConfirm({ title: "Remove this number?", body: "People calling it will no longer reach this agent.", confirm: "Remove", danger: true }))) return;
+        await phoneApi({ action: "release", botId });
+        toast.success("Number removed");
+      } else {
+        const { number } = await phoneApi({ action: "assign", botId });
+        toast.success(`Number ${number.e164} is now this agent's line`);
+      }
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update the number");
+    } finally { setBusy(null); }
+  };
+
+  return (
+    <Shell title="Phone calls" back={() => nav("/settings")}>
+      <Group title="Your mobile">
+        <form className="ceyo-phone-form" onSubmit={(event) => { event.preventDefault(); void saveMobile(); }}>
+          <input className="ceyo-input" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" placeholder="+20 101 234 5678" value={mobile} maxLength={24} onChange={(event) => setMobile(event.target.value)} />
+          <Button type="submit" disabled={mobile.trim() === savedMobile}>Save</Button>
+        </form>
+      </Group>
+      <p className="ceyo-note">Ask any agent "call me" and it rings this number.</p>
+      <Group title="Agent numbers">
+        {bots.length ? bots.map((bot) => <Row key={bot.id} label={bot.name} sub={lines[bot.id] ? `Answers calls on ${lines[bot.id]}` : "No number yet"} disabled={busy === bot.id} onClick={() => void toggleLine(bot.id)} right={<span className="ceyo-row-value">{busy === bot.id ? "…" : lines[bot.id] ? "Remove" : "Get number"}</span>} />) : <Row label="No agents yet" right={<span />} />}
+      </Group>
+      <p className="ceyo-note">Anyone who calls an agent's number talks to that agent. A summary of each call appears in its chat.</p>
+      <Group title="Recent calls">
+        {calls.length ? calls.map((call) => <Row key={call.id} label={`${call.direction === "inbound" ? "From" : "To"} ${call.counterpart}`} sub={(call.summary || call.purpose || "").slice(0, 140) || new Date(call.created_at).toLocaleString()} value={CALL_STATUS[call.status] || call.status} right={<span />} />) : <Row label="No phone calls yet" right={<span />} />}
+      </Group>
+      <p className="ceyo-note">These are real phone calls: up to 10 a day, 10 minutes each. Agents only call when you ask them in the chat.</p>
+    </Shell>
+  );
+}
+
 function Computer({ nav }: { nav: Nav }) {
   const [confirming, setConfirming] = useState(false);
   return (
@@ -728,6 +820,7 @@ export default function CeyoSettings() {
     case "apps": return <Apps nav={nav} appId={sub ? decodeURIComponent(sub) : undefined} />;
     case "devices": return <Devices nav={nav} />;
     case "computer": return <Computer nav={nav} />;
+    case "phone": return <Phone nav={nav} />;
     case "permissions": return <Permissions nav={nav} />;
     case "memory": return <Memory nav={nav} />;
     case "appearance": return <Appearance nav={nav} />;

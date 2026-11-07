@@ -34,6 +34,7 @@ import { Route as ApiManusAdminRouteImport } from './routes/api/manus-admin'
 import { Route as ApiMarketNewsRouteImport } from './routes/api/market-news'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiPeopleBotRouteImport } from './routes/api/people-bot'
+import { Route as ApiPhoneRouteImport } from './routes/api/phone'
 import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
 import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
 import { Route as ApiTradeableAssetsRouteImport } from './routes/api/tradeable-assets'
@@ -52,6 +53,7 @@ import { Route as ApiPublicFxRouteImport } from './routes/api/public/fx'
 import { Route as ApiPublicGeoRouteImport } from './routes/api/public/geo'
 import { Route as ApiPublicRemindersTickRouteImport } from './routes/api/public/reminders-tick'
 import { Route as ApiPublicTelegramKeysRouteImport } from './routes/api/public/telegram-keys'
+import { Route as ApiPublicTelnyxVoiceRouteImport } from './routes/api/public/telnyx-voice'
 import { Route as ApiPublicAgentToolsTokenRouteImport } from './routes/api/public/agent-tools.$token'
 import { Route as ApiPublicMediaStatusRunIdRouteImport } from './routes/api/public/media-status.$runId'
 import { Route as ApiPublicMediaRunIdIndexRouteImport } from './routes/api/public/media.$runId.$index'
@@ -181,6 +183,11 @@ const ApiPeopleBotRoute = ApiPeopleBotRouteImport.update({
   path: '/api/people-bot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPhoneRoute = ApiPhoneRouteImport.update({
+  id: '/api/phone',
+  path: '/api/phone',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiReadUrlRoute = ApiReadUrlRouteImport.update({
   id: '/api/read-url',
   path: '/api/read-url',
@@ -271,6 +278,11 @@ const ApiPublicTelegramKeysRoute = ApiPublicTelegramKeysRouteImport.update({
   path: '/api/public/telegram-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTelnyxVoiceRoute = ApiPublicTelnyxVoiceRouteImport.update({
+  id: '/api/public/telnyx-voice',
+  path: '/api/public/telnyx-voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAgentToolsTokenRoute =
   ApiPublicAgentToolsTokenRouteImport.update({
     id: '/api/public/agent-tools/$token',
@@ -316,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/api/market-news': typeof ApiMarketNewsRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/people-bot': typeof ApiPeopleBotRoute
+  '/api/phone': typeof ApiPhoneRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/tradeable-assets': typeof ApiTradeableAssetsRoute
@@ -334,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/api/public/geo': typeof ApiPublicGeoRoute
   '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
   '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
+  '/api/public/telnyx-voice': typeof ApiPublicTelnyxVoiceRoute
   '/api/public/agent-tools/$token': typeof ApiPublicAgentToolsTokenRoute
   '/api/public/media-status/$runId': typeof ApiPublicMediaStatusRunIdRoute
   '/api/public/media/$runId/$index': typeof ApiPublicMediaRunIdIndexRoute
@@ -364,6 +378,7 @@ export interface FileRoutesByTo {
   '/api/market-news': typeof ApiMarketNewsRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/people-bot': typeof ApiPeopleBotRoute
+  '/api/phone': typeof ApiPhoneRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/tradeable-assets': typeof ApiTradeableAssetsRoute
@@ -382,6 +397,7 @@ export interface FileRoutesByTo {
   '/api/public/geo': typeof ApiPublicGeoRoute
   '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
   '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
+  '/api/public/telnyx-voice': typeof ApiPublicTelnyxVoiceRoute
   '/api/public/agent-tools/$token': typeof ApiPublicAgentToolsTokenRoute
   '/api/public/media-status/$runId': typeof ApiPublicMediaStatusRunIdRoute
   '/api/public/media/$runId/$index': typeof ApiPublicMediaRunIdIndexRoute
@@ -413,6 +429,7 @@ export interface FileRoutesById {
   '/api/market-news': typeof ApiMarketNewsRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/people-bot': typeof ApiPeopleBotRoute
+  '/api/phone': typeof ApiPhoneRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/tradeable-assets': typeof ApiTradeableAssetsRoute
@@ -431,6 +448,7 @@ export interface FileRoutesById {
   '/api/public/geo': typeof ApiPublicGeoRoute
   '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
   '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
+  '/api/public/telnyx-voice': typeof ApiPublicTelnyxVoiceRoute
   '/api/public/agent-tools/$token': typeof ApiPublicAgentToolsTokenRoute
   '/api/public/media-status/$runId': typeof ApiPublicMediaStatusRunIdRoute
   '/api/public/media/$runId/$index': typeof ApiPublicMediaRunIdIndexRoute
@@ -463,6 +481,7 @@ export interface FileRouteTypes {
     | '/api/market-news'
     | '/api/mcp'
     | '/api/people-bot'
+    | '/api/phone'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/tradeable-assets'
@@ -481,6 +500,7 @@ export interface FileRouteTypes {
     | '/api/public/geo'
     | '/api/public/reminders-tick'
     | '/api/public/telegram-keys'
+    | '/api/public/telnyx-voice'
     | '/api/public/agent-tools/$token'
     | '/api/public/media-status/$runId'
     | '/api/public/media/$runId/$index'
@@ -511,6 +531,7 @@ export interface FileRouteTypes {
     | '/api/market-news'
     | '/api/mcp'
     | '/api/people-bot'
+    | '/api/phone'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/tradeable-assets'
@@ -529,6 +550,7 @@ export interface FileRouteTypes {
     | '/api/public/geo'
     | '/api/public/reminders-tick'
     | '/api/public/telegram-keys'
+    | '/api/public/telnyx-voice'
     | '/api/public/agent-tools/$token'
     | '/api/public/media-status/$runId'
     | '/api/public/media/$runId/$index'
@@ -559,6 +581,7 @@ export interface FileRouteTypes {
     | '/api/market-news'
     | '/api/mcp'
     | '/api/people-bot'
+    | '/api/phone'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/tradeable-assets'
@@ -577,6 +600,7 @@ export interface FileRouteTypes {
     | '/api/public/geo'
     | '/api/public/reminders-tick'
     | '/api/public/telegram-keys'
+    | '/api/public/telnyx-voice'
     | '/api/public/agent-tools/$token'
     | '/api/public/media-status/$runId'
     | '/api/public/media/$runId/$index'
@@ -608,6 +632,7 @@ export interface RootRouteChildren {
   ApiMarketNewsRoute: typeof ApiMarketNewsRoute
   ApiMcpRoute: typeof ApiMcpRoute
   ApiPeopleBotRoute: typeof ApiPeopleBotRoute
+  ApiPhoneRoute: typeof ApiPhoneRoute
   ApiReadUrlRoute: typeof ApiReadUrlRoute
   ApiRenderPdfRoute: typeof ApiRenderPdfRoute
   ApiTradeableAssetsRoute: typeof ApiTradeableAssetsRoute
@@ -626,6 +651,7 @@ export interface RootRouteChildren {
   ApiPublicGeoRoute: typeof ApiPublicGeoRoute
   ApiPublicRemindersTickRoute: typeof ApiPublicRemindersTickRoute
   ApiPublicTelegramKeysRoute: typeof ApiPublicTelegramKeysRoute
+  ApiPublicTelnyxVoiceRoute: typeof ApiPublicTelnyxVoiceRoute
   ApiPublicAgentToolsTokenRoute: typeof ApiPublicAgentToolsTokenRoute
   ApiPublicMediaStatusRunIdRoute: typeof ApiPublicMediaStatusRunIdRoute
   ApiPublicMediaRunIdIndexRoute: typeof ApiPublicMediaRunIdIndexRoute
@@ -808,6 +834,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPeopleBotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/phone': {
+      id: '/api/phone'
+      path: '/api/phone'
+      fullPath: '/api/phone'
+      preLoaderRoute: typeof ApiPhoneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/read-url': {
       id: '/api/read-url'
       path: '/api/read-url'
@@ -934,6 +967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/telnyx-voice': {
+      id: '/api/public/telnyx-voice'
+      path: '/api/public/telnyx-voice'
+      fullPath: '/api/public/telnyx-voice'
+      preLoaderRoute: typeof ApiPublicTelnyxVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/agent-tools/$token': {
       id: '/api/public/agent-tools/$token'
       path: '/api/public/agent-tools/$token'
@@ -984,6 +1024,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMarketNewsRoute: ApiMarketNewsRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiPeopleBotRoute: ApiPeopleBotRoute,
+  ApiPhoneRoute: ApiPhoneRoute,
   ApiReadUrlRoute: ApiReadUrlRoute,
   ApiRenderPdfRoute: ApiRenderPdfRoute,
   ApiTradeableAssetsRoute: ApiTradeableAssetsRoute,
@@ -1002,6 +1043,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGeoRoute: ApiPublicGeoRoute,
   ApiPublicRemindersTickRoute: ApiPublicRemindersTickRoute,
   ApiPublicTelegramKeysRoute: ApiPublicTelegramKeysRoute,
+  ApiPublicTelnyxVoiceRoute: ApiPublicTelnyxVoiceRoute,
   ApiPublicAgentToolsTokenRoute: ApiPublicAgentToolsTokenRoute,
   ApiPublicMediaStatusRunIdRoute: ApiPublicMediaStatusRunIdRoute,
   ApiPublicMediaRunIdIndexRoute: ApiPublicMediaRunIdIndexRoute,

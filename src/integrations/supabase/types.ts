@@ -412,6 +412,38 @@ export type Database = {
           },
         ]
       }
+      bot_phone_agents: {
+        Row: {
+          bot_id: string
+          config_hash: string | null
+          telnyx_assistant_id: string
+          texml_app_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          bot_id: string
+          config_hash?: string | null
+          telnyx_assistant_id: string
+          texml_app_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bot_id?: string
+          config_hash?: string | null
+          telnyx_assistant_id?: string
+          texml_app_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_phone_agents_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: true
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bots: {
         Row: {
           category: string | null
@@ -690,6 +722,122 @@ export type Database = {
         }
         Relationships: []
       }
+      phone_calls: {
+        Row: {
+          agent_number: string | null
+          bot_id: string | null
+          call_control_id: string | null
+          conversation_id: string | null
+          counterpart: string
+          created_at: string
+          direction: string
+          duration_sec: number | null
+          ended_at: string | null
+          error: string | null
+          id: string
+          purpose: string | null
+          status: string
+          summary: string | null
+          telnyx_conversation_id: string | null
+          transcript: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_number?: string | null
+          bot_id?: string | null
+          call_control_id?: string | null
+          conversation_id?: string | null
+          counterpart: string
+          created_at?: string
+          direction: string
+          duration_sec?: number | null
+          ended_at?: string | null
+          error?: string | null
+          id?: string
+          purpose?: string | null
+          status?: string
+          summary?: string | null
+          telnyx_conversation_id?: string | null
+          transcript?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_number?: string | null
+          bot_id?: string | null
+          call_control_id?: string | null
+          conversation_id?: string | null
+          counterpart?: string
+          created_at?: string
+          direction?: string
+          duration_sec?: number | null
+          ended_at?: string | null
+          error?: string | null
+          id?: string
+          purpose?: string | null
+          status?: string
+          summary?: string | null
+          telnyx_conversation_id?: string | null
+          transcript?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_calls_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phone_calls_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phone_numbers: {
+        Row: {
+          assigned_at: string | null
+          bot_id: string | null
+          created_at: string
+          e164: string
+          id: string
+          owner_id: string | null
+          telnyx_number_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          bot_id?: string | null
+          created_at?: string
+          e164: string
+          id?: string
+          owner_id?: string | null
+          telnyx_number_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          bot_id?: string | null
+          created_at?: string
+          e164?: string
+          id?: string
+          owner_id?: string | null
+          telnyx_number_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_numbers_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: true
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number | null
@@ -699,6 +847,7 @@ export type Database = {
           id: string
           language: string
           onboarding_completed: boolean
+          phone_e164: string | null
           primary_bot_id: string | null
           updated_at: string
           user_type: string | null
@@ -712,6 +861,7 @@ export type Database = {
           id: string
           language?: string
           onboarding_completed?: boolean
+          phone_e164?: string | null
           primary_bot_id?: string | null
           updated_at?: string
           user_type?: string | null
@@ -725,6 +875,7 @@ export type Database = {
           id?: string
           language?: string
           onboarding_completed?: boolean
+          phone_e164?: string | null
           primary_bot_id?: string | null
           updated_at?: string
           user_type?: string | null
@@ -773,6 +924,24 @@ export type Database = {
           last_used_at?: string | null
           provider?: string
           status?: string
+        }
+        Relationships: []
+      }
+      telephony_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
