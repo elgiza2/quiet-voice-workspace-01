@@ -276,3 +276,9 @@
 - [ ] Wallet sending (sign + broadcast, 0.5% fee to owner address) — needs owner's fee-receiving address
 - [ ] Phone number per agent (Telnyx/Twilio) — needs provider key
 - [ ] Agent phone numbers via Telnyx (key saved, $5 balance) — buy number, inbound/outbound AI calls, user credit
+
+## Agent phone calls (Telnyx) — 2026-11-07 15:50 UTC
+- [ ] Agents call real numbers the user gives them (restaurant, company) and report back in chat.
+- [ ] Agents call the user's own saved mobile number.
+- [ ] Agent phone number: anyone calling it talks to that agent; the call summary lands in the chat.
+- [ ] Phone settings page: your number, agent numbers, recent calls. Tests, real test call, handoff.
