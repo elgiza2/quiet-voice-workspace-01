@@ -1,10 +1,11 @@
 ## Quiet UI, safe cache and cleanup — 2026-11-07 18:49 UTC
-- [ ] One animated purple subscription star using the supplied motion, joined to More; reduced-motion support.
-- [ ] Remove decorative coloured borders/glows while preserving errors and accessible neutral focus.
-- [ ] Diagnose pricing duplication and consolidate navigation; verify repeated open/back.
-- [ ] Versioned, bounded local cache for safe page preferences/public data only; refresh, expiry and account-change clearing tests.
-- [ ] Audit reachable source/dependencies; remove confirmed dead code/designs without deleting working features.
-- [ ] Run regression tests, inspect current preview and update handoff with exact verification limits.
+- [x] One animated purple subscription star using the supplied motion, joined to More; reduced-motion support.
+- [x] Remove decorative coloured borders/glows while preserving errors and accessible neutral focus.
+- [x] Remove transformed page wrapper/full-page entrance; router-aware pricing close; isolated repeated open/back shows one page/panel each time.
+- [x] Versioned, bounded local UI-state cache only; expiry, validation, owner-change clearing tests. Sensitive page payloads excluded.
+- [x] Audit reachable source/dependencies; remove five unused sheets, 3,946 duplicate CSS lines, stale prefetch/PWA definitions and unused direct plugin; preserve active server/native/operator files.
+- [x] Full regression suite and isolated preview review; handoff records exact limits.
+- [ ] Real-account navigation/cache/duplication verification: external_unmanaged auth cannot be restored here; isolated component checks do not establish the account flow.
 
 ## Exact reference, navigation and release preparation — 2026-11-07 17:56 UTC
 - [x] Match original chooser colours/spacing and original photographic card form; pricing follows screenshots, keeping Ceyo prices. Visually reviewed at 320/434/1280.

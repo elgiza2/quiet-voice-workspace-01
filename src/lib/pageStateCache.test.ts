@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { clearPageStates, PAGE_STATE_PREFIX, readPageState, writePageState } from "./pageStateCache";
+import { clearPageStates, PAGE_STATE_PREFIX, readPageState, syncPageStateOwner, writePageState } from "./pageStateCache";
 describe("safe page state", () => {
   beforeEach(() => { localStorage.clear(); vi.useRealTimers(); });
   it("separates accounts and skips unknown owners", () => {
@@ -31,5 +31,16 @@ describe("safe page state", () => {
   it("works when storage is unavailable", () => {
     const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("quota"); });
     expect(() => writePageState("a", "/settings", { tab: 1 })).not.toThrow(); spy.mockRestore();
+  });
+  it("clears on account switch and sign-out, not token refresh", () => {
+    writePageState("a", "/settings", { tab: 1 }); syncPageStateOwner("a", "a");
+    expect(readPageState("a", "/settings")).toEqual({ tab: 1 });
+    syncPageStateOwner("a", "b"); expect(readPageState("a", "/settings")).toBeNull();
+    writePageState("b", "/settings", { tab: 2 }); syncPageStateOwner("b", null);
+    expect(readPageState("b", "/settings")).toBeNull();
+  });
+  it("bounds entries to 32", () => {
+    for (let i = 0; i < 50; i++) writePageState(`owner-${i}`, "/settings", { tab: 0 });
+    expect(Object.keys(localStorage).filter(k => k.startsWith(PAGE_STATE_PREFIX))).toHaveLength(32);
   });
 });

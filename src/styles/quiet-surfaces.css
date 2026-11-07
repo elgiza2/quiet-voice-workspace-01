@@ -15,6 +15,8 @@
   box-shadow: none !important;
 }
 .glow-btn::before, .glow-btn::after, .btn-glass-accent::after { display: none !important; }
+.agent-hub.ceyo-page, .gx-apps, .gx-create:not(.ob-bot *) { animation: none !important; transform: none !important; }
+.gx-card-selected { box-shadow: none !important; border-color: var(--quiet-line) !important; }
 .chat-composer-frame, .composer-card { background-image: none !important; border-color: var(--quiet-line) !important; box-shadow: none !important; }
 .agent-hub :is(.hub-form-card,.hub-profile-card,.hub-member-picker,.hub-composer),
 .gx-apps :is(.gx-app-row,.gx-bottom-search,.gx-pill,.gx-connect-big),
