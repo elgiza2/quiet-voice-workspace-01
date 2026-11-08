@@ -1,5 +1,5 @@
 ## Checkout over current pricing — 2026-11-08
-- [ ] Open only the payment box over the unchanged pricing page and verify close restores the same page.
+- [x] Portal only the payment box over pricing; remove photo/hero; isolated actual pricing→checkout→card→close twice at 320/434/1280 retains Pro and the same URL, with no overflow/errors. 11 payment tests pass; real-account/payment remains unverified.
 
 ## Unified checkout box — 2026-11-08
 - [x] Keep selection, details, verification and success within the same white box; remove the old payment-page transition and stylesheet.

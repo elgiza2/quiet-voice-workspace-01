@@ -1,2 +1,2 @@
-- CheckoutSheet keeps summary, methods, card/wallet details, verification and completion inside CheckoutBox with scoped checkout-box.css. Why: the user requires one consistent payment box, not the retired full-page design.
+- CheckoutSheet portals only CheckoutBox over the mounted pricing page: bottom-aligned on mobile, centered on desktop, with scoped checkout-box.css and no photographic payment page. Why: closing checkout must preserve the selected plan and pricing scroll while all payment stages stay in one box.
 - International payments dynamically load the official Dodo inline SDK with manualRedirect enabled; SDK events never activate plans, and polling retains server verification. Why: payment stays embedded without client-side entitlement grants.
