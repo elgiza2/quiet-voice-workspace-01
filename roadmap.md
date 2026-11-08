@@ -1,3 +1,6 @@
+## Pricing crash regression — 2026-11-08
+- [ ] Connect the existing router QueryClient to the rendered app, add a provider regression test and verify pricing without injecting a test-only provider.
+
 ## Local subscription prices — 2026-11-08
 - [x] Display monthly/yearly prices in local currency using billing quotes and the existing FX feed; Egypt uses checkout EGP, others are labelled indicative. 17 tests pass; isolated actual-page Egypt/Saudi mobile/desktop and Egypt checkout checked without overflow/errors. Settlement unchanged; real-account/store verification remains unavailable.
 
