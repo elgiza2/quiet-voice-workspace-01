@@ -1,3 +1,6 @@
+## Checkout over current pricing — 2026-11-08
+- [ ] Open only the payment box over the unchanged pricing page and verify close restores the same page.
+
 ## Unified checkout box — 2026-11-08
 - [x] Keep selection, details, verification and success within the same white box; remove the old payment-page transition and stylesheet.
 - [x] Add official Dodo inline checkout with manualRedirect; 11 focused tests pass; isolated mobile/desktop selection→details→wallet→confirmation→success flow checked. Real-account/provider purchases remain unverified (external unmanaged auth); bank/wallet/native approvals can require their own interfaces.

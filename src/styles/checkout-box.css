@@ -7,23 +7,17 @@
   --cbox-soft: #f5f5f5;
   --cbox-error: #b42318;
   --cbox-shadow: 0 12px 48px rgb(0 0 0 / 18%);
-  --cbox-hero-shadow: 0 2px 12px rgb(0 0 0 / 28%);
-  position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column;
-  color: var(--cbox-surface); background: var(--cbox-ink); overflow-y: auto; overscroll-behavior: contain; isolation: isolate;
+  --cbox-backdrop: rgb(0 0 0 / 38%);
+  position: fixed; inset: 0; z-index: 120; display: flex; align-items: flex-end; justify-content: center; padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+  color: var(--cbox-ink); background: var(--cbox-backdrop); overscroll-behavior: contain; isolation: isolate;
   font-family: inherit; letter-spacing: 0;
 }
-.cbox-art { position: fixed; inset: 0; z-index: -1; }
-.cbox-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
-.cbox-hero { text-align: center; padding: 72px 20px 28px; flex: 1 0 auto; }
-.cbox-hero h1 { font-size: 48px; line-height: 1.2; font-weight: 500; letter-spacing: 0; text-shadow: var(--cbox-hero-shadow); }
-.cbox-hero h1 span { font-size: 28px; border: 2px solid currentColor; padding: 0 6px; margin-inline-start: 10px; vertical-align: middle; }
-.cbox-hero p { margin-top: 14px; font-size: 14px; line-height: 1.6; text-shadow: var(--cbox-hero-shadow); }
-html .cbox-screen button.cbox-close { position: absolute; top: max(16px, env(safe-area-inset-top)); left: 16px; width: 40px; height: 40px; border-radius: 50%; color: var(--cbox-surface); background: transparent; padding: 0; }
-.cbox-wrap { padding: 0 12px calc(12px + env(safe-area-inset-bottom)); flex: 0 0 auto; }
+.cbox-wrap { position: relative; width: 100%; max-width: 520px; max-height: calc(100dvh - 24px - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; border-radius: 24px; box-shadow: var(--cbox-shadow); }
+html .cbox-screen button.cbox-close { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; padding: 0; z-index: 1; }
 .cbox { background: var(--cbox-surface); color: var(--cbox-ink); border-radius: 24px; padding: 22px; width: 100%; max-width: 520px; margin: 0 auto; box-shadow: var(--cbox-shadow); text-align: left; }
 .cbox small { display: block; color: var(--cbox-muted); font-size: 12px; margin-top: 4px; line-height: 1.4; }
 .cbox b { font-weight: 500; font-size: 15px; }
-.cbox-summary { display: flex; align-items: center; gap: 12px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--cbox-line); }
+.cbox-summary { display: flex; align-items: center; gap: 12px; padding-top: 14px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--cbox-line); }
 .cbox-logo { width: 42px; height: 42px; border-radius: 8px; flex-shrink: 0; }
 .cbox-plan { flex: 1; min-width: 0; }
 .cbox-plan b { font-size: 18px; overflow-wrap: anywhere; }
@@ -47,7 +41,7 @@ html .cbox-screen .cbox button.cbox-cta * { color: var(--cbox-surface) !importan
 .cbox-head h2 { font-size: 18px; line-height: 1.4; font-weight: 500; margin: 0; }
 html body .cbox-screen .cbox h2, html body .cbox-screen .cbox h3, html body .cbox-screen .cbox b, html body .cbox-screen .cbox strong, html body .cbox-screen .cbox .cbox-field > span { color: var(--cbox-ink) !important; -webkit-text-fill-color: var(--cbox-ink) !important; text-shadow: none !important; }
 html body .cbox-screen .cbox small, html body .cbox-screen .cbox .cbox-note, html body .cbox-screen .cbox .cbox-security, html body .cbox-screen .cbox .cbox-status p { color: var(--cbox-muted) !important; -webkit-text-fill-color: var(--cbox-muted) !important; text-shadow: none !important; }
-html body .cbox-screen button.cbox-close { background: transparent !important; color: var(--cbox-surface) !important; -webkit-text-fill-color: var(--cbox-surface) !important; border: 0 !important; box-shadow: none !important; }
+html body .cbox-screen button.cbox-close { background: var(--cbox-soft) !important; color: var(--cbox-ink) !important; -webkit-text-fill-color: var(--cbox-ink) !important; border: 0 !important; box-shadow: none !important; }
 html .cbox-screen .cbox button.cbox-back { width: 32px; height: 32px; padding: 0; background: transparent !important; border-radius: 50%; flex-shrink: 0; }
 html .cbox-screen .cbox button.cbox-option, html .cbox-screen .cbox button.cbox-addcard { width: 100%; height: auto; min-height: 62px; display: flex; justify-content: flex-start; gap: 14px; text-align: left; padding: 10px 0; background: transparent !important; border-radius: 0; }
 .cbox-option > span:nth-child(2), .cbox-addcard > span:nth-child(2) { flex: 1; }
@@ -72,6 +66,6 @@ html .cbox-screen .cbox .cbox-field input { width: 100%; min-width: 0; height: 4
 .cbox-embedded iframe { width: 100%; min-height: 440px; border: 0; display: block; background: var(--cbox-surface); }
 .cbox-spin { animation: cbox-spin 1s linear infinite; }
 @keyframes cbox-spin { to { transform: rotate(360deg); } }
-@media (max-width: 360px) { .cbox { padding: 18px 14px; } .cbox-price { font-size: 14px; } .cbox-plan b { font-size: 16px; } .cbox-hero h1 { font-size: 40px; } .cbox-hero h1 span { font-size: 24px; } }
-@media (max-height: 760px) { .cbox-hero { padding-top: 64px; padding-bottom: 24px; } }
+@media (max-width: 360px) { .cbox { padding: 18px 14px; } .cbox-price { font-size: 14px; } .cbox-plan b { font-size: 16px; } }
+@media (min-width: 640px) { .cbox-screen { align-items: center; } }
 @media (prefers-reduced-motion: reduce) { .cbox-spin { animation: none; } }
