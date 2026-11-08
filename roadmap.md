@@ -1,3 +1,8 @@
+## Complete verification — 2026-11-08 01:45 UTC
+- [ ] Run all existing tests; repair regressions and confirmed current-schema/account defects.
+- [ ] Verify settings saves/read-back, bot editing, navigation, pricing/checkout and exhausted chat using the authorized test account without purchases or destructive account actions.
+- [ ] Audit usage bypasses and repair confirmed active paths; document provider/device/owner-approval blockers precisely.
+
 ## Free allowance and account audit — 2026-11-08
 - [x] Internal $0.05 one-time allowance, $0.01 per model step; Usage percentage only. Atomic owner debit covers active chat, specialists, jobs/routines, people-bot and follow-up. Actual account: five replies, sixth blocked; Subscribe opens pricing, Usage reads 100%.
 - [x] Account sign-in and 16 settings screens checked without crash/overflow; fix fabricated weekly credit display, broad cache deletion and Google Play management shown on web accounts. 22 focused tests pass.
