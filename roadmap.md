@@ -1,3 +1,7 @@
+## Unified checkout box — 2026-11-08
+- [ ] Keep selection, details, verification and success within the same white box; remove the old payment-page transition.
+- [ ] Check supported international embedding, mobile/desktop layout and payment regressions; report live-payment limits.
+
 ## Continue quiet cleanup — 2026-11-07 23:45 UTC
 - [x] Recheck checkout against current CustomCardForm reference: direct photographed Payment screen, no extra summary/chooser, corrected layout and theme CTA; server payment logic unchanged. Available methods differ intentionally; live payment unverified.
 - [x] Inspect remaining unused designs/dependencies; remove retired preloader and three unused redirect helpers, preserve auth-extras.css because it has an active import.
