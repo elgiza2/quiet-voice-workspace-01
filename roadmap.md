@@ -1,3 +1,8 @@
+## Payment choices and clean inputs — 2026-11-08
+- [ ] Open payment-method selection directly from Subscribe in the existing overlay.
+- [ ] Replace the named Cartesia quota message with a short user-facing unavailable-voice message, retaining failure state.
+- [ ] Clean standalone and nested input styling across the app; review mobile/desktop and regressions.
+
 ## Kashier bank verification — 2026-11-08
 - [x] Added documented mandatory newPaymentUI=true and customer reference to direct card requests; 14 focused tests pass. Browser intercepted test PAY verifies fields and verbatim 3DS iframe inside one box without charge/errors. Existing attempt is pending; live bank completion unverified.
 
