@@ -21,6 +21,8 @@ async function handle(request: Request) {
   const { CEREBRAS_BASE, CEREBRAS_MODELS } = await import("@/lib/keys/cerebrasKey");
   const key = await getProviderKey("cerebras");
   if (!key) return Response.json({ error: "Vision is not configured" }, { status: 503, headers: noStore });
+  const { chargeUsage, usageFailure } = await import("@/lib/ceyo/usage.server");
+  try { await chargeUsage(auth.userId, `vision:${crypto.randomUUID()}`); } catch (error) { return usageFailure(error); }
   const ask = source === "screen"
     ? "This is the user's shared screen during a video call. In at most 3 short sentences say which app or page it is and the key readable text or numbers the user is likely asking about."
     : "This is the user's front or back camera during a video call. In at most 2 short sentences describe what is visible (person, expression, objects held up, surroundings). Do not guess identity.";

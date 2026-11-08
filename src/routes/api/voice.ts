@@ -4,10 +4,17 @@ async function handle(request: Request) {
   const { authenticate } = await import("@/lib/ceyo/auth.server");
   const auth = await authenticate(request).catch(() => null);
   if (!auth) return Response.json({ error: "Please sign in" }, { status: 401, headers: { "Cache-Control": "no-store" } });
+  const { checkUsageAvailable, usageFailure, chargeUsage } = await import("@/lib/ceyo/usage.server");
+  if (request.method === "POST") {
+    try { await checkUsageAvailable(auth.db); } catch (error) { return usageFailure(error); }
+  }
   const key = await (await import("@/lib/keys/providerKey")).getProviderKey("cartesia");
   if (!key) return Response.json({ error: "Cartesia is not connected" }, { status: 503 });
   try {
     const { voiceCatalogue, generateSpeech } = await import("@/lib/audio/cartesia.server");
+    if (request.method === "POST") {
+      try { await chargeUsage(auth.userId, `speech:${crypto.randomUUID()}`); } catch (error) { return usageFailure(error); }
+    }
     return request.method === "GET" ? await voiceCatalogue(key, request.signal)
       : await generateSpeech(key, await request.json().catch(() => null), request.signal);
   } catch {

@@ -14,6 +14,8 @@ async function handle(request: Request) {
   const { authenticate } = await import("@/lib/ceyo/auth.server");
   const auth = await authenticate(request).catch(() => null);
   if (!auth) return Response.json({ error: "Please sign in" }, { status: 401, headers: noStore });
+  const { checkUsageAvailable, usageFailure } = await import("@/lib/ceyo/usage.server");
+  try { await checkUsageAvailable(auth.db); } catch (error) { return usageFailure(error); }
   const parsed = input.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Invalid call" }, { status: 400, headers: noStore });
   const { agentName, agentPrompt, language, reason } = parsed.data;

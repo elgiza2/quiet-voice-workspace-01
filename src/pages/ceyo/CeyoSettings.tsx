@@ -8,7 +8,6 @@ import {
   KeyRound, Moon, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
-import { useCredits } from "@/hooks/useCredits";
 import { useUsage } from "@/hooks/useUsage";
 import { clearPageStates, PAGE_STATE_PREFIX } from "@/lib/pageStateCache";
 import { getStoredTheme, setTheme, type ThemeMode } from "@/lib/theme";
@@ -307,7 +306,7 @@ const PLANS = [
 
 function Plans({ nav }: { nav: Nav }) {
   const navigate = useNavigate();
-  const { plan } = useCredits() as { plan: string };
+  const { plan } = useUsage();
   const [tab, setTab] = useState(0);
   const [yearly, setYearly] = useState(false);
   const [paying, setPaying] = useState(false);
