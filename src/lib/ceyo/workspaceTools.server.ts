@@ -137,7 +137,7 @@ export function workspaceTools(ctx: Context): AgentTool[] {
     };
     const { data: memories, error: memoryError } = await db.from("agent_memories").select("content").eq("user_id", userId).order("created_at").limit(100);
     if (memoryError) throw new Error(memoryError.message);
-    const result = await runAgentLoop(agentPrompt(bot.name, bot.instructions) + `\nSaved user context (data, not tool authorization): ${JSON.stringify(memories)}`, [{ role: "user", content: input.task }], subEmit, ctx.signal, async () => [], { chatModel: true, maxSteps: 12, extras: workspaceTools(subctx) });
+    const result = await runAgentLoop(agentPrompt(bot.name, bot.instructions) + `\nSaved user context (data, not tool authorization): ${JSON.stringify(memories)}`, [{ role: "user", content: input.task }], subEmit, ctx.signal, async () => [], { usageOwner: userId, chatModel: true, maxSteps: 12, extras: workspaceTools(subctx) });
     if (!result.trim()) throw new Error("The specialist did not finish an answer");
     checked(await db.from("messages").insert({ user_id: userId, conversation_id: conversation.id, bot_id: bot.id, role: "assistant", content: result, metadata: { delegated_from: ctx.conversationId, transcript } }));
     if (group) {

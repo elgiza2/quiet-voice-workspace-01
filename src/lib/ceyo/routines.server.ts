@@ -20,7 +20,7 @@ export async function runDueRoutines() {
       const { data: conv } = await db.from("conversations").select("id,bot_id").eq("id", routine.conversation_id).eq("user_id", routine.user_id).single();
       if (!conv) throw new Error("Conversation unavailable");
       const { data: memory } = await db.from("agent_memories").select("content").eq("user_id", routine.user_id).limit(100);
-      const text = await runAgentLoop(agentPrompt("Ceyo") + `\nScheduled research/writing only. No account actions, computer or code execution available. User context: ${JSON.stringify(memory)}`, [{ role: "user", content: routine.goal }], () => {}, new AbortController().signal, async () => [], { maxSteps: 12 });
+      const text = await runAgentLoop(agentPrompt("Ceyo") + `\nScheduled research/writing only. No account actions, computer or code execution available. User context: ${JSON.stringify(memory)}`, [{ role: "user", content: routine.goal }], () => {}, new AbortController().signal, async () => [], { usageOwner: routine.user_id, maxSteps: 12 });
       const { error: deliveryError } = await db.from("messages").upsert({ id: run.id, user_id: routine.user_id, conversation_id: conv.id, bot_id: conv.bot_id, role: "assistant", content: `${routine.title}\n\n${text}`, metadata: { routine_id: routine.id } }, { onConflict: "id", ignoreDuplicates: true });
       if (deliveryError) throw new Error("Could not deliver routine result");
       await db.from("agent_routine_runs").update({ status: "completed", result: text }).eq("id", run.id);
