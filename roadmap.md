@@ -1,7 +1,7 @@
 ## Free allowance and account audit — 2026-11-08
-- [ ] Default to a $0.05 one-time free app allowance, charge $0.01 per model step (service tariff, not provider invoice); atomic enforcement plus exhausted-balance notice/subscription action, paid-only unbounded calls/media.
-- [ ] Sign in with the supplied test account without exposing credentials and inspect all settings pages and representative app flows; fix verified defects.
-- [ ] Report exact coverage and external/payment/device gaps rather than claim 100% functionality.
+- [x] Internal $0.05 one-time allowance, $0.01 per model step; Usage percentage only. Atomic owner debit covers active chat, specialists, jobs/routines, people-bot and follow-up. Actual account: five replies, sixth blocked; Subscribe opens pricing, Usage reads 100%.
+- [x] Account sign-in and 16 settings screens checked without crash/overflow; fix fabricated weekly credit display, broad cache deletion and Google Play management shown on web accounts. 22 focused tests pass.
+- [x] Record exact coverage in README; continuous voice/video, live payments, OAuth, physical devices and full legacy-path metering remain unverified, not a 100% guarantee.
 
 ## Payment choices and clean inputs — 2026-11-08
 - [x] Subscribe opens payment choices directly; selecting a method opens details without a second Subscribe and waits for the country quote.

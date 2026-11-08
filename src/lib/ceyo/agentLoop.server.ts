@@ -109,7 +109,7 @@ export async function runAgentLoop(
   signal: AbortSignal,
   /** New user messages sent while the bot is working; they steer the same run. */
   poll: () => Promise<string[]> = async () => [],
-  opts: { chatModel?: boolean; maxSteps?: number; extra?: { def: object; name: string; run: (args: any) => Promise<string> }; extras?: { def: object; name: string; run: (args: any) => Promise<string> }[] } = {},
+  opts: { usageOwner?: string; chatModel?: boolean; maxSteps?: number; extra?: { def: object; name: string; run: (args: any) => Promise<string> }; extras?: { def: object; name: string; run: (args: any) => Promise<string> }[] } = {},
 ): Promise<string> {
   const extras = [...(opts.extras || []), ...(opts.extra ? [opts.extra] : [])];
   const allTools = [...tools, ...extras.map((extra) => extra.def)];
@@ -119,11 +119,13 @@ export async function runAgentLoop(
   const messages: Msg[] = [{ role: "system", content: system }, ...history];
   let answer = "";
   const turn = crypto.randomUUID().slice(0, 8);
+  const usageRun = crypto.randomUUID();
 
   for (let step = 0; step < maxSteps; step++) {
     signal.throwIfAborted();
     // Refresh after user steering; append after specialization and saved context.
     messages[0] = { role: "system", content: `${system}\n\n${replyLanguageInstruction(messages)}` };
+    if (opts.usageOwner) await (await import("./usage.server")).chargeUsage(opts.usageOwner, `${usageRun}:${step}`);
     const res = opts.chatModel
       ? await (await import("./chatModel.server")).chatModelResponse(messages, allTools, signal)
       : await cerebrasRequest(keys, JSON.stringify({ model: MODEL, messages, tools: allTools, stream: true, reasoning_effort: "low" }), signal);

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { useCredits } from "@/hooks/useCredits";
+import { useUsage } from "@/hooks/useUsage";
+import { clearPageStates, PAGE_STATE_PREFIX } from "@/lib/pageStateCache";
 import { getStoredTheme, setTheme, type ThemeMode } from "@/lib/theme";
 import { loadWorkspace, useWorkspaceStore } from "@/lib/agentsky/store";
 import { Button } from "@/components/ui/button";
@@ -118,21 +120,13 @@ function MeCard({ onClick }: { onClick?: () => void }) {
   );
 }
 
-function usageFor(credits: number | null, plan: string) {
-  const cap = plan === "free" ? 50 : plan.includes("max") || plan.includes("ultra") ? 5000 : 1000;
-  const left = Math.max(0, Number(credits ?? 0));
-  const used = Math.min(100, Math.round(((cap - Math.min(left, cap)) / cap) * 100));
-  return { cap, left, used };
-}
-
 function Main({ nav }: { nav: Nav }) {
   const [haptics, setHaptics] = useState(true);
   const [notify, setNotify] = useState(false);
   const [theme, setThemeMode] = useState<ThemeMode>("dark");
   const [language, setLanguage] = useState("System");
   const [permissions, setPermissions] = useState<PermissionPreferences>(DEFAULT_PERMISSIONS);
-  const { credits, plan, loading } = useCredits() as { credits: number | null; plan: string; loading: boolean };
-  const usage = usageFor(credits, plan);
+  const usage = useUsage();
   const tz = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
 
   useEffect(() => {
@@ -163,7 +157,7 @@ function Main({ nav }: { nav: Nav }) {
     <Shell title="Settings" back={() => nav("/")}>
       <Group>
         <MeCard onClick={() => nav("/settings/account")} />
-        <Row label="Usage" value={loading ? "…" : `${usage.used}%`} onClick={() => nav("/settings/usage")} />
+        <Row label="Usage" value={usage.isPending ? "…" : usage.isError ? "Unavailable" : usage.data?.isPaid ? "Subscribed" : `${usage.percent}%`} onClick={() => nav("/settings/usage")} />
         <Row label="Manage Subscription" onClick={() => nav("/settings/subscription")} />
         <Row label="Storage" sub="Files, memories and cache" onClick={() => nav("/settings/storage")} />
         <Row label="Vault" sub="Saved labels and contact info on this device" onClick={() => nav("/settings/vault")} />
@@ -232,24 +226,25 @@ function Account({ nav }: { nav: Nav }) {
 }
 
 function Usage({ nav }: { nav: Nav }) {
-  const { credits, plan, loading } = useCredits() as { credits: number | null; plan: string; loading: boolean };
-  const usage = usageFor(credits, plan);
+  const usage = useUsage();
+  const { plan } = usage;
+  const ar = useUserLang().startsWith("ar");
   return (
     <Shell title="Usage" back={() => nav("/settings")}>
+      {usage.isError && <Group><Row label="Could not load usage" onClick={() => void usage.refetch()} sub="Try again" /></Group>}
       <div className="ceyo-usage-panel">
         <div className="ceyo-usage-body">
-          <div className="ceyo-usage-head"><strong>Weekly usage limit</strong><span>Resets weekly</span></div>
-          <div className="ceyo-bar" aria-label={loading ? "Loading usage" : `${usage.used}% used`}><i style={{ width: `${loading ? 0 : usage.used}%` }} /></div>
-          <span className="ceyo-usage-percent">{loading ? "…" : `${usage.used}% used`}</span>
+          <div className="ceyo-usage-head"><strong>{usage.data?.isPaid ? "Subscription" : "Free usage"}</strong><span>{usage.data?.isPaid ? "Active" : "One-time allowance"}</span></div>
+          {!usage.data?.isPaid && <div className="ceyo-bar" role="progressbar" aria-label="Usage" aria-valuemin={0} aria-valuemax={100} aria-valuenow={usage.percent ?? 0}><i style={{ width: `${usage.percent ?? 0}%` }} /></div>}
+          <span className="ceyo-usage-percent">{usage.isPending ? "…" : usage.isError ? "Unavailable" : usage.data?.isPaid ? "Subscribed" : `${usage.percent}% used`}</span>
         </div>
       </div>
       <Group title="Plan">
         <Row label="Current plan" value={plan.charAt(0).toUpperCase() + plan.slice(1)} right={<span />} />
-        <Row label="Credits remaining" value={loading ? "…" : usage.left.toLocaleString()} right={<span />} />
-        <Row label="Weekly credit limit" value={usage.cap.toLocaleString()} right={<span />} />
       </Group>
+      {usage.exhausted && <p className="ceyo-note" role="alert">{ar ? "نفد الاستخدام المجاني. اشترك علشان تكمل." : "Free usage exhausted. Subscribe to continue."}</p>}
       <Group>
-        <Row label="Upgrade plan" sub="Get more usage every week" onClick={() => nav("/settings/plans")} />
+        <Row label={ar ? "اشترك" : "Subscribe"} onClick={() => nav("/settings/plans")} />
         <Row label="Manage subscription" onClick={() => nav("/settings/subscription")} />
         <Row label="Usage alerts" sub="Not available yet" disabled right={<Toggle on={false} />} />
       </Group>
@@ -263,7 +258,7 @@ function Storage({ nav }: { nav: Nav }) {
   const [docs, setDocs] = useState<{ id: string; name: string; size: number }[] | null>(null);
   const [memCount, setMemCount] = useState<number | null>(null);
   const [cache, setCache] = useState(0);
-  const measureCache = () => { let t = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i) || ""; t += k.length + (localStorage.getItem(k)?.length || 0); } setCache(t * 2); };
+  const measureCache = () => { let t = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i) || ""; if (k.startsWith(PAGE_STATE_PREFIX)) t += k.length + (localStorage.getItem(k)?.length || 0); } setCache(t * 2); };
   const load = async () => {
     const { data } = await supabase.from("agent_documents").select("id,name,content").order("created_at", { ascending: false });
     setDocs((data || []).map((d: { id: string; name: string; content?: string }) => ({ id: d.id, name: d.name, size: new Blob([d.content || ""]).size })));
@@ -272,9 +267,9 @@ function Storage({ nav }: { nav: Nav }) {
   };
   useEffect(() => { void load(); measureCache(); }, []);
   const total = (docs || []).reduce((a, d) => a + d.size, 0);
-  const clearCache = () => {
-    const keep = /auth-token|ceyo_vault|ceyo_permissions|ceyo_language|ceyo_theme|theme/;
-    Object.keys(localStorage).filter((k) => !keep.test(k)).forEach((k) => localStorage.removeItem(k));
+  const clearCache = async () => {
+    if (!(await askConfirm({ title: "Clear device cache?", body: "Saved page positions will reset. Your sign-in, preferences and Vault stay unchanged.", confirm: "Clear" }))) return;
+    clearPageStates();
     measureCache(); toast.success("Cache cleared");
   };
   const remove = async (id: string) => {
@@ -750,15 +745,20 @@ const PLAY_BILLING = "https://play.google.com/store/account/subscriptions";
 
 /** Google Play owns the card, the receipts and the cancellation. */
 function Subscription({ nav }: { nav: Nav }) {
+  const { plan, data } = useUsage();
+  const [provider, setProvider] = useState<string | null>(null);
+  useEffect(() => { void supabase.from("subscriptions").select("provider").gt("current_period_end", new Date().toISOString()).maybeSingle().then(({ data }) => setProvider(data?.provider || null)); }, []);
+  const play = provider === "google_play";
   const openBilling = () => window.open(PLAY_BILLING, "_blank", "noopener");
   return (
     <Shell title="Manage Subscription" back={() => nav("/settings")}>
       <Group>
-        <Row label="Manage subscription in Google Play" sub="Card details are handled outside the app." onClick={openBilling} right={<Ext />} />
+        <Row label="Current plan" value={plan.charAt(0).toUpperCase() + plan.slice(1)} right={<span />} />
+        {play && <Row label="Manage subscription in Google Play" onClick={openBilling} right={<Ext />} />}
         <Row label="Subscribe" sub="Choose a Ceyo plan." onClick={() => nav("/settings/plans")} />
-        <Row label="Cancel subscription" sub="Cancel your subscription through Google Play." onClick={openBilling} right={<Ext />} />
+        {play && <Row label="Cancel subscription" sub="Cancel through Google Play." onClick={openBilling} right={<Ext />} />}
       </Group>
-      <p className="ceyo-sub-note">Ceyo never stores your card. Google Play handles billing, receipts, tax and cancellation, and you can bring a cancelled plan back before the period ends.</p>
+      {data?.isPaid && !play && <p className="ceyo-sub-note">Manage your subscription using the link in your payment receipt.</p>}
     </Shell>
   );
 }

@@ -50,3 +50,4 @@
 - Keep current subscription/checkout styles separate from obsolete paywall sheets; do not reintroduce duplicate global CSS copies. Why: unused global layers add parsing cost and conflicting decoration.
 - CheckoutSheet uses one CheckoutBox for all payment stages and browser-only Dodo inline checkout with manual redirects; subscriptions require server verification. Why: avoid switching to a legacy payment page or granting plans from SDK events.
 - RootComponent provides the router-owned QueryClient around Outlet; never assume router context alone supplies React Query hooks or introduce a second app client. Why: pricing and future queries must work in the actual app, not only provider-wrapped isolated tests.
+- Agent-loop usage charges are owner-bound atomic server RPCs before each model step; usage reads are invoker-rights and displayed only as percentages. Why: concurrent requests must not overspend free allowance or expose other accounts.
