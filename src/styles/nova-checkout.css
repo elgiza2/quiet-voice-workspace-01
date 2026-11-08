@@ -307,3 +307,47 @@ html body section.megsy-checkout .checkout-title, html body section.megsy-checko
   .checkout-frame { min-height: min(620px, 74dvh); }
   .checkout-frame--verify { min-height: min(560px, 72dvh); }
 }
+
+/* White bottom payment box (user screenshots) */
+.cbox-screen { position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column; color: #fff; overflow: hidden; }
+.cbox-screen .botanical-art { z-index: 0; }
+.cbox-hero { position: relative; z-index: 1; text-align: center; padding: 72px 24px 0; flex: 1; }
+.cbox-hero h1 { font-size: 56px; font-weight: 500; letter-spacing: -.02em; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+.cbox-hero h1 span { font-size: .62em; border: 2px solid currentColor; padding: 0 6px; margin-inline-start: 10px; vertical-align: middle; }
+.cbox-hero p { margin-top: 12px; font-size: 16px; opacity: .92; text-shadow: 0 1px 8px rgba(0,0,0,.3); }
+.cbox-close { position: absolute; top: 20px; left: 16px; width: 40px; height: 40px; display: grid; place-items: center; color: #fff; }
+.cbox-wrap { position: relative; z-index: 1; padding: 0 10px calc(10px + env(safe-area-inset-bottom)); }
+.cbox { background: #fff; color: #111; border-radius: 28px; padding: 22px 14px 18px; max-width: 520px; margin: 0 auto; box-shadow: 0 -4px 30px rgba(0,0,0,.18); }
+.cbox small { display: block; color: #6b6b6b; font-size: 13px; margin-top: 2px; }
+.cbox b { font-weight: 400; font-size: 17px; }
+.cbox-summary { display: flex; align-items: flex-start; gap: 14px; padding: 0 14px 18px; margin: 0 -14px 6px; border-bottom: 1px solid #e8e8e8; }
+.cbox-logo { width: 44px; height: 44px; border-radius: 10px; }
+.cbox-plan { flex: 1; } .cbox-plan b { font-size: 21px; }
+.cbox-price { font-size: 18px; font-weight: 600; }
+.cbox-pay-row { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; background: #f4f4f4; border: 1px solid #e6e6e6; border-radius: 16px; padding: 12px; }
+.cbox-row-icon { width: 42px; height: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff; display: grid; place-items: center; }
+.cbox-row-icon svg { width: 20px; height: 20px; }
+.cbox-pay-row > span:nth-child(2) { flex: 1; }
+.cbox-chev { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 1px solid #e3e3e3; display: grid; place-items: center; }
+.cbox-chev svg { width: 16px; height: 16px; }
+.cbox-note { font-size: 14px; color: #555; margin: 16px 10px 12px; }
+.cbox-error { font-size: 13px; color: #c62828; margin: 10px 10px 0; }
+.cbox-cta { width: calc(100% - 20px); margin: 0 10px; height: 54px; border-radius: 999px; background: #000; color: #fff; font-size: 17px; font-weight: 600; display: grid; place-items: center; }
+.cbox-cta:disabled { opacity: .55; }
+.cbox-spin { width: 22px; height: 22px; animation: spin 1s linear infinite; }
+.cbox-brands { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+.cbox-tile { width: 42px; height: 28px; border: 1px solid #e1e1e1; border-radius: 6px; background: #fff; display: grid; place-items: center; }
+.cbox-mark-svg { width: 16px; height: 16px; } .cbox-mark-wide { width: 28px; }
+.cbox-head { display: flex; align-items: center; gap: 22px; padding: 0 10px 18px; }
+.cbox-head h2 { font-size: 21px; font-weight: 400; }
+.cbox-back svg { width: 20px; height: 20px; }
+.cbox-option { width: 100%; display: flex; align-items: center; gap: 22px; text-align: left; padding: 10px 6px; }
+.cbox-option > span:nth-child(2) { flex: 1; }
+.cbox-option .cbox-tile, .cbox-addcard .cbox-tile { width: 44px; height: 30px; }
+.cbox-check { width: 18px; height: 18px; }
+.cbox-rule { border: 0; border-top: 1px solid #e8e8e8; margin: 12px 6px; }
+.cbox-section { font-size: 16px; padding: 4px 6px 10px; }
+.cbox-addcard { width: 100%; display: flex; align-items: center; gap: 30px; padding: 6px 6px 4px 12px; font-size: 17px; text-align: left; }
+.cbox-addcard > svg { width: 20px; height: 20px; }
+.cbox-addcard > span:nth-child(2) { flex: 1; }
+.cbox-marks { display: flex; gap: 6px; }
