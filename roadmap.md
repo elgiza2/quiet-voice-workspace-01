@@ -1,3 +1,6 @@
+## Kashier bank verification — 2026-11-08
+- [x] Added documented mandatory newPaymentUI=true and customer reference to direct card requests; 14 focused tests pass. Browser intercepted test PAY verifies fields and verbatim 3DS iframe inside one box without charge/errors. Existing attempt is pending; live bank completion unverified.
+
 ## Pricing crash regression — 2026-11-08
 - [x] Root now provides its existing router QueryClient around Outlet. Regression + 8 currency tests pass; actual TanStack root → pricing → checkout → close checked at 434/1280 without a test provider or errors. Only inner auth app substituted; real-account verification unavailable.
 
