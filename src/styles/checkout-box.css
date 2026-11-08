@@ -45,6 +45,9 @@ html .cbox-screen .cbox button.cbox-cta * { color: var(--cbox-surface) !importan
 .cbox-mark-wide { width: 26px; }
 .cbox-head { display: flex; align-items: center; gap: 12px; padding-bottom: 18px; }
 .cbox-head h2 { font-size: 18px; line-height: 1.4; font-weight: 500; margin: 0; }
+html body .cbox-screen .cbox h2, html body .cbox-screen .cbox h3, html body .cbox-screen .cbox b, html body .cbox-screen .cbox strong, html body .cbox-screen .cbox .cbox-field > span { color: var(--cbox-ink) !important; -webkit-text-fill-color: var(--cbox-ink) !important; text-shadow: none !important; }
+html body .cbox-screen .cbox small, html body .cbox-screen .cbox .cbox-note, html body .cbox-screen .cbox .cbox-security, html body .cbox-screen .cbox .cbox-status p { color: var(--cbox-muted) !important; -webkit-text-fill-color: var(--cbox-muted) !important; text-shadow: none !important; }
+html body .cbox-screen button.cbox-close { background: transparent !important; color: var(--cbox-surface) !important; -webkit-text-fill-color: var(--cbox-surface) !important; border: 0 !important; box-shadow: none !important; }
 html .cbox-screen .cbox button.cbox-back { width: 32px; height: 32px; padding: 0; background: transparent !important; border-radius: 50%; flex-shrink: 0; }
 html .cbox-screen .cbox button.cbox-option, html .cbox-screen .cbox button.cbox-addcard { width: 100%; height: auto; min-height: 62px; display: flex; justify-content: flex-start; gap: 14px; text-align: left; padding: 10px 0; background: transparent !important; border-radius: 0; }
 .cbox-option > span:nth-child(2), .cbox-addcard > span:nth-child(2) { flex: 1; }
