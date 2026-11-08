@@ -1,3 +1,6 @@
+## Kashier bank verification — 2026-11-08
+- [ ] Add mandatory newPaymentUI and customer reference to direct card requests; regression-test payload and check browser handoff without charging a card. Existing attempt remains pending, not confirmed paid.
+
 ## Pricing crash regression — 2026-11-08
 - [x] Root now provides its existing router QueryClient around Outlet. Regression + 8 currency tests pass; actual TanStack root → pricing → checkout → close checked at 434/1280 without a test provider or errors. Only inner auth app substituted; real-account verification unavailable.
 

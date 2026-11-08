@@ -11,6 +11,8 @@ import { CheckoutBox } from "./CheckoutBox";
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/checkout-box.css";
 import { isPlayApp, purchasePlay } from "@/lib/native/playBilling";
+import { kashierCardPayload } from "@/lib/payments/kashierCard";
+import { getAuthState } from "@/lib/authStore";
 
 type PlayApi = { purchase?: (json: string) => void };
 declare global { interface Window { ceyoPlayPurchase?: (token: string) => void } }
@@ -115,14 +117,11 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
     if (card.number.length < 13 || !card.name.trim() || !mm || !yy || card.cvv.length < 3) { setError("Check your card details."); return; }
     setState("loading"); setError("");
     try {
+      const customerReference = getAuthState().userId;
+      if (!customerReference) throw new Error("Please sign in first");
       const o = await billing<{ orderId: string; merchantId: string; amount: number; currency: string; hash: string; endpoint: string; webhookUrl: string; redirect: string }>({ action: "kashier_card", tier, interval });
       // Card details go straight from this device to Kashier; Ceyo's servers never see them.
-      const res = await fetch(o.endpoint, { method: "POST", headers: { "Content-Type": "application/json", "Kashier-Hash": o.hash }, body: JSON.stringify({
-        apiOperation: "PAY", merchantId: o.merchantId, interactionSource: "ECOMMERCE",
-        paymentMethod: { type: "CARD", card: { number: card.number, nameOnCard: card.name.trim(), expiry: { month: mm, year: yy }, securityCode: card.cvv, enable3DS: true } },
-        order: { reference: o.orderId, amount: String(o.amount), currency: o.currency, description: `Ceyo ${name} ${interval}` },
-        merchantRedirect: o.redirect, serverWebhook: o.webhookUrl, reconciliation: { webhookUrl: o.webhookUrl, merchantRedirect: o.redirect, redirect: false },
-      }) });
+      const res = await fetch(o.endpoint, { method: "POST", headers: { "Content-Type": "application/json", "Kashier-Hash": o.hash }, body: JSON.stringify(kashierCardPayload(o, card, customerReference, `Ceyo ${name} ${interval}`)) });
       const p = await res.json().catch(() => ({}));
       const url = p?.response?.authentication?.redirectUrl;
       setCard({ number: "", name: "", exp: "", cvv: "" });
