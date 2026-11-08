@@ -37,6 +37,8 @@ async function handle(request: Request) {
   for (const bot of bots) {
     const { data: full } = await supabaseAdmin.from("bots").select("id,name,instructions").eq("id", bot.id).maybeSingle();
     if (!full) continue;
+    try { await (await import("@/lib/ceyo/usage.server")).chargeUsage(auth.userId, `people:${messageId}:${bot.id}`); }
+    catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Could not check usage" }, { status: 402, headers: noStore }); }
     const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
       method: "POST", signal: request.signal,
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
