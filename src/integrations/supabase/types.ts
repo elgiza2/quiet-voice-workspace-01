@@ -332,6 +332,73 @@ export type Database = {
           },
         ]
       }
+      agent_usage_balances: {
+        Row: {
+          allowance_usd: number
+          created_at: string
+          spent_usd: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allowance_usd?: number
+          created_at?: string
+          spent_usd?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allowance_usd?: number
+          created_at?: string
+          spent_usd?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_usage_balances_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_usage_operations: {
+        Row: {
+          amount_usd: number
+          created_at: string
+          id: string
+          operation_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_usd: number
+          created_at?: string
+          id?: string
+          operation_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_usd?: number
+          created_at?: string
+          id?: string
+          operation_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_usage_operations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_group_members: {
         Row: {
           bot_id: string
@@ -1094,6 +1161,11 @@ export type Database = {
       add_people_member: {
         Args: { p_thread: string; p_username: string }
         Returns: undefined
+      }
+      agent_usage_status: { Args: never; Returns: Json }
+      charge_agent_usage: {
+        Args: { p_operation_key: string; p_user_id: string }
+        Returns: Json
       }
       claim_agent_routines: {
         Args: never
