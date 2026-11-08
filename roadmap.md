@@ -1,3 +1,6 @@
+## Local subscription prices — 2026-11-08
+- [ ] Display monthly/yearly prices in the user's local currency, reuse Egyptian checkout quotes, test conversions and loading/error behavior; do not change settlement prices.
+
 ## Checkout over current pricing — 2026-11-08
 - [x] Portal only the payment box over pricing; remove photo/hero; isolated actual pricing→checkout→card→close twice at 320/434/1280 retains Pro and the same URL, with no overflow/errors. 11 payment tests pass; real-account/payment remains unverified.
 
