@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Voice } from "./voiceSchema";
 import { createSpeechDetector } from "./speechDetector";
+import { voiceErrorMessage } from "./voiceError";
 
 async function voiceFetch(path: string, init: RequestInit = {}) {
   const { data } = await supabase.auth.getSession();
@@ -8,7 +9,7 @@ async function voiceFetch(path: string, init: RequestInit = {}) {
   const response = await fetch(path, { ...init, headers: { ...init.headers, Authorization: `Bearer ${data.session.access_token}` } });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || "Voice service unavailable");
+    throw new Error(voiceErrorMessage(body.error));
   }
   return response;
 }

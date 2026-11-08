@@ -29,3 +29,48 @@
   outline-offset: 2px;
   box-shadow: none !important;
 }
+
+/* Inputs use their own surface, never the rectangular outline from legacy focus rules. */
+:root {
+  --field-surface: hsl(var(--muted));
+  --field-ink: hsl(var(--foreground));
+  --field-placeholder: hsl(var(--muted-foreground));
+}
+html body :is(input,textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([autocomplete="one-time-code"]) {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  outline: none !important;
+  box-shadow: none !important;
+  letter-spacing: 0;
+}
+html body :is(.ceyo-input,.st-input,.st-textarea,.gx-name,.pgs-input,.cc-input) {
+  border: 1px solid var(--quiet-line) !important;
+  border-radius: 8px !important;
+  background: var(--field-surface) !important;
+  color: var(--field-ink) !important;
+  -webkit-text-fill-color: var(--field-ink) !important;
+}
+html body :is(.ceyo-input,.st-input,.st-textarea,.gx-name,.pgs-input,.cc-input):focus {
+  border-color: var(--quiet-focus) !important;
+}
+/* Search/composer wrappers already draw a surface; their children must not draw another box. */
+html body :is(.hub-find-bar,.hub-composer,.hub-field,.ceyo-bottom-search,.gx-bottom-search,.cx-composer,.cx-find-input,.cx-choice-input,.ceyo-docs-search,.chat-composer-frame,.composer-card,.wl-search,.ceyo-auth-field,.liquid-glass-input)
+  :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([autocomplete="one-time-code"]),textarea) {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+html body .hub-search-bottom:not(.hub-search-overlay .hub-search-bottom) input {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+html body :is(.hub-find-bar,.hub-composer,.ceyo-bottom-search,.gx-bottom-search,.cx-composer,.cx-find-input,.cx-choice-input,.ceyo-docs-search,.chat-composer-frame,.composer-card,.wl-search,.ceyo-auth-field,.liquid-glass-input):focus-within {
+  border-color: var(--quiet-focus) !important;
+}
+html body :is(.hub-field,.ceyo-vault-field,.cbox-field):focus-within {
+  border-color: var(--quiet-focus) !important;
+}

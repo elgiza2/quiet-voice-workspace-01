@@ -19,22 +19,23 @@ export function CheckoutBox({ name, subtitle, total, kashier, busy, error, onPay
   onPay: (m: BoxMethod) => void;
   children?: ReactNode; heading?: string; onBack?: () => void;
 }) {
-  const [view, setView] = useState<"summary" | "methods">("summary");
+  const [view, setView] = useState<"summary" | "methods">("methods");
   const [method, setMethod] = useState<BoxMethod | null>(null);
   const label = method === "wallet" ? "Vodafone Cash" : method === "google_pay" ? "Google Pay" : method === "card" ? "Card" : "Add card";
-  const pick = (m: BoxMethod) => { setMethod(m); setView("summary"); };
+  const pick = (m: BoxMethod) => { setMethod(m); setView("summary"); onPay(m); };
 
   if (!children && view === "methods") return (
     <div className="cbox" role="group" aria-label="Payment methods">
-      <div className="cbox-head"><Button variant="ghost" type="button" className="cbox-back" aria-label="Back" onClick={() => setView("summary")}><ArrowLeft /></Button><h2>Payment methods</h2></div>
+      <div className="cbox-head"><h2>Payment methods</h2></div>
       {kashier ? (
-        <Button variant="ghost" type="button" className="cbox-option" onClick={() => pick("wallet")}><Tile k="vodafone" /><span><b>Vodafone Cash</b><small>Approve the payment on your phone</small></span>{method === "wallet" && <Check className="cbox-check" />}</Button>
+        <Button variant="ghost" type="button" className="cbox-option" disabled={busy || kashier === null} onClick={() => pick("wallet")}><Tile k="vodafone" /><span><b>Vodafone Cash</b><small>Approve the payment on your phone</small></span>{method === "wallet" && <Check className="cbox-check" />}</Button>
       ) : (
-        <Button variant="ghost" type="button" className="cbox-option" onClick={() => pick("google_pay")}><Tile k="googlepay" /><span><b>Google Pay</b><small>Pay with your Google account</small></span>{method === "google_pay" && <Check className="cbox-check" />}</Button>
+        <Button variant="ghost" type="button" className="cbox-option" disabled={busy || kashier === null} onClick={() => pick("google_pay")}><Tile k="googlepay" /><span><b>Google Pay</b><small>Pay with your Google account</small></span>{method === "google_pay" && <Check className="cbox-check" />}</Button>
       )}
       <hr className="cbox-rule" />
       <p className="cbox-section">Payment details</p>
-      <Button variant="ghost" type="button" className="cbox-addcard" onClick={() => pick("card")}><CreditCard /><span>Add card</span><span className="cbox-marks"><Tile k="mastercard" /><Tile k="visa" /></span></Button>
+      <Button variant="ghost" type="button" className="cbox-addcard" disabled={busy || kashier === null} onClick={() => pick("card")}><CreditCard /><span>Add card</span><span className="cbox-marks"><Tile k="mastercard" /><Tile k="visa" /></span></Button>
+      {error && <p role="alert" className="cbox-error">{error}</p>}
     </div>
   );
 

@@ -1,3 +1,13 @@
+## Free allowance and account audit — 2026-11-08
+- [ ] Set a very small free usage allowance with consistent enforcement and tests; show exhausted-balance notice plus subscription action.
+- [ ] Sign in with the supplied test account without exposing credentials and inspect all settings pages and representative app flows; fix verified defects.
+- [ ] Report exact coverage and external/payment/device gaps rather than claim 100% functionality.
+
+## Payment choices and clean inputs — 2026-11-08
+- [x] Subscribe opens payment choices directly; selecting a method opens details without a second Subscribe and waits for the country quote.
+- [x] Map the named Cartesia quota notice to localized unavailable-voice text; failed catalogue/speech still reject.
+- [x] Shared input cleanup removes focus rectangles and nested surfaces, preserving special controls. 16 tests pass; actual root with isolated pricing/account checked on mobile/desktop, card/wallet/return and focused fields reviewed. Every real-account page, live payment/audio remain unverified.
+
 ## Kashier bank verification — 2026-11-08
 - [x] Added documented mandatory newPaymentUI=true and customer reference to direct card requests; 14 focused tests pass. Browser intercepted test PAY verifies fields and verbatim 3DS iframe inside one box without charge/errors. Existing attempt is pending; live bank completion unverified.
 
