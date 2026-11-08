@@ -24,9 +24,9 @@ export function useLocalPlanPrices(tier: Tier, hasYearly: boolean) {
   const rates = useQuery({
     queryKey: ["display-exchange-rates", "USD"], enabled: needsConversion, staleTime: 15 * 60_000, retry: 1,
     queryFn: async ({ signal }) => {
-      const response = await fetch("https://open.er-api.com/v6/latest/USD", { signal });
+      const response = await fetch("/api/public/fx", { signal });
       const result = await response.json();
-      if (!response.ok || result.result !== "success" || !result.rates) throw new Error("Local price is unavailable");
+      if (!response.ok || result.base !== "USD" || !result.rates) throw new Error("Local price is unavailable");
       return result.rates as Record<string, number>;
     },
   });
