@@ -9,5 +9,6 @@ export const getUsageStatus = createServerFn({ method: "POST" }).handler(async (
   setResponseHeader("Cache-Control", "no-store");
   const { data, error } = await db.rpc("agent_usage_status");
   if (error || !data) throw new Error("Could not load usage. Please try again.");
-  return statusSchema.parse(data);
+  const parsed = statusSchema.parse(data);
+  return { plan: parsed.plan, isPaid: parsed.isPaid, allowanceUsd: parsed.allowanceUsd, spentUsd: parsed.spentUsd, remainingUsd: parsed.remainingUsd, stepUsd: parsed.stepUsd };
 });
