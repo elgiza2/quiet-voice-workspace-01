@@ -1,3 +1,8 @@
+## Free allowance and account audit — 2026-11-08
+- [ ] Set a very small free usage allowance with consistent enforcement and tests; show exhausted-balance notice plus subscription action.
+- [ ] Sign in with the supplied test account without exposing credentials and inspect all settings pages and representative app flows; fix verified defects.
+- [ ] Report exact coverage and external/payment/device gaps rather than claim 100% functionality.
+
 ## Payment choices and clean inputs — 2026-11-08
 - [x] Subscribe opens payment choices directly; selecting a method opens details without a second Subscribe and waits for the country quote.
 - [x] Map the named Cartesia quota notice to localized unavailable-voice text; failed catalogue/speech still reject.
