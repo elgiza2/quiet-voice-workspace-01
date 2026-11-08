@@ -56,6 +56,7 @@ import { readTextAttachment } from "@/lib/ceyo/content";
 import { saveDocument } from "@/lib/ceyo/resources";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { isUsageExhausted } from "@/lib/ceyo/usage";
 
 type Bubble = {
   key: string;
@@ -313,7 +314,8 @@ export function HubChat({
   }, [demo, sessionId, s.running]);
   useEffect(() => {
     const err = lastAgent?.error || s.error;
-    if (err) setToast({ title: ar ? "الوكيل مقدرش يرد" : "No reply received", body: err, tone: "error" });
+    if (err && !isUsageExhausted(err)) setToast({ title: ar ? "الوكيل مقدرش يرد" : "No reply received", body: err, tone: "error" });
+    else if (isUsageExhausted(err)) setToast(null);
   }, [lastAgent?.error, s.error, ar]);
 
   const startConversation = async (text: string, origin: RecordingOrigin = {}) => {
@@ -454,7 +456,7 @@ export function HubChat({
           <span><strong>{toast.title}</strong>{toast.body && <small>{toast.body}</small>}</span>
         </div>
       )}
-      {s.error && <div className="cx-chat-error" role="alert"><CircleAlert size={18} /><span>{s.error}</span></div>}
+      {s.error && <div className="cx-chat-error" role="alert"><CircleAlert size={18} /><span>{isUsageExhausted(s.error) ? ar ? "نفد الاستخدام المجاني. اشترك علشان تكمل." : "Free usage exhausted. Subscribe to continue." : s.error}</span>{isUsageExhausted(s.error) && <Button variant="secondary" size="sm" onClick={() => nav("/settings/plans")}>{ar ? "اشترك" : "Subscribe"}</Button>}</div>}
 
       <div
         className="cx-scroll"
