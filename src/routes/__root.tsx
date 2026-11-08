@@ -6,7 +6,7 @@ import {
   Scripts,
   Link,
 } from "@tanstack/react-router";
-import type { QueryClient } from "@tanstack/react-query";
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import { useEffect, type ReactNode } from "react";
 
 import "../styles/app.css";
@@ -412,6 +412,7 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function RootComponent() {
-  return <Outlet />;
+export function RootComponent() {
+  const { queryClient } = Route.useRouteContext();
+  return <QueryClientProvider client={queryClient}><Outlet /></QueryClientProvider>;
 }

@@ -1,3 +1,6 @@
+## Pricing crash regression — 2026-11-08
+- [x] Root now provides its existing router QueryClient around Outlet. Regression + 8 currency tests pass; actual TanStack root → pricing → checkout → close checked at 434/1280 without a test provider or errors. Only inner auth app substituted; real-account verification unavailable.
+
 ## Local subscription prices — 2026-11-08
 - [x] Display monthly/yearly prices in local currency using billing quotes and the existing FX feed; Egypt uses checkout EGP, others are labelled indicative. 17 tests pass; isolated actual-page Egypt/Saudi mobile/desktop and Egypt checkout checked without overflow/errors. Settlement unchanged; real-account/store verification remains unavailable.
 
