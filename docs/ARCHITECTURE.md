@@ -28,6 +28,7 @@ Platform detection should pick the payment path: Android shell → Google Play; 
 - Prices live in `src/lib/payments/plans.ts` (USD; server prices every order from it).
 - `/api/billing` (signed-in) starts Kashier hosted checkout or verifies a Google Play token; `/api/public/kashier-webhook` verifies the HMAC signature and calls `settle_payment_order` (one-time, atomic).
 - Tables: `payment_orders`, `subscriptions` (owner read-only; server writes). Popup: `src/components/billing/CheckoutSheet.tsx`.
+- CheckoutSheet retains one white CheckoutBox through details, bank verification and success; checkout-box.css is scoped and replaces the retired payment-page sheet. International payments use the dynamically imported official Dodo inline SDK with manualRedirect; server polling alone confirms payment.
 - Kashier keys: provider keys `kashier_merchant_id`, `kashier_api_key` (env fallback); `KASHIER_MODE=test`, `KASHIER_CURRENCY` optional.
 - Domains: `src/config/domains.ts` decides the surface by host.
 

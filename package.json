@@ -43,6 +43,7 @@
     "@ton/ton": "^16.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dodopayments-checkout": "^2.1.0",
     "framer-motion": "^13.2.0",
     "input-otp": "^1.4.2",
     "jose": "^6.2.12",
