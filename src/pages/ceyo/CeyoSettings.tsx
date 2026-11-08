@@ -417,7 +417,7 @@ function Vault_({ nav }: { nav: Nav }) {
         event.preventDefault();
         if (!title.trim()) return;
         try { validateVaultDetail(adding, detail); } catch (error) { toast.error(error instanceof Error ? error.message : "Invalid details"); return; }
-        save([{ id: crypto.randomUUID(), kind: adding, title: title.trim(), detail: detail.trim() }, ...items]);
+        if (!save([{ id: crypto.randomUUID(), kind: adding, title: title.trim(), detail: detail.trim() }, ...items])) return;
         setAdding(null);
         toast.success("Saved to your vault");
       }}>
