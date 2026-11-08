@@ -6,6 +6,7 @@ import { playProductId, priceOf, type BillingInterval, type Tier } from "@/lib/p
 import { CREDITS_CHANGED_EVENT } from "@/hooks/useCredits";
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "./CardPreview";
+import PaymentGatewaySheet, { type PayOption } from "./PaymentGatewaySheet";
 import { BRAND_MARKS } from "@/lib/payments/brandMarks";
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/nova-checkout.css";
@@ -38,6 +39,7 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
   const playNative = isPlayApp();
   const androidBilling = playNative || !!native;
   const [quote, setQuote] = useState<Quote | null>(null);
+  const [chosen, setChosen] = useState(false);
   const [method, setMethod] = useState<"card" | "wallet">("card");
   const [card, setCard] = useState({ number: "", name: "", exp: "", cvv: "" });
   const [phone, setPhone] = useState("");
@@ -161,6 +163,12 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
       : quote ? [{ id: "card", label: ar ? "بطاقة" : "Card" }, { id: "google_pay", label: "Google Pay" }, { id: "more", label: ar ? "المزيد" : "More" }] : [];
   const back = () => { if (busy) return; if (state === "waiting") { setState("idle"); setFrame(""); setError(""); } else onClose(); };
   const errorBox = error ? <p role="alert" className="checkout-error">{error}</p> : null;
+
+  if (!chosen && !androidBilling) {
+    const options: PayOption[] = quote?.provider === "dodo" ? ["global"] : ["local", "wallets"];
+    return <PaymentGatewaySheet open onClose={onClose} loading={busy ? "global" : null} options={options}
+      onSelect={(o) => { setError(""); if (o === "global") { setChosen(true); void payDodo(); } else { setMethod(o === "wallets" ? "wallet" : "card"); setChosen(true); } }} />;
+  }
 
   return (
     <section className="botanical-pricing megsy-checkout z-[120]" data-wide={view === "verify" ? "true" : undefined} dir="ltr" role="dialog" aria-modal="true" aria-labelledby="checkout-title" tabIndex={-1}>
