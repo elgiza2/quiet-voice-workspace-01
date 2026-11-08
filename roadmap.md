@@ -1,5 +1,5 @@
 ## Free allowance and account audit — 2026-11-08
-- [ ] Set a very small free usage allowance with consistent enforcement and tests; show exhausted-balance notice plus subscription action.
+- [ ] Default to a $0.05 one-time free app allowance, charge $0.01 per model step (service tariff, not provider invoice); atomic enforcement plus exhausted-balance notice/subscription action, paid-only unbounded calls/media.
 - [ ] Sign in with the supplied test account without exposing credentials and inspect all settings pages and representative app flows; fix verified defects.
 - [ ] Report exact coverage and external/payment/device gaps rather than claim 100% functionality.
 
