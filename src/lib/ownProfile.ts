@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/legacyClient";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Single-flight cache for the signed-in user's own `profiles` row.
@@ -17,7 +17,7 @@ export interface OwnProfileRow {
   chat_greeted: boolean | null;
 }
 
-const COLUMNS = "id, display_name, avatar_url, credits, plan, chat_greeted";
+const COLUMNS = "id, display_name, avatar_url";
 const TTL_MS = 15_000;
 
 let cachedUserId: string | null = null;
@@ -46,12 +46,13 @@ export async function getOwnProfile(
 
   cachedUserId = userId;
   inflight = (async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select(COLUMNS)
       .eq("id", userId)
       .maybeSingle();
-    cached = (data as OwnProfileRow | null) ?? null;
+    if (error) { inflight = null; throw new Error("Could not load account. Please try again."); }
+    cached = data ? { ...data, credits: null, plan: null, chat_greeted: null } : null;
     cachedAt = Date.now();
     inflight = null;
     return cached;

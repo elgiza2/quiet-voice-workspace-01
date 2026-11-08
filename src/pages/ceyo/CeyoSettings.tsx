@@ -8,7 +8,6 @@ import {
   KeyRound, Moon, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
-import { useCredits } from "@/hooks/useCredits";
 import { useUsage } from "@/hooks/useUsage";
 import { clearPageStates, PAGE_STATE_PREFIX } from "@/lib/pageStateCache";
 import { getStoredTheme, setTheme, type ThemeMode } from "@/lib/theme";
@@ -29,6 +28,7 @@ import { getAuthState } from "@/lib/authStore";
 import { readPageState, writePageState } from "@/lib/pageStateCache";
 import { useLocalPlanPrices } from "@/hooks/useLocalPlanPrices";
 import { formatLocalPrice } from "@/lib/payments/localPrices";
+import { readSetting, saveSetting } from "./settingsStorage";
 
 type Nav = (to: string) => void;
 
@@ -130,18 +130,18 @@ function Main({ nav }: { nav: Nav }) {
   const tz = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
 
   useEffect(() => {
-    setHaptics(localStorage.getItem("ceyo_haptics") !== "off");
-    setNotify(localStorage.getItem("ceyo_notify") === "on");
+    setHaptics(readSetting("ceyo_haptics") !== "off");
+    setNotify(readSetting("ceyo_notify") === "on");
     setThemeMode(getStoredTheme());
-    const savedLanguage = localStorage.getItem("ceyo_language") || "system";
+    const savedLanguage = readSetting("ceyo_language") || "system";
     setLanguage(LANGUAGES.find(([code]) => code === savedLanguage)?.[1] || "System");
-    setPermissions(parsePermissionPreferences(localStorage.getItem(PERMISSIONS_STORAGE_KEY)));
-    applySurface(localStorage.getItem("ceyo_surface") === "bot" ? "bot" : "black");
+    setPermissions(parsePermissionPreferences(readSetting(PERMISSIONS_STORAGE_KEY)));
+    applySurface(readSetting("ceyo_surface") === "bot" ? "bot" : "black");
   }, []);
 
   const flip = (key: string, value: boolean, set: (value: boolean) => void) => {
+    if (!saveSetting(key, value ? "on" : "off")) { toast.error("Could not save this preference on your device."); return; }
     set(value);
-    localStorage.setItem(key, value ? "on" : "off");
     if (key === "ceyo_haptics" && value && "vibrate" in navigator) navigator.vibrate(12);
   };
 
@@ -255,14 +255,18 @@ function Usage({ nav }: { nav: Nav }) {
 function fmtBytes(n: number) { return n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`; }
 
 function Storage({ nav }: { nav: Nav }) {
+  const [loadError, setLoadError] = useState("");
   const [docs, setDocs] = useState<{ id: string; name: string; size: number }[] | null>(null);
   const [memCount, setMemCount] = useState<number | null>(null);
   const [cache, setCache] = useState(0);
-  const measureCache = () => { let t = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i) || ""; if (k.startsWith(PAGE_STATE_PREFIX)) t += k.length + (localStorage.getItem(k)?.length || 0); } setCache(t * 2); };
+  const measureCache = () => { let t = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i) || ""; if (k.startsWith(PAGE_STATE_PREFIX)) t += k.length + (readSetting(k)?.length || 0); } } catch { /* Device storage is optional. */ } setCache(t * 2); };
   const load = async () => {
-    const { data } = await supabase.from("agent_documents").select("id,name,content").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("agent_documents").select("id,name,content").order("created_at", { ascending: false });
+    if (error) { setLoadError("Could not load files. Please try again."); return; }
     setDocs((data || []).map((d: { id: string; name: string; content?: string }) => ({ id: d.id, name: d.name, size: new Blob([d.content || ""]).size })));
-    const { count } = await supabase.from("agent_memories").select("id", { count: "exact", head: true });
+    const { count, error: memoryError } = await supabase.from("agent_memories").select("id", { count: "exact", head: true });
+    if (memoryError) { setLoadError("Could not load memories. Please try again."); return; }
+    setLoadError("");
     setMemCount(count ?? 0);
   };
   useEffect(() => { void load(); measureCache(); }, []);
@@ -279,6 +283,7 @@ function Storage({ nav }: { nav: Nav }) {
   };
   return (
     <Shell title="Storage" back={() => nav("/settings")}>
+      {loadError && <Group><Row label={loadError} sub="Retry" onClick={() => void load()} /></Group>}
       <Group title="Overview">
         <Row label="Files" value={docs ? `${docs.length} · ${fmtBytes(total)}` : "…"} right={<span />} />
         <Row label="Memories" value={memCount === null ? "…" : String(memCount)} onClick={() => nav("/settings/memory")} />
@@ -307,7 +312,7 @@ const PLANS = [
 
 function Plans({ nav }: { nav: Nav }) {
   const navigate = useNavigate();
-  const { plan } = useCredits() as { plan: string };
+  const { plan } = useUsage();
   const [tab, setTab] = useState(0);
   const [yearly, setYearly] = useState(false);
   const [paying, setPaying] = useState(false);
@@ -376,7 +381,7 @@ function Vault_({ nav }: { nav: Nav }) {
       if (!data.user) return;
       const key = `${VAULT_KEY}:${data.user.id}`;
       setVaultKey(key);
-      try { setItems(JSON.parse(localStorage.getItem(key) || "[]")); } catch { setItems([]); }
+      try { const saved: unknown = JSON.parse(readSetting(key) || "[]"); setItems(Array.isArray(saved) ? saved.filter((item): item is VaultItem => Boolean(item && typeof item === "object" && "id" in item && "title" in item && "detail" in item && "kind" in item && typeof item.id === "string" && typeof item.title === "string" && typeof item.detail === "string" && ["login", "card", "contact"].includes(item.kind))) : []); } catch { setItems([]); }
     });
   }, []);
   useEffect(() => {
@@ -387,7 +392,7 @@ function Vault_({ nav }: { nav: Nav }) {
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, [menu]);
-  const save = (next: VaultItem[]) => { if (!vaultKey) return; setItems(next); localStorage.setItem(vaultKey, JSON.stringify(next)); };
+  const save = (next: VaultItem[]) => { if (!vaultKey) return false; if (!saveSetting(vaultKey, JSON.stringify(next))) { toast.error("Could not save to this device."); return false; } setItems(next); return true; };
   const shown = items.filter((item) => (tab === "all" || item.kind === tab) && `${item.title} ${item.detail}`.toLowerCase().includes(query.toLowerCase()));
   const labels = { login: "Login", card: "Card", contact: "Contact info" } as const;
   const count = (kind: VaultItem["kind"]) => items.filter((item) => item.kind === kind).length;
@@ -417,7 +422,7 @@ function Vault_({ nav }: { nav: Nav }) {
         event.preventDefault();
         if (!title.trim()) return;
         try { validateVaultDetail(adding, detail); } catch (error) { toast.error(error instanceof Error ? error.message : "Invalid details"); return; }
-        save([{ id: crypto.randomUUID(), kind: adding, title: title.trim(), detail: detail.trim() }, ...items]);
+        if (!save([{ id: crypto.randomUUID(), kind: adding, title: title.trim(), detail: detail.trim() }, ...items])) return;
         setAdding(null);
         toast.success("Saved to your vault");
       }}>
@@ -615,11 +620,11 @@ function Permissions({ nav }: { nav: Nav }) {
   const [preferences, setPreferences] = useState<PermissionPreferences>(DEFAULT_PERMISSIONS);
   const [adding, setAdding] = useState<PermissionRuleKind | null>(null);
   const [text, setText] = useState("");
-  useEffect(() => { setPreferences(parsePermissionPreferences(localStorage.getItem(PERMISSIONS_STORAGE_KEY))); }, []);
-  const save = (next: PermissionPreferences) => { setPreferences(next); localStorage.setItem(PERMISSIONS_STORAGE_KEY, JSON.stringify(next)); };
+  useEffect(() => { setPreferences(parsePermissionPreferences(readSetting(PERMISSIONS_STORAGE_KEY))); }, []);
+  const save = (next: PermissionPreferences) => { if (!saveSetting(PERMISSIONS_STORAGE_KEY, JSON.stringify(next))) { toast.error("Could not save this preference on your device."); return false; } setPreferences(next); return true; };
   const add = () => {
     if (!adding || !text.trim()) return;
-    save(addPermissionRule(preferences, adding, text));
+    if (!save(addPermissionRule(preferences, adding, text))) return;
     setText("");
     setAdding(null);
     toast.success("Rule added");
@@ -690,7 +695,7 @@ function Memory({ nav }: { nav: Nav }) {
 type SurfaceMode = "black" | "bot";
 function applySurface(mode: SurfaceMode) {
   document.documentElement.dataset.ceyoSurface = mode;
-  localStorage.setItem("ceyo_surface", mode);
+  saveSetting("ceyo_surface", mode);
 }
 
 function Appearance({ nav }: { nav: Nav }) {
@@ -698,7 +703,7 @@ function Appearance({ nav }: { nav: Nav }) {
   const [surface, setSurface] = useState<SurfaceMode>("black");
   useEffect(() => {
     setMode(getStoredTheme());
-    const saved = localStorage.getItem("ceyo_surface") === "bot" ? "bot" : "black";
+    const saved = readSetting("ceyo_surface") === "bot" ? "bot" : "black";
     setSurface(saved);
     applySurface(saved);
   }, []);
@@ -726,10 +731,10 @@ const LANGUAGES: [string, string][] = [
 
 function Language({ nav }: { nav: Nav }) {
   const [selected, setSelected] = useState("system");
-  useEffect(() => { setSelected(localStorage.getItem("ceyo_language") || "system"); }, []);
+  useEffect(() => { setSelected(readSetting("ceyo_language") || "system"); }, []);
   const choose = (code: string) => {
+    if (!saveSetting("ceyo_language", code)) { toast.error("Could not save this preference on your device."); return; }
     setSelected(code);
-    localStorage.setItem("ceyo_language", code);
     window.dispatchEvent(new CustomEvent("ceyo:language", { detail: code }));
     toast.success("Language saved");
   };

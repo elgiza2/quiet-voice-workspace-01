@@ -13,6 +13,8 @@ export const Route = createFileRoute("/api/ceyo-chat")({ server: { handlers: {
     const { db, userId } = auth;
     const { data: conv } = await db.from("conversations").select("id,bot_id,group_id").eq("id", input.data.conversationId).eq("user_id", userId).maybeSingle();
     if (!conv) return new Response("Not found", { status: 404 });
+    try { await (await import("@/lib/ceyo/usage.server")).checkUsageAvailable(db); }
+    catch (error) { return chatFailure(error instanceof Error ? error.message : "Could not check usage", "usage_unavailable"); }
     const [{ data: bot }, { data: profile }, { data: rows }] = await Promise.all([
       conv.bot_id ? db.from("bots").select("id,name,instructions").eq("id", conv.bot_id).eq("owner_id", userId).maybeSingle() : Promise.resolve({ data: null }),
       db.from("profiles").select("primary_bot_id").eq("id", userId).maybeSingle(),
@@ -46,6 +48,7 @@ export const Route = createFileRoute("/api/ceyo-chat")({ server: { handlers: {
     const stream = new ReadableStream({ async start(controller) {
       const rid = crypto.randomUUID();
       const events: import("@/lib/ceyo/agentLoop.server").LoopEvent[] = [];
+      let failed = false;
       const emit = (e: import("@/lib/ceyo/agentLoop.server").LoopEvent) => {
         if (e.type !== "agent.reasoning") events.push(e);
         try { controller.enqueue(encoder.encode(`data: ${JSON.stringify(e)}\n\n`)); } catch { /* closed */ }
@@ -91,10 +94,11 @@ export const Route = createFileRoute("/api/ceyo-chat")({ server: { handlers: {
         if (error) throw new Error(error.message);
         await db.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", conv.id);
       } catch (error) {
-        if (events.length) await db.from("messages").insert({ id: rid, conversation_id: conv.id, user_id: userId, bot_id: conv.bot_id, role: "assistant", content: "Task interrupted before completion.", metadata: { incomplete: true, transcript: [...events, { id: `${rid}-incomplete`, type: "agent.message", parts: [{ type: "text", text: "Task interrupted before completion. Ask to continue from the saved results.", stream_id: `${rid}-incomplete` }] }] } as never });
+        failed = true;
+        if (events.some(e => e.type === "agent.message" || e.type === "agent.tool_result")) await db.from("messages").insert({ id: rid, conversation_id: conv.id, user_id: userId, bot_id: conv.bot_id, role: "assistant", content: "Task interrupted before completion.", metadata: { incomplete: true, transcript: [...events, { id: `${rid}-incomplete`, type: "agent.message", parts: [{ type: "text", text: "Task interrupted before completion. Ask to continue from the saved results.", stream_id: `${rid}-incomplete` }] }] } as never });
         if (!request.signal.aborted) emit({ id: `${rid}-error`, type: "session.error", message: error instanceof Error ? error.message : "Could not finish" });
       }
-      emit({ id: `${rid}-idle`, type: "session.status_idle", stop_reason: { type: request.signal.aborted ? "interrupted" : "end_turn" } });
+      emit({ id: `${rid}-idle`, type: "session.status_idle", stop_reason: { type: request.signal.aborted ? "interrupted" : failed ? "error" : "end_turn" } });
       try { controller.close(); } catch { /* closed */ }
     } });
     return new Response(stream, { headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-store" } });

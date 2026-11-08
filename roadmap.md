@@ -1,3 +1,10 @@
+## Complete verification — 2026-11-08 01:45 UTC
+- [x] Run all existing tests: 191 pass; repair nonexistent profile columns, plan read, failed-storage false success, storage retry and chat false completion. Preview build OK.
+- [ ] Verify settings saves/read-back, bot editing and checkout signed in: prior temporary session unavailable, external_unmanaged cannot restore one; waiting for an active preview sign-in. Previous turn's account checks are not fresh verification.
+- [x] Gate voice/video tokens on owner usage; meter discrete speech/vision/transcription/reply operations, preserving free access while usage remains. Public browser smoke: 9 pages, 8 sensitive APIs return 401.
+- [ ] Continuous-call settlement and provider-cost/legacy-path validation: no duration/usage billing contract or representative provider measurements; token checks are not full session metering.
+- [ ] Live payment/OAuth/physical-call/store verification: waits on owner approval, actual device and Google Play setup; no charges or account authorization performed.
+
 ## Free allowance and account audit — 2026-11-08
 - [x] Internal $0.05 one-time allowance, $0.01 per model step; Usage percentage only. Atomic owner debit covers active chat, specialists, jobs/routines, people-bot and follow-up. Actual account: five replies, sixth blocked; Subscribe opens pricing, Usage reads 100%.
 - [x] Account sign-in and 16 settings screens checked without crash/overflow; fix fabricated weekly credit display, broad cache deletion and Google Play management shown on web accounts. 22 focused tests pass.

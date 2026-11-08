@@ -18,6 +18,8 @@ async function handle(request: Request) {
   const { authenticate } = await import("@/lib/ceyo/auth.server");
   const auth = await authenticate(request).catch(() => null);
   if (!auth) return Response.json({ error: "Please sign in" }, { status: 401, headers: noStore });
+  const { checkUsageAvailable, usageFailure, chargeUsage } = await import("@/lib/ceyo/usage.server");
+  try { await checkUsageAvailable(auth.db); } catch (error) { return usageFailure(error); }
   const body = await request.json().catch(() => null) as { action?: string } | null;
   const { getProviderKey } = await import("@/lib/keys/providerKey");
 
@@ -87,6 +89,7 @@ async function handle(request: Request) {
   if (!history.length && !reason) return Response.json({ error: "Nothing to answer" }, { status: 400, headers: noStore });
   const key = await getProviderKey("cerebras");
   if (!key) return Response.json({ error: "The reply model is not configured" }, { status: 503, headers: noStore });
+  try { await chargeUsage(auth.userId, `voice-reply:${crypto.randomUUID()}`); } catch (error) { return usageFailure(error); }
 
   const system = [
     `You are ${agentName || "the assistant"}, talking with the user on a live phone call.`,
