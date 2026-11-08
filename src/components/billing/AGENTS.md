@@ -1,2 +1,2 @@
 - CheckoutSheet renders the nova-quest-rewards-hub CustomCardForm markup with its verbatim nova-checkout.css; only the payment calls differ (server quotes, verified settlement). Why: the user requires the reference payment box exactly, and the browser must never grant subscriptions.
-- Checkout opens the single photographic Payment screen directly with only the provider's available methods; no preceding chooser or plan summary. Why: matches the reference experience.
+- Checkout first shows the reference PaymentGatewaySheet box (copied verbatim), then the chosen method continues in the payment screen or Dodo redirect. Why: the user asked for the reference box itself.
