@@ -1,14 +1,14 @@
 /** Subscribe popup: Kashier Direct API (card / Vodafone Cash, EGP) in Egypt, Dodo elsewhere, Google Play on Android. */
 import { useEffect, useState } from "react";
-import { Loader2, Lock, CheckCircle2, ExternalLink, ChevronLeft } from "lucide-react";
+import { ArrowLeft, Check, Loader2, MoreHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { playProductId, priceOf, type BillingInterval, type Tier } from "@/lib/payments/plans";
 import { CREDITS_CHANGED_EVENT } from "@/hooks/useCredits";
 import { Button } from "@/components/ui/button";
-import { PaymentGatewaySheet, PaymentMethodMark } from "./PaymentGatewaySheet";
+import { BrandMark } from "./CardPreview";
+import { BRAND_MARKS } from "@/lib/payments/brandMarks";
 import { useUserLang } from "@/lib/authI18n";
-import "@/styles/subscriptions.css";
-import "@/styles/checkout-sheet.css";
+import "@/styles/nova-checkout.css";
 import checkoutArt from "@/assets/ceyo-checkout-coat.png.asset.json";
 import { isPlayApp, purchasePlay } from "@/lib/native/playBilling";
 
@@ -34,8 +34,7 @@ const digits = (v: string, n: number) => v.replace(/\D/g, "").slice(0, n);
 export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; name: string; interval: BillingInterval; onClose: () => void }) {
   const usd = priceOf(tier, interval) ?? 0;
   const ar = useUserLang().startsWith("ar");
-  const [stage, setStage] = useState<"methods" | "details">("details");
-  const native = playApi();
+    const native = playApi();
   const playNative = isPlayApp();
   const androidBilling = playNative || !!native;
   const [quote, setQuote] = useState<Quote | null>(null);
@@ -54,7 +53,7 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKey);
     const previousFocus = document.activeElement;
-    const dialog = document.querySelector<HTMLElement>(".ck-sheet");
+    const dialog = document.querySelector<HTMLElement>(".megsy-checkout");
     dialog?.focus();
     const onTab = (e: KeyboardEvent) => {
       if (e.key !== "Tab" || !dialog) return;
@@ -152,66 +151,121 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
 
   const total = androidBilling ? `$${usd}` : quote ? money(quote.amount, quote.currency) : "…";
   const busy = state === "loading";
+  const verifying = state === "waiting" && !!frame && check === "db";
+  const view = verifying ? "verify" : state === "paid" ? "done" : "main";
+  const kashier = quote?.provider === "kashier";
+  const tiles: { id: "card" | "wallet" | "google_pay" | "more"; label: string }[] = androidBilling
+    ? []
+    : kashier
+      ? [{ id: "card", label: ar ? "بطاقة" : "Card" }, { id: "wallet", label: "Vodafone" }]
+      : quote ? [{ id: "card", label: ar ? "بطاقة" : "Card" }, { id: "google_pay", label: "Google Pay" }, { id: "more", label: ar ? "المزيد" : "More" }] : [];
+  const back = () => { if (busy) return; if (state === "waiting") { setState("idle"); setFrame(""); setError(""); } else onClose(); };
+  const errorBox = error ? <p role="alert" className="checkout-error">{error}</p> : null;
 
   return (
-    <div dir={ar ? "rtl" : "ltr"} className={`ck-scrim ${stage === "details" ? "ck-details-scrim" : ""}`} role="presentation" onClick={onClose}>
-      <section className={`ck-sheet ${stage === "details" ? "ck-details" : ""}`} role="dialog" aria-modal="true" aria-label={ar ? "اشترك" : "Subscribe"} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
-        {stage === "details" && <div className="ck-art" aria-hidden="true"><img src={checkoutArt.url} alt=""/><div/></div>}
-        <div className="ck-grabber" aria-hidden="true"><i/></div>
-        <header className="ck-head">
-          {stage === "details" && state !== "paid" && <Button variant="ghost" size="icon" className="ck-back" aria-label={ar ? "رجوع" : "Back"} onClick={onClose}><ChevronLeft/></Button>}
-          <h2>{state === "paid" ? ar ? "تم الاشتراك" : "Payment complete" : stage === "methods" && !androidBilling ? ar ? "طريقة الدفع" : "Choose payment method" : ar ? "الدفع" : "Payment"}</h2>
-          {stage === "methods" && <p>{ar ? "اختار طريقة الدفع اللي تناسبك." : "Pick an option."}</p>}
+    <section className="botanical-pricing megsy-checkout z-[120]" data-wide={view === "verify" ? "true" : undefined} dir="ltr" role="dialog" aria-modal="true" aria-labelledby="checkout-title" tabIndex={-1}>
+      <div aria-hidden="true" className="botanical-art"><img src={checkoutArt.url} alt="" fetchPriority="high" width={768} height={1376} /></div>
+      <div aria-hidden="true" className="botanical-scrim" />
+      <div className="botanical-content botanical-checkout-content">
+        <header className="checkout-nav">
+          <Button variant="ghost" type="button" onClick={back} disabled={busy} aria-label="Back" title="Back" className="megsy-back"><ArrowLeft className="h-5 w-5" /></Button>
         </header>
-
-        {state === "paid" ? (
-          <div className="ck-done"><CheckCircle2 size={44} /><p>Ceyo {name} is now active.</p><Button variant="ghost" type="button" className="ck-cta" onClick={onClose}>Done</Button></div>
-        ) : state === "waiting" && check === "wallet" ? (
-          <div className="ck-wait"><Loader2 size={28} className="animate-spin" /><p>Approve the payment request on your phone ({phone}).</p><small>This page updates by itself.</small></div>
-        ) : state === "waiting" && check === "dodo" ? (
-          <div className="ck-wait"><Loader2 size={28} className="animate-spin" /><p>Finish paying in the secure page that opened.</p>
-            <a className="ck-link" href={frame} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} /> Open payment page again</a></div>
-        ) : state === "waiting" && frame ? (
-          <iframe className="ck-frame" src={frame} title="Card verification" />
-        ) : state === "waiting" ? (
-          <div className="ck-wait"><Loader2 size={28} className="animate-spin" /><p>Confirming your payment…</p></div>
-        ) : stage === "methods" && !androidBilling ? (
-          <>{error && <p className="ck-error" role="alert">{error}</p>}<PaymentGatewaySheet provider={quote?.provider} methods={quote?.methods ?? []} loading={!quote && !error} ar={ar} onCancel={onClose} onSelect={(selected) => {setMethod(selected);setError("");if (quote?.provider === "dodo") {void payDodo();} else setStage("details");}}/>{error && !quote && <Button variant="ghost" className="ck-cta" onClick={() => {setError("");void billing<Quote>({action:"quote",tier,interval,tz:Intl.DateTimeFormat().resolvedOptions().timeZone}).then(setQuote).catch(fail);}}>Retry</Button>}</>
-        ) : (
-          <>
-            {!androidBilling && quote?.provider === "kashier" && (
-              <>
-                <div className="ck-method-tabs" role="tablist" aria-label="Payment method">{(["card", "wallet"] as const).map((m) => <Button variant="ghost" role="tab" aria-selected={method === m} key={m} onClick={() => {setMethod(m);setError("");}}><PaymentMethodMark method={m}/><span>{m === "card" ? ar ? "بطاقة" : "Card" : "Vodafone Cash"}</span></Button>)}</div>
-                {method === "card" ? (
-                  <div className="ck-form">
-                    <label><span>{ar ? "رقم البطاقة" : "Card number"}</span><input dir="ltr" inputMode="numeric" autoComplete="cc-number" aria-label="Card number" placeholder="1234 5678 9012 3456" value={card.number.replace(/(\d{4})(?=\d)/g, "$1 ")} onChange={(e) => setCard({ ...card, number: digits(e.target.value, 19) })} /></label>
-                    <label><span>{ar ? "الاسم على البطاقة" : "Name on card"}</span><input autoComplete="cc-name" aria-label="Name on card" placeholder="Full name" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.slice(0, 60) })} /></label>
-                    <div className="ck-row">
-                      <label><span>{ar ? "تاريخ الانتهاء" : "Expiry"}</span><input dir="ltr" inputMode="numeric" autoComplete="cc-exp" aria-label="Expiry date" placeholder="MM/YY" value={card.exp} onChange={(e) => { const d = digits(e.target.value, 4); setCard({ ...card, exp: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d }); }} /></label>
-                      <label><span>CVV</span><input dir="ltr" inputMode="numeric" autoComplete="cc-csc" aria-label="CVV" type="password" placeholder="CVV" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: digits(e.target.value, 4) })} /></label>
+        <div key={view} className="checkout-stage">
+          <h1 id="checkout-title" className="checkout-title">{state === "paid" ? (ar ? "تم الاشتراك" : "Payment complete") : verifying ? (ar ? "أكّد الدفع" : "Confirm your payment") : (ar ? "الدفع" : "Payment")}</h1>
+          {verifying ? (
+            <div className="mt-6 flex flex-1 flex-col space-y-4">
+              <p className="checkout-note">Complete your bank’s verification to finish the payment.</p>
+              <div className="checkout-frame checkout-frame--verify"><iframe title="Bank verification" src={frame} allow="payment *" /></div>
+            </div>
+          ) : state === "paid" ? (
+            <div className="flex flex-1 flex-col">
+              <div className="flex flex-1 flex-col items-center justify-center py-12 text-center">
+                <span className="checkout-success-badge"><Check aria-hidden="true" /></span>
+                <h2 className="checkout-subtitle mt-6 text-xl font-semibold">Thank you</h2>
+                <p className="checkout-note mt-3">Ceyo {name} is now active.</p>
+                {orderId && <p className="mt-2 max-w-full break-all font-mono text-xs text-muted-foreground">{orderId}</p>}
+              </div>
+              <Button variant="ghost" type="button" className="megsy-pay-cta" onClick={onClose}>Continue</Button>
+            </div>
+          ) : (
+            <div className="checkout-allinone">
+              {tiles.length > 0 && (
+                <div className="checkout-methods" role="tablist" aria-label="Payment method">
+                  {tiles.map((m) => {
+                    const selectable = m.id === "card" || m.id === "wallet";
+                    const selected = kashier && selectable && method === m.id;
+                    return (
+                      <Button variant="ghost" key={m.id} type="button" role="tab" aria-selected={selected} data-selected={selected} disabled={busy || state === "waiting"} className="checkout-method"
+                        onClick={() => { setError(""); if (!kashier) { void payDodo(); return; } setMethod(m.id as "card" | "wallet"); }}>
+                        <TileLogo id={m.id} /><span>{m.label}</span>
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+              <div key={method} className="checkout-panel">
+                {androidBilling ? (
+                  <div className="checkout-card-form">
+                    {errorBox}
+                    <Button variant="ghost" type="button" data-plain disabled={busy} className="megsy-pay-cta" onClick={() => void payPlay()}>{busy ? <><Loader2 className="h-5 w-5 animate-spin" /> Processing…</> : "Subscribe with Google Play"}</Button>
+                    <p className="checkout-note">Billed through your Google Play account · ${usd}</p>
+                  </div>
+                ) : state === "waiting" ? (
+                  <div className="checkout-card-form">
+                    <div className="flex flex-col items-center py-6 text-center">
+                      <Loader2 className="h-9 w-9 animate-spin" />
+                      <h2 className="checkout-subtitle mt-4 text-lg font-semibold">{check === "wallet" ? "Approve the payment on your phone" : check === "dodo" ? "Finish paying in the secure page" : "Confirming your payment…"}</h2>
+                      {check === "wallet" && <p className="checkout-note mt-2">Request sent to <span dir="ltr">{phone}</span>. Open Ana Vodafone or dial *9#, then enter your PIN.</p>}
+                      {check === "dodo" && frame && <a className="checkout-note mt-2 underline" href={frame} target="_blank" rel="noopener noreferrer">Open payment page again</a>}
+                      <Button variant="ghost" type="button" onClick={back} className="megsy-pay-quiet mt-4">Cancel</Button>
                     </div>
                   </div>
-                ) : (
-                  <div className="ck-form">
-                    <label><span>{ar ? "رقم المحفظة" : "Wallet number"}</span><input dir="ltr" inputMode="tel" aria-label="Vodafone Cash number" placeholder="Wallet number (01xxxxxxxxx)" value={phone} onChange={(e) => setPhone(digits(e.target.value, 11))} /></label>
+                ) : !quote ? (
+                  <div className="checkout-card-form">
+                    {errorBox ?? <p className="checkout-note flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</p>}
+                    {error && <Button variant="ghost" type="button" className="megsy-pay-cta" onClick={() => { setError(""); void billing<Quote>({ action: "quote", tier, interval, tz: Intl.DateTimeFormat().resolvedOptions().timeZone }).then(setQuote).catch(fail); }}>Retry</Button>}
                   </div>
+                ) : !kashier ? (
+                  <div className="checkout-card-form">
+                    {errorBox}
+                    <Button variant="ghost" type="button" data-plain disabled={busy} className="megsy-pay-cta" onClick={() => void payDodo()}>{busy ? <><Loader2 className="h-5 w-5 animate-spin" /> Processing…</> : `Pay ${total}`}</Button>
+                    <p className="checkout-note">Secure payment by Dodo Payments. Cancel anytime.</p>
+                  </div>
+                ) : method === "card" ? (
+                  <form onSubmit={(e) => { e.preventDefault(); void payCard(); }} className="checkout-card-form" autoComplete="off">
+                    <Field label={ar ? "رقم البطاقة" : "Card number"}><input inputMode="numeric" autoComplete="cc-number" dir="ltr" value={card.number.replace(/(.{4})/g, "$1 ").trim()} onChange={(e) => setCard({ ...card, number: digits(e.target.value, 19) })} placeholder="1234 5678 9012 3456" /></Field>
+                    <Field label={ar ? "الاسم على البطاقة" : "Name on card"}><input autoComplete="cc-name" dir="ltr" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.slice(0, 60) })} placeholder="Full name" /></Field>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label={ar ? "تاريخ الانتهاء" : "Expiry"}><input inputMode="numeric" autoComplete="cc-exp" value={card.exp.replace("/", " / ")} onChange={(e) => { const d = digits(e.target.value, 4); setCard({ ...card, exp: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d }); }} placeholder="MM / YY" /></Field>
+                      <Field label="CVV"><input type="password" inputMode="numeric" autoComplete="cc-csc" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: digits(e.target.value, 4) })} placeholder="•••" /></Field>
+                    </div>
+                    {errorBox}
+                    <Button variant="ghost" type="submit" data-plain disabled={busy} className="megsy-pay-cta">{busy ? <><Loader2 className="h-5 w-5 animate-spin" /> Processing…</> : `Pay now · ${total}`}</Button>
+                  </form>
+                ) : (
+                  <form onSubmit={(e) => { e.preventDefault(); void payWallet(); }} className="checkout-card-form" autoComplete="off">
+                    <Field label={ar ? "رقم المحفظة" : "Wallet number"}><input inputMode="tel" autoComplete="tel-national" dir="ltr" aria-label="Vodafone Cash wallet number" value={phone} onChange={(e) => setPhone(digits(e.target.value, 11))} placeholder="01x xxxx xxxx" /></Field>
+                    <p className="checkout-note">We'll send a payment request to approve on your phone.</p>
+                    {errorBox}
+                    <Button variant="ghost" type="submit" data-plain disabled={busy} className="megsy-pay-cta">{busy ? <><Loader2 className="h-5 w-5 animate-spin" /> Sending…</> : "Send payment request"}</Button>
+                  </form>
                 )}
-              </>
-            )}
-
-            {!androidBilling && quote?.provider === "dodo" && (
-              <div className="ck-methods">{quote.methods.map((m) => <span key={m}>{m}</span>)}</div>
-            )}
-
-            {error && <p className="ck-error" role="alert">{error}</p>}
-            <Button variant="ghost" type="button" className="ck-cta" disabled={busy || (!androidBilling && !quote)}
-              onClick={() => void (androidBilling ? payPlay() : quote?.provider === "kashier" ? (method === "card" ? payCard() : payWallet()) : payDodo())}>
-              {busy ? <Loader2 size={18} className="animate-spin" /> : androidBilling ? "Subscribe with Google Play" : `${ar ? "اشترك" : "Subscribe"} · ${total}`}
-            </Button>
-            <p className="ck-note"><Lock size={12} /><span>{androidBilling ? "Billed through your Google Play account." : quote?.provider === "dodo" ? "Secure payment by Dodo Payments. Cancel anytime." : method === "wallet" ? "Approve the payment request on your phone." : "Card details go directly to Kashier and are never stored by Ceyo."}</span></p>
-          </>
-        )}
-      </section>
-    </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
   );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <label className="checkout-field"><span>{label}</span><div className="checkout-input-wrap">{children}</div></label>;
+}
+
+function TileLogo({ id }: { id: "card" | "wallet" | "google_pay" | "more" }) {
+  if (id === "card") return <span className="payment-card-pair" aria-hidden="true"><BrandMark brand="visa" /><BrandMark brand="mastercard" /></span>;
+  if (id === "more") return <MoreHorizontal className="h-[22px] w-[22px]" strokeWidth={2} />;
+  if (id === "google_pay") { const m = BRAND_MARKS.googlepay; return <svg viewBox="0 0 24 24" role="img" aria-label={m.title} className="h-[22px] w-[22px]"><path d={m.path} fill="currentColor" /></svg>; }
+  return <svg viewBox="0 0 24 24" className="h-[20px] w-[20px]"><circle cx="12" cy="12" r="12" className="payment-red" /><path className="payment-white" d="M12.6 5.2c2.3-.6 4.4.2 5 .6-1.8.1-3.5 1.4-3.5 3.6 2 .5 3.4 2 3.4 4.2 0 2.7-2.3 4.9-5.2 4.9-3.3 0-5.7-2.7-5.7-6 0-3.6 2.5-6.5 6-7.3z" /></svg>;
 }
