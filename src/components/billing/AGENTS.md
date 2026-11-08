@@ -1,3 +1,2 @@
-- PaymentGatewaySheet is presentation-only; CheckoutSheet retains provider selection, server quotes and verified settlement. Why: importing reference UI must not grant subscriptions from browser state.
-- Checkout visuals use scoped subscriptions.css and checkout-sheet.css tokens after legacy styles. Why: global dialog and input rules otherwise override the reference design.
-- Checkout opens the current reference's single photographic Payment screen directly, with only available provider methods; keep server settlement independent and do not add a preceding chooser or plan summary. Why: importing the obsolete chooser instead of CustomCardForm changed the requested experience.
+- CheckoutSheet renders the nova-quest-rewards-hub CustomCardForm markup with its verbatim nova-checkout.css; only the payment calls differ (server quotes, verified settlement). Why: the user requires the reference payment box exactly, and the browser must never grant subscriptions.
+- Checkout opens the single photographic Payment screen directly with only the provider's available methods; no preceding chooser or plan summary. Why: matches the reference experience.
