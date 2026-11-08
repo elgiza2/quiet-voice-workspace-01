@@ -6,7 +6,7 @@ import { playProductId, priceOf, type BillingInterval, type Tier } from "@/lib/p
 import { CREDITS_CHANGED_EVENT } from "@/hooks/useCredits";
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "./CardPreview";
-import PaymentGatewaySheet, { type PayOption } from "./PaymentGatewaySheet";
+import { CheckoutBox } from "./CheckoutBox";
 import { BRAND_MARKS } from "@/lib/payments/brandMarks";
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/nova-checkout.css";
@@ -165,9 +165,18 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
   const errorBox = error ? <p role="alert" className="checkout-error">{error}</p> : null;
 
   if (!chosen && !androidBilling) {
-    const options: PayOption[] = quote?.provider === "dodo" ? ["global"] : ["local", "wallets"];
-    return <PaymentGatewaySheet open onClose={onClose} loading={busy ? "global" : null} options={options}
-      onSelect={(o) => { setError(""); if (o === "global") { setChosen(true); void payDodo(); } else { setMethod(o === "wallets" ? "wallet" : "card"); setChosen(true); } }} />;
+    return (
+      <section className="cbox-screen" dir="ltr" role="dialog" aria-modal="true" aria-label="Checkout">
+        <div aria-hidden="true" className="botanical-art"><img src={checkoutArt.url} alt="" fetchPriority="high" width={768} height={1376} /></div>
+        <button type="button" className="cbox-close" aria-label="Close" onClick={onClose}><ArrowLeft className="h-5 w-5" /></button>
+        <div className="cbox-hero"><h1>ceyo<span>{name.toLowerCase()}</span></h1><p>From your first question to finished work.<br />Research, analyse &amp; create with your AI agent.</p></div>
+        <div className="cbox-wrap">
+          <CheckoutBox name={`Ceyo ${name}`} subtitle={interval === "yearly" ? "Yearly subscription" : "Monthly subscription"} total={total}
+            kashier={quote ? quote.provider === "kashier" : null} busy={busy} error={error}
+            onPay={(m) => { setError(""); if (m === "google_pay" || !kashier) { setChosen(true); void payDodo(); } else { setMethod(m === "wallet" ? "wallet" : "card"); setChosen(true); } }} />
+        </div>
+      </section>
+    );
   }
 
   return (
