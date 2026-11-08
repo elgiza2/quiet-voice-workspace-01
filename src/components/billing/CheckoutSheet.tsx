@@ -1,6 +1,7 @@
 /** Subscribe popup: Kashier Direct API (card / Vodafone Cash, EGP) in Egypt, Dodo elsewhere, Google Play on Android. */
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Loader2, ShieldCheck } from "lucide-react";
+import { Check, Loader2, ShieldCheck, X } from "lucide-react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { playProductId, priceOf, type BillingInterval, type Tier } from "@/lib/payments/plans";
 import { CREDITS_CHANGED_EVENT } from "@/hooks/useCredits";
@@ -9,7 +10,6 @@ import { InlineDodoCheckout } from "./InlineDodoCheckout";
 import { CheckoutBox } from "./CheckoutBox";
 import { useUserLang } from "@/lib/authI18n";
 import "@/styles/checkout-box.css";
-import checkoutArt from "@/assets/ceyo-checkout-coat.png.asset.json";
 import { isPlayApp, purchasePlay } from "@/lib/native/playBilling";
 
 type PlayApi = { purchase?: (json: string) => void };
@@ -185,12 +185,11 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
       <Button variant="ghost" type="submit" disabled={busy} className="cbox-cta">{busy ? <Loader2 className="cbox-spin" /> : `Subscribe · ${total}`}</Button>
     </form>
   );
-  return (
-    <section className="cbox-screen" dir="ltr" role="dialog" aria-modal="true" aria-label="Checkout" tabIndex={-1}>
-      <div aria-hidden="true" className="cbox-art"><img src={checkoutArt.url} alt="" fetchPriority="high" width={768} height={1376} /></div>
-      <Button variant="ghost" type="button" className="cbox-close" aria-label="Close" title="Close" onClick={onClose}><ArrowLeft /></Button>
-      <div className="cbox-hero"><h1>ceyo<span>{name.toLowerCase()}</span></h1><p>From your first question to finished work.<br />Research, analyse &amp; create with your AI agent.</p></div>
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <section className="cbox-screen" dir="ltr" role="dialog" aria-modal="true" aria-label="Checkout" tabIndex={-1} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <div className="cbox-wrap">
+        <Button variant="ghost" type="button" className="cbox-close" aria-label="Close" title="Close" onClick={onClose}><X /></Button>
         <CheckoutBox name={`Ceyo ${name}`} subtitle={interval === "yearly" ? "Yearly subscription" : "Monthly subscription"} total={total}
           kashier={androidBilling ? false : quote ? kashier : null} busy={busy} error={error} heading={heading}
           onBack={state === "paid" || androidBilling ? undefined : reset}
@@ -198,7 +197,7 @@ export function CheckoutSheet({ tier, name, interval, onClose }: { tier: Tier; n
           {chosen || androidBilling || state === "paid" ? content : undefined}
         </CheckoutBox>
       </div>
-    </section>
+    </section>, document.body
   );
 }
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
