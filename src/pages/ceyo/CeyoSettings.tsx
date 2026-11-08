@@ -255,14 +255,18 @@ function Usage({ nav }: { nav: Nav }) {
 function fmtBytes(n: number) { return n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`; }
 
 function Storage({ nav }: { nav: Nav }) {
+  const [loadError, setLoadError] = useState("");
   const [docs, setDocs] = useState<{ id: string; name: string; size: number }[] | null>(null);
   const [memCount, setMemCount] = useState<number | null>(null);
   const [cache, setCache] = useState(0);
   const measureCache = () => { let t = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i) || ""; if (k.startsWith(PAGE_STATE_PREFIX)) t += k.length + (readSetting(k)?.length || 0); } } catch { /* Device storage is optional. */ } setCache(t * 2); };
   const load = async () => {
-    const { data } = await supabase.from("agent_documents").select("id,name,content").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("agent_documents").select("id,name,content").order("created_at", { ascending: false });
+    if (error) { setLoadError("Could not load files. Please try again."); return; }
     setDocs((data || []).map((d: { id: string; name: string; content?: string }) => ({ id: d.id, name: d.name, size: new Blob([d.content || ""]).size })));
-    const { count } = await supabase.from("agent_memories").select("id", { count: "exact", head: true });
+    const { count, error: memoryError } = await supabase.from("agent_memories").select("id", { count: "exact", head: true });
+    if (memoryError) { setLoadError("Could not load memories. Please try again."); return; }
+    setLoadError("");
     setMemCount(count ?? 0);
   };
   useEffect(() => { void load(); measureCache(); }, []);
@@ -279,6 +283,7 @@ function Storage({ nav }: { nav: Nav }) {
   };
   return (
     <Shell title="Storage" back={() => nav("/settings")}>
+      {loadError && <Group><Row label={loadError} sub="Retry" onClick={() => void load()} /></Group>}
       <Group title="Overview">
         <Row label="Files" value={docs ? `${docs.length} · ${fmtBytes(total)}` : "…"} right={<span />} />
         <Row label="Memories" value={memCount === null ? "…" : String(memCount)} onClick={() => nav("/settings/memory")} />

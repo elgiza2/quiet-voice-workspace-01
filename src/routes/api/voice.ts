@@ -12,11 +12,14 @@ async function handle(request: Request) {
   if (!key) return Response.json({ error: "Cartesia is not connected" }, { status: 503 });
   try {
     const { voiceCatalogue, generateSpeech } = await import("@/lib/audio/cartesia.server");
+    const body: unknown = request.method === "POST" ? await request.json().catch(() => null) : null;
     if (request.method === "POST") {
+      const { speechInput } = await import("@/lib/audio/voiceSchema");
+      if (!speechInput.safeParse(body).success) return Response.json({ error: "Invalid speech request" }, { status: 400 });
       try { await chargeUsage(auth.userId, `speech:${crypto.randomUUID()}`); } catch (error) { return usageFailure(error); }
     }
     return request.method === "GET" ? await voiceCatalogue(key, request.signal)
-      : await generateSpeech(key, await request.json().catch(() => null), request.signal);
+      : await generateSpeech(key, body, request.signal);
   } catch {
     return Response.json({ error: "Voice service unavailable. Please try again." }, { status: 502 });
   }
