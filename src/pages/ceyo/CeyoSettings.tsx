@@ -25,6 +25,8 @@ import { useUserLang } from "@/lib/authI18n";
 import "@/styles/subscriptions.css";
 import { getAuthState } from "@/lib/authStore";
 import { readPageState, writePageState } from "@/lib/pageStateCache";
+import { useLocalPlanPrices } from "@/hooks/useLocalPlanPrices";
+import { formatLocalPrice } from "@/lib/payments/localPrices";
 
 type Nav = (to: string) => void;
 
@@ -321,6 +323,7 @@ function Plans({ nav }: { nav: Nav }) {
     writePageState(owner, "/settings/plans", { ...readPageState(owner, "/settings/plans"), tab: value });
   };
   const p = PLANS[tab];
+  const localPrices = useLocalPlanPrices(p.id, p.yearly > 0);
   const current = plan?.toLowerCase() === p.id;
   const ar = useUserLang().startsWith("ar");
   const benefitsAr: Record<string, string> = {
@@ -347,10 +350,12 @@ function Plans({ nav }: { nav: Nav }) {
       </main>
       <footer className="subscription-footer">
         <div className="subscription-intervals" role="group" aria-label="Billing interval">
-          <Button variant="ghost" aria-pressed={!yearly} onClick={() => setYearly(false)}><strong>${p.price}</strong><span>{ar ? "الفوترة شهريًا" : "Billed monthly"}</span></Button>
-          {p.yearly > 0 && <Button variant="ghost" aria-pressed={yearly} onClick={() => setYearly(true)}><strong>${p.yearly}</strong><span>{ar ? "سنويًا · وفر 17%" : "Yearly · Save 17%"}</span></Button>}
+          <Button variant="ghost" aria-pressed={!yearly} onClick={() => setYearly(false)}><strong dir="auto">{localPrices.monthly !== null && localPrices.currency ? formatLocalPrice(localPrices.monthly, localPrices.currency, ar ? "ar" : "en") : "…"}</strong><span>{ar ? "الفوترة شهريًا" : "Billed monthly"}</span></Button>
+          {p.yearly > 0 && <Button variant="ghost" aria-pressed={yearly} onClick={() => setYearly(true)}><strong dir="auto">{localPrices.yearly !== null && localPrices.currency ? formatLocalPrice(localPrices.yearly, localPrices.currency, ar ? "ar" : "en") : "…"}</strong><span>{ar ? "سنويًا · وفر 17%" : "Yearly · Save 17%"}</span></Button>}
         </div>
-        <Button variant="ghost" className="subscription-submit" disabled={current} onClick={() => setPaying(true)}>{current ? ar ? "الخطة الحالية" : "Current plan" : ar ? "اشترك" : "Subscribe"}</Button>
+        {localPrices.error && <Button variant="ghost" onClick={localPrices.retry}>{ar ? "تعذر تحميل السعر · إعادة المحاولة" : "Price unavailable · Retry"}</Button>}
+        {localPrices.approximate && localPrices.ready && <p className="subscription-legal">{ar ? "سعر محلي تقريبي؛ المبلغ النهائي يُعرض عند الدفع." : "Approximate local price; final amount shown at checkout."}</p>}
+        <Button variant="ghost" className="subscription-submit" disabled={current || !localPrices.ready} onClick={() => setPaying(true)}>{current ? ar ? "الخطة الحالية" : "Current plan" : ar ? "اشترك" : "Subscribe"}</Button>
         <p className="subscription-legal">{ar ? "تُجدد الاشتراكات تلقائيًا حتى الإلغاء. يمكنك الإلغاء في أي وقت. " : "Subscriptions renew automatically until cancelled. Cancel anytime. "}<a href="/subscription-terms">{ar ? "شروط الاشتراك" : "Subscription terms"}</a></p>
       </footer>
       {paying && <Suspense fallback={null}><CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} /></Suspense>}

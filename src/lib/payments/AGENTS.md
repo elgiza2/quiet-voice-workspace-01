@@ -1,1 +1,2 @@
 - Orders are priced on the server from plans.ts and only the signature-verified Kashier webhook or a Play-API-verified token can settle them, via the service-only settle_payment_order function. Why: the browser can never grant a plan or change a price.
+- Subscription display prices reuse billing quotes; other-country USD quotes use the existing public FX feed for clearly indicative local equivalents, never settlement or Play entitlements. Why: local presentation must not relabel a USD charge or duplicate exchange-rate infrastructure.

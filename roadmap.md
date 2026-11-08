@@ -1,3 +1,6 @@
+## Local subscription prices — 2026-11-08
+- [x] Display monthly/yearly prices in local currency using billing quotes and the existing FX feed; Egypt uses checkout EGP, others are labelled indicative. 17 tests pass; isolated actual-page Egypt/Saudi mobile/desktop and Egypt checkout checked without overflow/errors. Settlement unchanged; real-account/store verification remains unavailable.
+
 ## Checkout over current pricing — 2026-11-08
 - [x] Portal only the payment box over pricing; remove photo/hero; isolated actual pricing→checkout→card→close twice at 320/434/1280 retains Pro and the same URL, with no overflow/errors. 11 payment tests pass; real-account/payment remains unverified.
 
