@@ -5,7 +5,7 @@ import { CreditCard, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserLang } from "@/lib/authI18n";
 
-const iosSpring = { type: "spring", stiffness: 420, damping: 36, mass: 0.9 } as const;
+const iosSpring = { type: "spring" as const, damping: 22, stiffness: 350 };
 
 function useIsLightTheme() {
   const [light, setLight] = useState(
